@@ -1,15 +1,15 @@
 ﻿using Compiler.Core.Syntax.Expressions;
-using Compiler.Core.Syntax;
 using System.Collections.Generic;
-
-namespace Compiler.Core.Analyzers
+using Compiler.Core.Diagnostics;
+using Compiler.Core.Syntax.Lexic;
+namespace Compiler.Core.Syntax
 {
     internal sealed class SyntaxAnalyzer
     {
         private readonly SyntaxToken[] _tokens;
-        private List<string> _diagnostics = new List<string>();
+        private DiagnosticBag _diagnostics = new DiagnosticBag();
         private int _position;
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticBag Diagnostics => _diagnostics;
         public SyntaxAnalyzer(string text)
         {
             List<SyntaxToken> tokens = new List<SyntaxToken>();
@@ -47,7 +47,7 @@ namespace Compiler.Core.Analyzers
         {
             if (Current.Type == type)
                 return NextToken();
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Type}>, expectedd <{type}>");
+            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Type, type);
             return new SyntaxToken(type, Current.Position, null, null);
         }
         public SyntaxTree Parse()
@@ -56,7 +56,24 @@ namespace Compiler.Core.Analyzers
             var endOfFileToken = MathToken(SyntaxType.EndOfFileToken);
             return new SyntaxTree(_diagnostics, expression, endOfFileToken);
         }
-        private SyntaxExpression ParseExpression(int parentPrecedence = 0)
+        private SyntaxExpression ParseExpression()
+        {
+            return ParseAssigmentExpression();
+        }
+        private SyntaxExpression ParseAssigmentExpression()
+        {
+            if (Peek(0).Type == SyntaxType.IdentifierToken &&
+               Peek(1).Type == SyntaxType.EqualsToken)
+            {
+                var identifierToken = NextToken();
+                var operatorToken = NextToken();
+                var right = ParseAssigmentExpression();
+                return new AssignmentSyntaxExpression(identifierToken, operatorToken, right);
+            }
+
+            return ParseBinaryExpression();
+        }
+        private SyntaxExpression ParseBinaryExpression(int parentPrecedence = 0)
         {
             SyntaxExpression left;
             var unaryOperatorPrecedence = Current.Type.GetBinaryOperatorPrecedence();
@@ -64,7 +81,7 @@ namespace Compiler.Core.Analyzers
             if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
-                var operand = ParseExpression(unaryOperatorPrecedence);
+                var operand = ParseBinaryExpression(unaryOperatorPrecedence);
                 left = new UnarySyntaxExpression(operatorToken, operand);
             }
             else
@@ -74,15 +91,15 @@ namespace Compiler.Core.Analyzers
             while (true)
             {
                 var precedence = Current.Type.GetBinaryOperatorPrecedence();
-                if(precedence == 0 || precedence <= parentPrecedence)
+                if (precedence == 0 || precedence <= parentPrecedence)
                     break;
                 var operatorToken = NextToken();
-                var right = ParseExpression(precedence);
+                var right = ParseBinaryExpression(precedence);
                 left = new BinarySyntaxExpression(left, operatorToken, right);
             }
             return left;
         }
-        
+
         private SyntaxExpression ParsePrimaryExpression()
         {
             switch (Current.Type)
@@ -92,7 +109,7 @@ namespace Compiler.Core.Analyzers
                         var left = NextToken();
                         var expression = ParseExpression();
                         var right = MathToken(SyntaxType.CloseParentesisToken);
-                        return new ParenthesisedExpressionSyntax(left, expression, right);
+                        return new ParenthesizedSyntaxExpression(left, expression, right);
                     }
 
                 case SyntaxType.TrueKeyword:
@@ -101,6 +118,11 @@ namespace Compiler.Core.Analyzers
                         var keywordToken = NextToken();
                         var value = keywordToken.Type == SyntaxType.TrueKeyword;
                         return new LiteralSyntaxExpression(keywordToken, value);
+                    }
+                case SyntaxType.IdentifierToken:
+                    {
+                        var identifierToken = NextToken();
+                        return new NameSyntaxExpression(identifierToken);
                     }
                 default:
                     var numberToken = MathToken(SyntaxType.NumberToken);

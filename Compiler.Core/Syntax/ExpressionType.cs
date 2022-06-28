@@ -13,7 +13,7 @@
         SlashToken,
         OpenParentesisToken,
         CloseParentesisToken,
-        IdentifierTolen,
+        IdentifierToken,
         BangToken,
         AmpersandAmpersandToken,
         PibePibeToken,
@@ -27,5 +27,8 @@
         UnaryExpression,
         BinaryExpression,
         ParenthesizedExpression,
+        NameExpression,
+        AssignmentExpression,
+        EqualsToken,
     }
 }

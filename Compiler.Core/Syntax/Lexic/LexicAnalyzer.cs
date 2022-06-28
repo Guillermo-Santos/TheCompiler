@@ -1,7 +1,7 @@
-﻿using Compiler.Core.Syntax;
+﻿using Compiler.Core.Diagnostics;
 using System.Collections.Generic;
 
-namespace Compiler.Core.Analyzers
+namespace Compiler.Core.Syntax.Lexic
 {
 
 
@@ -9,12 +9,12 @@ namespace Compiler.Core.Analyzers
     {
         private readonly string _text;
         private int _position;
-        private List<string> _diagnostics = new List<string>();
+        private DiagnosticBag _diagnostics = new DiagnosticBag();
         public LexicAnalyzer(string text)
         {
             _text = text;
         }
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticBag Diagnostics => _diagnostics;
         private char Current => Peek(0);
         private char LookaHead => Peek(1);
         private char Peek(int offset)
@@ -35,23 +35,24 @@ namespace Compiler.Core.Analyzers
             {
                 return new SyntaxToken(SyntaxType.EndOfFileToken, _position, "\0", null);
             }
+
+            var start = _position;
+
             if (char.IsDigit(Current))
             {
-                var start = _position;
                 while (char.IsDigit(Current))
                     Next();
                 var length = _position - start;
                 var text = _text.Substring(start, length);
                 if (!int.TryParse(text, out var value))
                 {
-                    _diagnostics.Add($"The number {_text} cannot be represented by an Int32.");
+                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), _text, typeof(int));
                 }
                 return new SyntaxToken(SyntaxType.NumberToken, start, text, value);
             }
 
             if (char.IsWhiteSpace(Current))
             {
-                var start = _position;
                 while (char.IsWhiteSpace(Current))
                     Next();
                 var length = _position - start;
@@ -61,7 +62,6 @@ namespace Compiler.Core.Analyzers
 
             if (char.IsLetter(Current))
             {
-                var start = _position;
                 while (char.IsLetter(Current))
                     Next();
                 var length = _position - start;
@@ -69,40 +69,61 @@ namespace Compiler.Core.Analyzers
                 var type = SyntaxFacts.GetKeywordType(text);
                 return new SyntaxToken(type, start, text, null);
             }
+
             switch (Current)
             {
                 case '+':
-                    return new SyntaxToken(SyntaxType.PlusToken, _position, "+", null);
+                    return new SyntaxToken(SyntaxType.PlusToken, _position++, "+", null);
                 case '-':
-                    return new SyntaxToken(SyntaxType.MinusToken, _position, "-", null);
+                    return new SyntaxToken(SyntaxType.MinusToken, _position++, "-", null);
                 case '*':
-                    return new SyntaxToken(SyntaxType.StarToken, _position, "*", null);
+                    return new SyntaxToken(SyntaxType.StarToken, _position++, "*", null);
                 case '/':
-                    return new SyntaxToken(SyntaxType.SlashToken, _position, "/", null);
+                    return new SyntaxToken(SyntaxType.SlashToken, _position++, "/", null);
                 case '(':
-                    return new SyntaxToken(SyntaxType.OpenParentesisToken, _position, "(", null);
+                    return new SyntaxToken(SyntaxType.OpenParentesisToken, _position++, "(", null);
                 case ')':
-                    return new SyntaxToken(SyntaxType.CloseParentesisToken, _position, ")", null);
+                    return new SyntaxToken(SyntaxType.CloseParentesisToken, _position++, ")", null);
                 case '!':
                     if (LookaHead == '=')
-                        return new SyntaxToken(SyntaxType.BangEqualsToken, _position += 2, "!=", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxType.BangEqualsToken, start, "!=", null);
+                    }
                     else
-                        return new SyntaxToken(SyntaxType.BangToken, _position, "!", null);
+                    {
+                        _position++;
+                        return new SyntaxToken(SyntaxType.BangToken, start, "!", null);
+                    }
                 case '&':
-                    if(LookaHead == '&') 
-                        return new SyntaxToken(SyntaxType.AmpersandAmpersandToken, _position+=2, "&&", null);
+                    if (LookaHead == '&')
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxType.AmpersandAmpersandToken, start, "&&", null);
+                    }
                     break;
                 case '|':
                     if (LookaHead == '|')
-                        return new SyntaxToken(SyntaxType.PibePibeToken, _position += 2, "||", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxType.PibePibeToken, start, "||", null);
+                    }
                     break;
                 case '=':
                     if (LookaHead == '=')
-                        return new SyntaxToken(SyntaxType.EqualsEqualsToken, _position += 2, "==", null);
+                    {
+                        _position += 2;
+                        return new SyntaxToken(SyntaxType.EqualsEqualsToken, start, "==", null);
+                    }
+                    else
+                    {
+                        _position++;
+                        return new SyntaxToken(SyntaxType.EqualsToken, start, "=", null);
+                    }
                     break;
             }
 
-            _diagnostics.Add($"ERROR: bad character input: '{Current}'");
+            _diagnostics.ReportBadCharacter(_position, Current);
             return new SyntaxToken(SyntaxType.BadToken, _position++, Current.ToString(), null);
         }
     }

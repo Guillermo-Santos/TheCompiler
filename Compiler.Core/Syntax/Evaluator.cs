@@ -1,17 +1,20 @@
 ﻿using Compiler.Core.Binding;
 using Compiler.Core.Binding.Expressions;
-using Compiler.Core.Syntax;
 using Compiler.Core.Syntax.Expressions;
 using System;
+using System.Collections.Generic;
 
-namespace Compiler.Core.Analyzers
+namespace Compiler.Core.Syntax
 {
     internal class Evaluator
     {
         private readonly BoundExpression _root;
-        public Evaluator(BoundExpression root)
+        private readonly Dictionary<VariableSymbol, object> _variables;
+
+        public Evaluator(BoundExpression root, Dictionary<VariableSymbol, object> variables)
         {
             _root = root;
+            _variables = variables;
         }
         public object Evaluate()
         {
@@ -20,8 +23,16 @@ namespace Compiler.Core.Analyzers
         private object EvaluateExpression(BoundExpression node)
         {
             if (node is BoundLiteralExpression n)
-                return (object)n.Value;
-            if(node is BoundUnaryExpression u)
+                return n.Value;
+            if(node is BoundVariableExpression v)
+                return _variables[v.Variable];
+            if(node is BoundAssigmentExpression a)
+            {
+                var value = EvaluateExpression(a.Expression);
+                _variables[a.Variable] = value;
+                return value;
+            }
+            if (node is BoundUnaryExpression u)
             {
                 var operand = EvaluateExpression(u.Operand);
                 switch (u.Op.BoundType)
@@ -55,7 +66,7 @@ namespace Compiler.Core.Analyzers
                     case BoundBinaryOperatorType.LogicalOr:
                         return (bool)left || (bool)right;
                     case BoundBinaryOperatorType.Equals:
-                        return Equals(left,right);
+                        return Equals(left, right);
                     case BoundBinaryOperatorType.NotEquals:
                         return !Equals(left, right);
                     default:

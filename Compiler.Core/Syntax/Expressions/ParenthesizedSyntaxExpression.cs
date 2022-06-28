@@ -2,9 +2,9 @@
 
 namespace Compiler.Core.Syntax.Expressions
 {
-    public sealed class ParenthesisedExpressionSyntax : SyntaxExpression
+    public sealed class ParenthesizedSyntaxExpression : SyntaxExpression
     {
-        public ParenthesisedExpressionSyntax(SyntaxToken openParenthesisToken, SyntaxExpression expression, SyntaxToken closeParenthesisToken)
+        public ParenthesizedSyntaxExpression(SyntaxToken openParenthesisToken, SyntaxExpression expression, SyntaxToken closeParenthesisToken)
         {
             OpenParenthesisToken = openParenthesisToken;
             Expression = expression;

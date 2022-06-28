@@ -1,18 +1,19 @@
-﻿using Compiler.Core.Analyzers;
+﻿using Compiler.Core.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace Compiler.Core.Syntax
 {
     public sealed class SyntaxTree
     {
-        public SyntaxTree(IEnumerable<string> diagnostics, SyntaxExpression root, SyntaxToken endOfFile)
+        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, SyntaxExpression root, SyntaxToken endOfFile)
         {
             Diagnostics = diagnostics.ToArray();
             Root = root;
             EndOfFile = endOfFile;
         }
 
-        public IReadOnlyList<string> Diagnostics { get; }
+        public IReadOnlyList<Diagnostic> Diagnostics { get; }
         public SyntaxExpression Root { get; }
         public SyntaxToken EndOfFile { get; }
 

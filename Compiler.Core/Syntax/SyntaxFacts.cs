@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Compiler.Core.Syntax;
 
-namespace Compiler.Core.Analyzers
+namespace Compiler.Core.Syntax
 {
     internal static class SyntaxFacts
     {
@@ -66,7 +65,7 @@ namespace Compiler.Core.Analyzers
                 case "false":
                     return SyntaxType.FalseKeyword;
                 default:
-                    return SyntaxType.IdentifierTolen;
+                    return SyntaxType.IdentifierToken;
             }
         }
     }
