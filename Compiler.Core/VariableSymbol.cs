@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Compiler.Core
+namespace SparkCore
 {
     public sealed class VariableSymbol
     {
