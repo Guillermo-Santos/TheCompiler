@@ -1,4 +1,5 @@
 ﻿using SparkCore.Analytics.Diagnostics;
+using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
 
 namespace SparkCore.Analytics.Syntax.Lexic
@@ -65,6 +66,14 @@ namespace SparkCore.Analytics.Syntax.Lexic
                     break;
                 case ')':
                     _type = SyntaxType.CloseParentesisToken;
+                    _position++;
+                    break;
+                case '{':
+                    _type = SyntaxType.OpenBraceToken;
+                    _position++;
+                    break;
+                case '}':
+                    _type = SyntaxType.CloseBraceToken;
                     _position++;
                     break;
                 case '!':

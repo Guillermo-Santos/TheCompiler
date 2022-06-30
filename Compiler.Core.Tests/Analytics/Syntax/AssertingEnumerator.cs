@@ -1,4 +1,5 @@
 ﻿using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Syntax.Tree;
 
 namespace SparkCore.Tests.Analytics.Syntax
 {

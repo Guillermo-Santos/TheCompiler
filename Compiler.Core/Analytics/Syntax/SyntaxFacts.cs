@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace SparkCore.Analytics.Syntax
 {
+    /// <summary>
+    /// This class is, basically, the unchangable rules of the syntax of the lenguage,
+    /// Used to call and confirms this facts.
+    /// </summary>
     public static class SyntaxFacts
     {
         /// <summary>
@@ -59,10 +63,14 @@ namespace SparkCore.Analytics.Syntax
         {
             switch (text)
             {
-                case "true":
-                    return SyntaxType.TrueKeyword;
                 case "false":
                     return SyntaxType.FalseKeyword;
+                case "let":
+                    return SyntaxType.LetKeyword;
+                case "true":
+                    return SyntaxType.TrueKeyword;
+                case "var":
+                    return SyntaxType.VarKeyword;
                 default:
                     return SyntaxType.IdentifierToken;
             }
@@ -101,6 +109,10 @@ namespace SparkCore.Analytics.Syntax
                     return "(";
                 case SyntaxType.CloseParentesisToken:
                     return ")";
+                case SyntaxType.OpenBraceToken:
+                    return "{";
+                case SyntaxType.CloseBraceToken:
+                    return "}";
                 case SyntaxType.BangToken:
                     return "!";
                 case SyntaxType.EqualsToken:
@@ -113,13 +125,18 @@ namespace SparkCore.Analytics.Syntax
                     return "!=";
                 case SyntaxType.EqualsEqualsToken:
                     return "==";
-                case SyntaxType.TrueKeyword:
-                    return "true";
                 case SyntaxType.FalseKeyword:
                     return "false";
+                case SyntaxType.LetKeyword:
+                    return "let";
+                case SyntaxType.TrueKeyword:
+                    return "true";
+                case SyntaxType.VarKeyword:
+                    return "var";
                 default:
                     return null;
             }
         }
     }
+
 }

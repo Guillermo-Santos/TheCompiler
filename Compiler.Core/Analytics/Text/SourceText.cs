@@ -30,7 +30,7 @@ namespace SparkCore.Analytics.Text
                 
                 if(start > position)
                 {
-                    upper = index + 1;
+                    upper = index - 1;
                 }
                 else
                 {
@@ -44,10 +44,11 @@ namespace SparkCore.Analytics.Text
             var result = ImmutableArray.CreateBuilder<TextLine>();
             var position = 0;
             var lineStart = 0;
-            for(int i = 0; i < text.Length; i++)
+            while (position < text.Length)
             {
-                var lineBreakWidth = GetLineBreakWidth(text, i);
-                if(lineBreakWidth == 0)
+                var lineBreakWidth = GetLineBreakWidth(text, position);
+
+                if (lineBreakWidth == 0)
                 {
                     position++;
                 }
@@ -59,9 +60,9 @@ namespace SparkCore.Analytics.Text
                     lineStart = position;
                 }
             }
-            if (position > lineStart)
+            if (position >= lineStart)
                 AddLine(result, sourceText, position, lineStart, 0);
-            return result.ToImmutableArray();
+            return result.ToImmutable();
         }
 
         private static void AddLine(ImmutableArray<TextLine>.Builder result,SourceText sourceText, int position, int lineStart, int lineBreakWidth)
@@ -73,10 +74,10 @@ namespace SparkCore.Analytics.Text
         }
         
 
-        private int GetLineBreakWidth(string text, int i)
+        private int GetLineBreakWidth(string text, int position)
         {
-            var c = text[i];
-            var l = i + 1 >= text.Length ? '\0' : text[i + 1];
+            var c = text[position];
+            var l = position + 1 >= text.Length ? '\0' : text[position + 1];
             if (c == '\r' && l == '\n')
                 return 2;
             else if (c == '\r' || c == '\n')

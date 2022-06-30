@@ -1,27 +1,117 @@
-﻿using SparkCore.Analytics.Binding.Expressions;
+﻿using SparkCore.Analytics.Binding.Scope;
+using SparkCore.Analytics.Binding.Scope.Expressions;
+using SparkCore.Analytics.Binding.Scope.Statements;
 using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Syntax;
-using SparkCore.Analytics.Syntax.Expressions;
+using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.Analytics.Syntax.Tree.Expressions;
+using SparkCore.Analytics.Syntax.Tree.Statements;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace SparkCore.Analytics.Binding
 {
     internal sealed class Binder
     {
-        private readonly Dictionary<VariableSymbol, object> _variables;
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+        private BoundScope _scope;
 
-        public Binder(Dictionary<VariableSymbol, object> variables)
+        public Binder(BoundScope parent)
         {
-            _variables = variables;
+            _scope = new BoundScope(parent);
+        }
+
+        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, CompilationSyntaxUnit syntax)
+        {
+            var parentScope = CreateParenScopes(previous);
+            var binder = new Binder(parentScope);
+            var expression = binder.BindStatement(syntax.Statement);
+            var variables = binder._scope.GetDeclaredVariales();
+            var diagnostics = binder._diagnostics.ToImmutableArray();
+
+            if (previous != null)
+                diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
+
+            return new BoundGlobalScope(previous, diagnostics, variables, expression);
+        }
+
+        private static BoundScope CreateParenScopes(BoundGlobalScope previous)
+        {
+            var stack = new Stack<BoundGlobalScope>();
+            while(previous != null)
+            {
+                stack.Push(previous);
+                previous = previous.Previous;
+            }
+            BoundScope parent = null;
+            while(stack.Count > 0)
+            {
+                previous = stack.Pop();
+                var scope = new BoundScope(parent);
+                foreach (var v in previous.Variables)
+                    scope.TryDeclare(v);
+                parent = scope;
+            }
+            return parent;
         }
 
         public DiagnosticBag Diagnostics => _diagnostics;
 
+        private BoundStatement BindStatement(SyntaxStatement syntax)
+        {
+            switch (syntax.Type)
+            {
+                case SyntaxType.BlockStatement:
+                    return BindBlockStatement((BlockSyntaxStatement)syntax);
+                case SyntaxType.VariableDeclarationStatement:
+                    return BindVariableDeclaration((VariableDeclarationSyntaxStatement)syntax);
+                case SyntaxType.ExpressionStatement:
+                    return BindExpressionStatement((ExpressionSyntaxStatement)syntax);
+                default:
+                    throw new Exception($"Unexpected syntax: {syntax.Type}");
+            }
 
-        public BoundExpression BindExpression(SyntaxExpression syntax)
+        }
+
+
+        private BoundStatement BindBlockStatement(BlockSyntaxStatement syntax)
+        {
+            var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+            _scope = new BoundScope(_scope);
+            foreach(var statementSyntax in syntax.Statements)
+            {
+                var statement = BindStatement(statementSyntax);
+                statements.Add(statement);
+            }
+
+            _scope = _scope.Parent;
+
+            return new BoundBlockStatement(statements.ToImmutable());
+        }
+
+        private BoundStatement BindVariableDeclaration(VariableDeclarationSyntaxStatement syntax)
+        {
+            var name = syntax.Identifier.Text;
+            var isReadOnly = syntax.Keyword.Type == SyntaxType.LetKeyword;
+            var initializer = BindExpression(syntax.Initializer);
+            var variable = new VariableSymbol(name, isReadOnly, initializer.Type);
+
+            if (!_scope.TryDeclare(variable))
+            {
+                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+            }
+
+            return new BoundVariableDeclarationStatement(variable, initializer);
+        }
+        private BoundStatement BindExpressionStatement(ExpressionSyntaxStatement syntax)
+        {
+            var expression = BindExpression(syntax.Expression);
+            return new BoundExpressionStatement(expression);
+        }
+
+        private BoundExpression BindExpression(SyntaxExpression syntax)
         {
             switch (syntax.Type)
             {
@@ -57,8 +147,7 @@ namespace SparkCore.Analytics.Binding
         private BoundExpression BindNameExpression(NameSyntaxExpression syntax)
         {
             var name = syntax.IdentifierToken.Text;
-            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-            if (variable == null)
+            if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
                 return new BoundLiteralExpression(0);
@@ -71,12 +160,21 @@ namespace SparkCore.Analytics.Binding
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
 
-            var existingvariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-            if (existingvariable != null)
-                _variables.Remove(existingvariable);
+            if (!_scope.TryLookup(name, out var variable))
+            {
+                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return boundExpression;
+            }
 
-            var variable = new VariableSymbol(name, boundExpression.Type);
-            _variables[variable] = null;
+            if (variable.IsReadOnly)
+                _diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
+
+            if (boundExpression.Type != variable.Type)
+            {
+                _diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                return boundExpression;
+            }
+
 
             return new BoundAssigmentExpression(variable, boundExpression);
         }

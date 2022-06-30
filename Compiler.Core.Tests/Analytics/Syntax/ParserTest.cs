@@ -1,4 +1,7 @@
 ﻿using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.Analytics.Syntax.Tree.Expressions;
+using SparkCore.Analytics.Syntax.Tree.Statements;
 
 namespace SparkCore.Tests.Analytics.Syntax
 {
@@ -16,7 +19,7 @@ namespace SparkCore.Tests.Analytics.Syntax
             var op1Text = SyntaxFacts.GetText(op1);
             var op2Text = SyntaxFacts.GetText(op2);
             var text = $"a {op1Text} b {op2Text} c";
-            var expression = SyntaxTree.Parse(text).Root;
+            var expression = ParseExpression(text);
 
             //Si la precedencia del operador 1 es mayor a la del operador 2.
             if (op1Precedence >= op2Precedence)
@@ -66,6 +69,8 @@ namespace SparkCore.Tests.Analytics.Syntax
                 }
             }
         }
+
+
         [Theory]
         [MemberData(nameof(GetUnaryOperatorPairsData))]
         public void Parser_UnaryExpression_HonorsProcedures(SyntaxType unaryType, SyntaxType binaryType)
@@ -75,7 +80,7 @@ namespace SparkCore.Tests.Analytics.Syntax
             var unaryText = SyntaxFacts.GetText(unaryType);
             var binaryText = SyntaxFacts.GetText(binaryType);
             var text = $"{unaryText} a {binaryText} b";
-            var expression = SyntaxTree.Parse(text).Root;
+            var expression = ParseExpression(text);
 
             if (unaryPrecedence >= binaryPrecedence)
             {
@@ -138,6 +143,12 @@ namespace SparkCore.Tests.Analytics.Syntax
                 }
             }
         }
-
+        private static SyntaxExpression ParseExpression(string text)
+        {
+            SyntaxTree syntaxTree = SyntaxTree.Parse(text);
+            var root = syntaxTree.Root;
+            var statement = root.Statement;
+            return Assert.IsType<ExpressionSyntaxStatement>(statement).Expression;
+        }
     }
 }

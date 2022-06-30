@@ -1,4 +1,5 @@
-﻿using SparkCore.Analytics.Syntax;
+﻿using SparkCore.Analytics.Binding;
+using SparkCore.Analytics.Syntax.Tree;
 
 namespace SparkCore.Tests.Analytics
 {
@@ -26,7 +27,7 @@ namespace SparkCore.Tests.Analytics
         [InlineData("false",false)]
         [InlineData("!true",false)]
         [InlineData("!false",true)]
-        [InlineData("(a = 10) * a",100)]
+        [InlineData("{ var a = 0 (a = 10) * a}",100)]
         public void SyntaxFact_GetText_RoundTrips(string text, object expectedResult)
         {
             var expression = SyntaxTree.Parse(text);

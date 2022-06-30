@@ -1,7 +1,10 @@
 ﻿using SparkCore.Analytics.Diagnostics;
-using SparkCore.Analytics.Syntax.Expressions;
+using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Lexic;
+using SparkCore.Analytics.Syntax.Tree.Statements;
+using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -11,6 +14,7 @@ namespace SparkCore.Analytics.Syntax
     {
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
         private readonly SourceText _text;
+
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private int _position;
         public DiagnosticBag Diagnostics => _diagnostics;
@@ -56,12 +60,59 @@ namespace SparkCore.Analytics.Syntax
             _diagnostics.ReportUnexpectedToken(Current.Span, Current.Type, type);
             return new SyntaxToken(type, Current.Position, null, null);
         }
-        public SyntaxTree Parse()
+
+        
+
+        public CompilationSyntaxUnit ParseCompilationUnit()
+        {
+            var statement = ParseStatement();
+            var endOfFileToken = MathToken(SyntaxType.EndOfFileToken);
+            return new CompilationSyntaxUnit(statement, endOfFileToken);
+        }
+
+        private SyntaxStatement ParseStatement()
+        {
+            switch (Current.Type)
+            {
+                case SyntaxType.OpenBraceToken:
+                    return ParseBlockStatement();
+                case SyntaxType.LetKeyword:
+                case SyntaxType.VarKeyword:
+                    return ParseVariableDeclaration();
+            }
+            return ParseExpressionStatement();
+        }
+
+
+        private SyntaxStatement ParseBlockStatement()
+        {
+            var statements = ImmutableArray.CreateBuilder<SyntaxStatement>();
+            var openBraceToken = MathToken(SyntaxType.OpenBraceToken);
+            while (Current.Type != SyntaxType.EndOfFileToken &&
+                  Current.Type != SyntaxType.CloseBraceToken)
+            {
+                var statement = ParseStatement();
+                statements.Add(statement);
+            }
+            var CloseBraceToken = MathToken(SyntaxType.CloseBraceToken);
+            return new BlockSyntaxStatement(openBraceToken, statements.ToImmutable(), CloseBraceToken);
+        }
+        private SyntaxStatement ParseVariableDeclaration()
+        {
+            var expected = Current.Type == SyntaxType.LetKeyword ? SyntaxType.LetKeyword : SyntaxType.VarKeyword;
+            var keyword = MathToken(expected);
+            var identifier = MathToken(SyntaxType.IdentifierToken);
+            var equals = MathToken(SyntaxType.EqualsToken);
+            var initializer = ParseExpression();
+
+            return new VariableDeclarationSyntaxStatement(keyword, identifier, equals, initializer);
+        }
+        private SyntaxStatement ParseExpressionStatement()
         {
             var expression = ParseExpression();
-            var endOfFileToken = MathToken(SyntaxType.EndOfFileToken);
-            return new SyntaxTree(_text, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
+            return new ExpressionSyntaxStatement(expression);
         }
+
         private SyntaxExpression ParseExpression()
         {
             return ParseAssigmentExpression();

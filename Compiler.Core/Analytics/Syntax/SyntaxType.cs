@@ -13,6 +13,8 @@
         SlashToken,
         OpenParentesisToken,
         CloseParentesisToken,
+        OpenBraceToken,
+        CloseBraceToken,
         IdentifierToken,
         BangToken,
         EqualsToken,
@@ -21,14 +23,25 @@
         BangEqualsToken,
         EqualsEqualsToken,
         //KEYWORDS
-        TrueKeyword,
         FalseKeyword,
+        TrueKeyword,
+        LetKeyword,
+        VarKeyword,
+
+        //NODES
+        CompilationUnit,
+
+        //STATEMENTS
+        BlockStatement,
+        ExpressionStatement,
+        VariableDeclarationStatement,
+
         // EXPRESSIONS
         LiteralExpression,
+        NameExpression,
         UnaryExpression,
         BinaryExpression,
         ParenthesizedExpression,
-        NameExpression,
         AssignmentExpression,
     }
 }

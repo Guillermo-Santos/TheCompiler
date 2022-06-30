@@ -1,10 +1,10 @@
 ﻿using SparkCore;
-using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Binding;
+using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
-using System.Net.Mail;
 using System.Text;
 
-namespace Compiler.Co
+namespace Compiler.Conle
 {
     internal static class Program
     {
@@ -13,13 +13,16 @@ namespace Compiler.Co
             var showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
             var textBuilder = new StringBuilder();
+            Compilation? previous = null;
 
             while (true)
             {
-                if(textBuilder.Length == 0)
-                    Console.Write("> ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                if (textBuilder.Length == 0)
+                    Console.Write("» ");
                 else
-                    Console.Write("| ");
+                    Console.Write("· ");
+                Console.ResetColor();
 
                 var input = Console.ReadLine();
                 var isBlank = string.IsNullOrEmpty(input);
@@ -41,8 +44,13 @@ namespace Compiler.Co
                         Console.Clear();
                         continue;
                     }
+                    else if (input == "#reset")
+                    {
+                        previous = null;
+                        continue;
+                    }
                 }
-                
+
                 textBuilder.AppendLine(input);
                 var text = textBuilder.ToString();
 
@@ -51,8 +59,9 @@ namespace Compiler.Co
                 if (!isBlank && syntaxTree.Diagnostics.Any())
                     continue;
 
-                var compilation = new Compilation(syntaxTree);
+                var compilation = previous == null ? new Compilation(syntaxTree) : previous.ContinueWith(syntaxTree);
                 var result = compilation.Evaluate(variables);
+
                 if (showTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -62,11 +71,14 @@ namespace Compiler.Co
 
                 if (!result.Diagnostics.Any())
                 {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine(result.Value);
+                    Console.ResetColor();
+                    previous = compilation;
                 }
                 else
                 {
-                    foreach(var diagnostic in result.Diagnostics)
+                    foreach (var diagnostic in result.Diagnostics)
                     {
                         var lineIndex = syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
                         var line = syntaxTree.Text.Lines[lineIndex];
@@ -102,7 +114,7 @@ namespace Compiler.Co
                 textBuilder.Clear();
             }
         }
-        
+
     }
 
 }
