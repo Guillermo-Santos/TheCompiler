@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Compiler.Core\SparkCore.csproj" />
+    <ProjectReference Include="..\SparkCore\SparkCore.csproj" />
   </ItemGroup>
 
 </Project>
