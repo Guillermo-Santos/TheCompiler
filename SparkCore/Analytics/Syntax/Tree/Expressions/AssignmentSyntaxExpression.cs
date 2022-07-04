@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SparkCore.Analytics.Syntax.Tree.Expressions
+﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
     public sealed class AssignmentSyntaxExpression : SyntaxExpression
     {
@@ -12,8 +10,17 @@ namespace SparkCore.Analytics.Syntax.Tree.Expressions
         }
         public override SyntaxKind Kind => SyntaxKind.AssignmentExpression;
 
-        public SyntaxToken IdentifierToken { get; }
-        public SyntaxToken EqualsToken { get; }
-        public SyntaxExpression Expression { get; }
+        public SyntaxToken IdentifierToken
+        {
+            get;
+        }
+        public SyntaxToken EqualsToken
+        {
+            get;
+        }
+        public SyntaxExpression Expression
+        {
+            get;
+        }
     }
 }

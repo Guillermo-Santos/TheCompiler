@@ -1,8 +1,8 @@
-﻿using SparkCore.Analytics.Syntax;
-using SparkCore.Analytics.Text;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Text;
 
 namespace SparkCore.Analytics.Diagnostics
 {

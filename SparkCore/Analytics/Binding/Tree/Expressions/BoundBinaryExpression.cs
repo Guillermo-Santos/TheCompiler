@@ -12,9 +12,18 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
         }
         public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
         public override Type Type => Op.Type;
-        public BoundExpression Left { get; }
-        public BoundBinaryOperator Op { get; }
-        public BoundExpression Right { get; }
+        public BoundExpression Left
+        {
+            get;
+        }
+        public BoundBinaryOperator Op
+        {
+            get;
+        }
+        public BoundExpression Right
+        {
+            get;
+        }
 
     }
 

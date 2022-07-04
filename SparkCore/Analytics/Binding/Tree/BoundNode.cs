@@ -1,16 +1,19 @@
-﻿using SparkCore.Analytics.Binding.Scope.Expressions;
-using SparkCore.Analytics.Binding.Scope.Statements;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using SparkCore.Analytics.Binding.Scope.Expressions;
+using SparkCore.Analytics.Binding.Scope.Statements;
 
 namespace SparkCore.Analytics.Binding.Scope
 {
     internal abstract class BoundNode
     {
-        public abstract BoundNodeKind Kind { get; }
+        public abstract BoundNodeKind Kind
+        {
+            get;
+        }
 
 
         public IEnumerable<BoundNode> GetChildren()
@@ -43,7 +46,7 @@ namespace SparkCore.Analytics.Binding.Scope
                 if (property.Name == nameof(Kind) ||
                     property.Name == nameof(BoundBinaryExpression.Op))
                     continue;
-                if(typeof(BoundNode).IsAssignableFrom(property.PropertyType) ||
+                if (typeof(BoundNode).IsAssignableFrom(property.PropertyType) ||
                     typeof(IEnumerable<BoundNode>).IsAssignableFrom(property.PropertyType))
                     continue;
                 var value = property.GetValue(this);
@@ -78,7 +81,8 @@ namespace SparkCore.Analytics.Binding.Scope
 
             foreach (var p in node.GetProperties())
             {
-                if (isFirstProperty) { 
+                if (isFirstProperty)
+                {
                     isFirstProperty = false;
                 }
                 else
@@ -132,9 +136,9 @@ namespace SparkCore.Analytics.Binding.Scope
 
         private static string GetText(BoundNode node)
         {
-            if(node is BoundBinaryExpression b)
+            if (node is BoundBinaryExpression b)
                 return b.Op.Kind.ToString() + "Expression";
-            if(node is BoundUnaryExpression u)
+            if (node is BoundUnaryExpression u)
                 return u.Op.Kind.ToString() + "Expression";
             return node.Kind.ToString();
         }

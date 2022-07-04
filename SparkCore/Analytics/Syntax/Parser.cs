@@ -1,13 +1,12 @@
-﻿using SparkCore.Analytics.Diagnostics;
-using SparkCore.Analytics.Syntax.Tree.Expressions;
-using SparkCore.Analytics.Syntax.Lexic;
-using SparkCore.Analytics.Syntax.Tree.Statements;
-using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.Analytics.Text;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using SparkCore.Analytics.Diagnostics;
+using SparkCore.Analytics.Syntax.Lexic;
+using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
+using SparkCore.Analytics.Syntax.Tree.Statements;
+using SparkCore.Analytics.Text;
 
 namespace SparkCore.Analytics.Syntax
 {
@@ -62,7 +61,7 @@ namespace SparkCore.Analytics.Syntax
             return new SyntaxToken(type, Current.Position, null, null);
         }
 
-        
+
 
         public CompilationSyntaxUnit ParseCompilationUnit()
         {
@@ -107,7 +106,7 @@ namespace SparkCore.Analytics.Syntax
                 // We don't nned to report error, because we'll
                 // already tried to parse an expression statement
                 // and repored one.
-                if(Current == startToken)
+                if (Current == startToken)
                 {
                     NextToken();
                 }
@@ -223,10 +222,10 @@ namespace SparkCore.Analytics.Syntax
             switch (Current.Kind)
             {
                 case SyntaxKind.OpenParentesisToken:
-                        return ParseParenthesizedExpression();
+                    return ParseParenthesizedExpression();
                 case SyntaxKind.TrueKeyword:
                 case SyntaxKind.FalseKeyword:
-                        return ParseBooleanLiteralExpression();
+                    return ParseBooleanLiteralExpression();
                 case SyntaxKind.NumberToken:
                     return ParseNumberLiteralExpression();
                 case SyntaxKind.IdentifierToken:

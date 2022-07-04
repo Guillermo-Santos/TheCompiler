@@ -10,6 +10,9 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.BlockStatement;
-        public ImmutableArray<BoundStatement> Statements { get; }
+        public ImmutableArray<BoundStatement> Statements
+        {
+            get;
+        }
     }
 }

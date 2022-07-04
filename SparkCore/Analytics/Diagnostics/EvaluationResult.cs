@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 
 namespace SparkCore.Analytics.Diagnostics
 {
@@ -12,7 +10,13 @@ namespace SparkCore.Analytics.Diagnostics
             Value = value;
         }
 
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public object Value { get; }
+        public ImmutableArray<Diagnostic> Diagnostics
+        {
+            get;
+        }
+        public object Value
+        {
+            get;
+        }
     }
 }

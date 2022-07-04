@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace SparkCore.Analytics.Text
+﻿namespace SparkCore.Analytics.Text
 {
     public struct TextSpan
     {

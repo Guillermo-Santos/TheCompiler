@@ -11,8 +11,14 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
         }
         public override BoundNodeKind Kind => BoundNodeKind.AssignmentExpression;
         public override Type Type => Expression.Type;
-        public VariableSymbol Variable { get; }
-        public BoundExpression Expression { get; }
+        public VariableSymbol Variable
+        {
+            get;
+        }
+        public BoundExpression Expression
+        {
+            get;
+        }
     }
 
 }

@@ -16,13 +16,34 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         }
         public override SyntaxKind Kind => SyntaxKind.ForStatement;
 
-        public SyntaxToken Keyword { get; }
-        public SyntaxToken Identifier { get; }
-        public SyntaxToken EqualsToken { get; }
-        public SyntaxExpression LowerBound { get; }
-        public SyntaxToken ToKeyword { get; }
-        public SyntaxExpression UpperBound { get; }
-        public SyntaxStatement Body { get; }
+        public SyntaxToken Keyword
+        {
+            get;
+        }
+        public SyntaxToken Identifier
+        {
+            get;
+        }
+        public SyntaxToken EqualsToken
+        {
+            get;
+        }
+        public SyntaxExpression LowerBound
+        {
+            get;
+        }
+        public SyntaxToken ToKeyword
+        {
+            get;
+        }
+        public SyntaxExpression UpperBound
+        {
+            get;
+        }
+        public SyntaxStatement Body
+        {
+            get;
+        }
     }
 
 }

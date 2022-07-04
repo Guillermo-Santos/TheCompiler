@@ -1,6 +1,6 @@
-﻿using SparkCore.Analytics.Text;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
+using SparkCore.Analytics.Text;
 
 namespace SparkCore.Tests.Analytics
 {
@@ -12,8 +12,14 @@ namespace SparkCore.Tests.Analytics
             Spans = spans;
         }
 
-        public string Text { get; }
-        public ImmutableArray<TextSpan> Spans { get; }
+        public string Text
+        {
+            get;
+        }
+        public ImmutableArray<TextSpan> Spans
+        {
+            get;
+        }
 
         public static AnnotatedText Parse(string text)
         {
@@ -24,13 +30,13 @@ namespace SparkCore.Tests.Analytics
             var startStack = new Stack<int>();
 
             var position = 0;
-            foreach(var c in text)
+            foreach (var c in text)
             {
-                if(c == '[')
+                if (c == '[')
                 {
                     startStack.Push(position);
                 }
-                else if(c == ']')
+                else if (c == ']')
                 {
                     if (startStack.Count == 0)
                         throw new ArgumentException("Too many ']' in text.", nameof(text));
@@ -82,7 +88,7 @@ namespace SparkCore.Tests.Analytics
                 minIndentation = Math.Min(minIndentation, indentation);
             }
 
-            for(int i = 0; i < lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
                 if (lines[i].Length == 0)
                     continue;

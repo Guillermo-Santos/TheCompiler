@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 
 namespace SparkCore.Analytics.Text
 {
@@ -12,23 +11,26 @@ namespace SparkCore.Analytics.Text
             Lines = ParseLines(this, text);
             _text = text;
         }
-        public ImmutableArray<TextLine> Lines { get; }
+        public ImmutableArray<TextLine> Lines
+        {
+            get;
+        }
         public char this[int index] => _text[index];
         public int Length => _text.Length;
         public int GetLineIndex(int position)
         {
             var lower = 0;
             var upper = Lines.Length - 1;
-            while(lower <= upper)
+            while (lower <= upper)
             {
                 var index = lower + (upper - lower) / 2;
                 var start = Lines[index].Start;
-                
-                if(position == start)
+
+                if (position == start)
                     return index;
-                
-                
-                if(start > position)
+
+
+                if (start > position)
                 {
                     upper = index - 1;
                 }
@@ -65,14 +67,14 @@ namespace SparkCore.Analytics.Text
             return result.ToImmutable();
         }
 
-        private static void AddLine(ImmutableArray<TextLine>.Builder result,SourceText sourceText, int position, int lineStart, int lineBreakWidth)
+        private static void AddLine(ImmutableArray<TextLine>.Builder result, SourceText sourceText, int position, int lineStart, int lineBreakWidth)
         {
             var lineLenght = position - lineStart;
             var lineLengthIncludingLinewBreak = lineLenght + lineBreakWidth;
             var line = new TextLine(sourceText, lineStart, lineLenght, lineLengthIncludingLinewBreak);
             result.Add(line);
         }
-        
+
 
         private int GetLineBreakWidth(string text, int position)
         {

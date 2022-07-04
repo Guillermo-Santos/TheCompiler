@@ -1,6 +1,5 @@
-﻿using SparkCore.Analytics.Binding.Scope;
+﻿using System;
 using SparkCore.Analytics.Syntax;
-using System;
 
 namespace SparkCore.Analytics.Binding.Scope.Expressions
 {
@@ -19,10 +18,22 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
             Type = resultType;
         }
 
-        public SyntaxKind Syntaxtype { get; }
-        public BoundUnaryOperatorKind Kind { get; }
-        public Type OperandType { get; }
-        public Type Type { get; }
+        public SyntaxKind Syntaxtype
+        {
+            get;
+        }
+        public BoundUnaryOperatorKind Kind
+        {
+            get;
+        }
+        public Type OperandType
+        {
+            get;
+        }
+        public Type Type
+        {
+            get;
+        }
 
         private static BoundUnaryOperator[] _operators =
         {

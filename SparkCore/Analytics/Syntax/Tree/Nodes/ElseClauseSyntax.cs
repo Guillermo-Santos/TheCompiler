@@ -10,8 +10,14 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes
             ElseStatement = elseStatement;
         }
 
-        public SyntaxToken ElseKeyword { get; }
-        public SyntaxStatement ElseStatement { get; }
+        public SyntaxToken ElseKeyword
+        {
+            get;
+        }
+        public SyntaxStatement ElseStatement
+        {
+            get;
+        }
 
         public override SyntaxKind Kind => SyntaxKind.ElseClause;
     }

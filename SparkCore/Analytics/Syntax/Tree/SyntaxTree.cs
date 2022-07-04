@@ -1,10 +1,9 @@
-﻿using SparkCore.Analytics.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Syntax.Lexic;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Text;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace SparkCore.Analytics.Syntax.Tree
 {
@@ -20,9 +19,18 @@ namespace SparkCore.Analytics.Syntax.Tree
             Root = root;
         }
 
-        public SourceText Text { get; }
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public CompilationSyntaxUnit Root { get; }
+        public SourceText Text
+        {
+            get;
+        }
+        public ImmutableArray<Diagnostic> Diagnostics
+        {
+            get;
+        }
+        public CompilationSyntaxUnit Root
+        {
+            get;
+        }
 
         public static SyntaxTree Parse(string text)
         {

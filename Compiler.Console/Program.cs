@@ -1,8 +1,8 @@
-﻿using SparkCore;
+﻿using System.Text;
+using SparkCore;
 using SparkCore.Analytics.Binding;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
-using System.Text;
 
 namespace Compiler.Conle
 {
@@ -66,14 +66,18 @@ namespace Compiler.Conle
                 if (!isBlank && syntaxTree.Diagnostics.Any())
                     continue;
 
-                var compilation = previous == null ? new Compilation(syntaxTree) : previous.ContinueWith(syntaxTree);
-                var result = compilation.Evaluate(variables);
+                var compilation = previous == null
+                                    ? new Compilation(syntaxTree)
+                                    : previous.ContinueWith(syntaxTree);
+
 
                 if (showTree)
                     syntaxTree.Root.WriteTo(Console.Out);
-                
+
                 if (showProgram)
                     compilation.EmitTree(Console.Out);
+
+                var result = compilation.Evaluate(variables);
 
                 if (!result.Diagnostics.Any())
                 {

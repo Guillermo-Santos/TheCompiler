@@ -122,7 +122,7 @@ namespace SparkCore.Tests.Analytics.Syntax
                 }
             }
         }
-        
+
         public static IEnumerable<object[]> GetBinaryOperatorPairsData()
         {
             foreach (SyntaxKind op1 in SyntaxFacts.GetBinaryOperatorTypes())

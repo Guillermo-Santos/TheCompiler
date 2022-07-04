@@ -12,9 +12,21 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             Initializer = initializer;
         }
         public override SyntaxKind Kind => SyntaxKind.VariableDeclarationStatement;
-        public SyntaxToken Keyword { get; }
-        public SyntaxToken Identifier { get; }
-        public SyntaxToken EqualsToken { get; }
-        public SyntaxExpression Initializer { get; }
+        public SyntaxToken Keyword
+        {
+            get;
+        }
+        public SyntaxToken Identifier
+        {
+            get;
+        }
+        public SyntaxToken EqualsToken
+        {
+            get;
+        }
+        public SyntaxExpression Initializer
+        {
+            get;
+        }
     }
 }

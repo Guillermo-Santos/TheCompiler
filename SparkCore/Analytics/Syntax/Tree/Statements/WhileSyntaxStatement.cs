@@ -12,9 +12,18 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         }
 
         public override SyntaxKind Kind => SyntaxKind.WhileStatement;
-        public SyntaxToken Keyword { get; }
-        public SyntaxExpression Condition { get; }
-        public SyntaxStatement Body { get; }
+        public SyntaxToken Keyword
+        {
+            get;
+        }
+        public SyntaxExpression Condition
+        {
+            get;
+        }
+        public SyntaxStatement Body
+        {
+            get;
+        }
 
     }
 

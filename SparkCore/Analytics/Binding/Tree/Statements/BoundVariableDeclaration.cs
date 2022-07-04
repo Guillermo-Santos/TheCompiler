@@ -10,8 +10,14 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
             Initializer = initializer;
         }
 
-        public VariableSymbol Variable { get; }
-        public BoundExpression Initializer { get; }
+        public VariableSymbol Variable
+        {
+            get;
+        }
+        public BoundExpression Initializer
+        {
+            get;
+        }
 
         public override BoundNodeKind Kind => BoundNodeKind.VariableDeclaration;
     }

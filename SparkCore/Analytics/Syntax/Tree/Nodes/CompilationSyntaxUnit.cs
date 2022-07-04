@@ -10,8 +10,14 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes
             EndOfFileToken = endOfFileToken;
         }
         public override SyntaxKind Kind => SyntaxKind.CompilationUnit;
-        public SyntaxStatement Statement { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public SyntaxStatement Statement
+        {
+            get;
+        }
+        public SyntaxToken EndOfFileToken
+        {
+            get;
+        }
 
     }
 }

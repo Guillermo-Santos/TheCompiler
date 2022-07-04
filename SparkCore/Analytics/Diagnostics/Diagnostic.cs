@@ -10,8 +10,14 @@ namespace SparkCore.Analytics.Diagnostics
             Message = message;
         }
 
-        public TextSpan Span { get; }
-        public string Message { get; }
+        public TextSpan Span
+        {
+            get;
+        }
+        public string Message
+        {
+            get;
+        }
         public override string ToString() => Message;
     }
 }

@@ -14,10 +14,22 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         }
 
         public override SyntaxKind Kind => SyntaxKind.IfStatement;
-        public SyntaxToken IfKeyword { get; }
-        public SyntaxExpression Condition { get; }
-        public SyntaxStatement ThenStatement { get; }
-        public ElseClauseSyntax ElseClause { get; }
+        public SyntaxToken IfKeyword
+        {
+            get;
+        }
+        public SyntaxExpression Condition
+        {
+            get;
+        }
+        public SyntaxStatement ThenStatement
+        {
+            get;
+        }
+        public ElseClauseSyntax ElseClause
+        {
+            get;
+        }
 
     }
 }

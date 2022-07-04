@@ -13,9 +13,18 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
 
         public override BoundNodeKind Kind => BoundNodeKind.ConditionalGotoStatement;
 
-        public LabelSymbol Label { get; }
-        public BoundExpression Condition { get; }
-        public bool JumpIfFalse { get; }
+        public LabelSymbol Label
+        {
+            get;
+        }
+        public BoundExpression Condition
+        {
+            get;
+        }
+        public bool JumpIfFalse
+        {
+            get;
+        }
     }
 
 }

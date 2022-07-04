@@ -11,7 +11,10 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
 
         public override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
         public override Type Type => Value.GetType();
-        public object Value { get; }
+        public object Value
+        {
+            get;
+        }
     }
 
 }

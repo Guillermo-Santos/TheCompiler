@@ -1,4 +1,7 @@
-﻿using SparkCore.Analytics.Binding.Scope;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using SparkCore.Analytics.Binding.Scope;
 using SparkCore.Analytics.Binding.Scope.Expressions;
 using SparkCore.Analytics.Binding.Scope.Statements;
 using SparkCore.Analytics.Diagnostics;
@@ -6,10 +9,6 @@ using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace SparkCore.Analytics.Binding
 {
@@ -41,13 +40,13 @@ namespace SparkCore.Analytics.Binding
         private static BoundScope CreateParenScopes(BoundGlobalScope previous)
         {
             var stack = new Stack<BoundGlobalScope>();
-            while(previous != null)
+            while (previous != null)
             {
                 stack.Push(previous);
                 previous = previous.Previous;
             }
             BoundScope parent = null;
-            while(stack.Count > 0)
+            while (stack.Count > 0)
             {
                 previous = stack.Pop();
                 var scope = new BoundScope(parent);
@@ -86,7 +85,7 @@ namespace SparkCore.Analytics.Binding
         {
             var statements = ImmutableArray.CreateBuilder<BoundStatement>();
             _scope = new BoundScope(_scope);
-            foreach(var statementSyntax in syntax.Statements)
+            foreach (var statementSyntax in syntax.Statements)
             {
                 var statement = BindStatement(statementSyntax);
                 statements.Add(statement);

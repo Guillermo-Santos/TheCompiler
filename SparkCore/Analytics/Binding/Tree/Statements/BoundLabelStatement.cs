@@ -9,7 +9,10 @@
 
         public override BoundNodeKind Kind => BoundNodeKind.LabelStatement;
 
-        public LabelSymbol Label { get; }
+        public LabelSymbol Label
+        {
+            get;
+        }
     }
 
 }

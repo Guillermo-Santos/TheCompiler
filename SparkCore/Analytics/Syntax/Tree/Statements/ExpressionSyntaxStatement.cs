@@ -9,7 +9,10 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             Expression = expression;
         }
 
-        public SyntaxExpression Expression { get; }
+        public SyntaxExpression Expression
+        {
+            get;
+        }
 
         public override SyntaxKind Kind => SyntaxKind.ExpressionStatement;
     }

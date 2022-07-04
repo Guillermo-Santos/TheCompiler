@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SparkCore.Analytics.Syntax.Tree.Expressions
+﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
     public sealed class ParenthesizedSyntaxExpression : SyntaxExpression
     {
@@ -12,8 +10,17 @@ namespace SparkCore.Analytics.Syntax.Tree.Expressions
         }
         public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
 
-        public SyntaxToken OpenParenthesisToken { get; }
-        public SyntaxExpression Expression { get; }
-        public SyntaxToken CloseParenthesisToken { get; }
+        public SyntaxToken OpenParenthesisToken
+        {
+            get;
+        }
+        public SyntaxExpression Expression
+        {
+            get;
+        }
+        public SyntaxToken CloseParenthesisToken
+        {
+            get;
+        }
     }
 }

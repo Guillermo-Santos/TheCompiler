@@ -1,6 +1,6 @@
-﻿using SparkCore.Analytics.Binding.Scope.Statements;
+﻿using System.Collections.Immutable;
+using SparkCore.Analytics.Binding.Scope.Statements;
 using SparkCore.Analytics.Diagnostics;
-using System.Collections.Immutable;
 
 namespace SparkCore.Analytics.Binding.Scope
 {
@@ -14,9 +14,21 @@ namespace SparkCore.Analytics.Binding.Scope
             Statement = statement;
         }
 
-        public BoundGlobalScope Previous { get; }
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public ImmutableArray<VariableSymbol> Variables { get; }
-        public BoundStatement Statement { get; }
+        public BoundGlobalScope Previous
+        {
+            get;
+        }
+        public ImmutableArray<Diagnostic> Diagnostics
+        {
+            get;
+        }
+        public ImmutableArray<VariableSymbol> Variables
+        {
+            get;
+        }
+        public BoundStatement Statement
+        {
+            get;
+        }
     }
 }

@@ -10,6 +10,9 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.ExpressionStatement;
-        public BoundExpression Expression { get; }
+        public BoundExpression Expression
+        {
+            get;
+        }
     }
 }

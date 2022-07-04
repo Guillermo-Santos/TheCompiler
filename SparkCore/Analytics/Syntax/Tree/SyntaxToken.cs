@@ -1,6 +1,4 @@
 ﻿using SparkCore.Analytics.Text;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SparkCore.Analytics.Syntax.Tree
 {
@@ -14,10 +12,22 @@ namespace SparkCore.Analytics.Syntax.Tree
             Value = value;
         }
 
-        public override SyntaxKind Kind { get; }
-        public int Position { get; }
-        public string Text { get; }
-        public object Value { get; }
+        public override SyntaxKind Kind
+        {
+            get;
+        }
+        public int Position
+        {
+            get;
+        }
+        public string Text
+        {
+            get;
+        }
+        public object Value
+        {
+            get;
+        }
         public override TextSpan Span => new TextSpan(Position, Text?.Length ?? 0);
     }
 }

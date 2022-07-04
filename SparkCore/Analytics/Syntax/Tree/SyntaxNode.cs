@@ -1,15 +1,18 @@
-﻿using SparkCore.Analytics.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using SparkCore.Analytics.Text;
 
 namespace SparkCore.Analytics.Syntax.Tree
 {
     public abstract class SyntaxNode
     {
-        public abstract SyntaxKind Kind { get; }
+        public abstract SyntaxKind Kind
+        {
+            get;
+        }
         public virtual TextSpan Span
         {
             get
@@ -35,7 +38,7 @@ namespace SparkCore.Analytics.Syntax.Tree
                     var children = (IEnumerable<SyntaxNode>)property.GetValue(this);
                     foreach (var child in children)
                     {
-                        if(child != null)
+                        if (child != null)
                             yield return child;
                     }
                 }

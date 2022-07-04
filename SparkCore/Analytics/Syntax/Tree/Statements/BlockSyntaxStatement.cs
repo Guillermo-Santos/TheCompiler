@@ -12,9 +12,18 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         }
 
         public override SyntaxKind Kind => SyntaxKind.BlockStatement;
-        public SyntaxToken OpenBraceToken { get; }
-        public ImmutableArray<SyntaxStatement> Statements { get; }
-        public SyntaxToken CloseBraceToken { get; }
+        public SyntaxToken OpenBraceToken
+        {
+            get;
+        }
+        public ImmutableArray<SyntaxStatement> Statements
+        {
+            get;
+        }
+        public SyntaxToken CloseBraceToken
+        {
+            get;
+        }
 
     }
 }

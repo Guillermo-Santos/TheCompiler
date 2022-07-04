@@ -1,5 +1,5 @@
-﻿using SparkCore.Analytics.Syntax;
-using System;
+﻿using System;
+using SparkCore.Analytics.Syntax;
 
 namespace SparkCore.Analytics.Binding.Scope.Expressions
 {
@@ -22,11 +22,26 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
             Type = resultType;
         }
 
-        public SyntaxKind Syntaxtype { get; }
-        public BoundBinaryOperatorKind Kind { get; }
-        public Type LeftType { get; }
-        public Type RightType { get; }
-        public Type Type { get; }
+        public SyntaxKind Syntaxtype
+        {
+            get;
+        }
+        public BoundBinaryOperatorKind Kind
+        {
+            get;
+        }
+        public Type LeftType
+        {
+            get;
+        }
+        public Type RightType
+        {
+            get;
+        }
+        public Type Type
+        {
+            get;
+        }
 
         private static BoundBinaryOperator[] _operators =
         {

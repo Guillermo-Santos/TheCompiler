@@ -11,8 +11,19 @@ namespace SparkCore.Analytics.Binding
             Type = type;
         }
 
-        public string Name { get; }
-        public bool IsReadOnly { get; }
-        public Type Type { get; }
+        public string Name
+        {
+            get;
+        }
+        public bool IsReadOnly
+        {
+            get;
+        }
+        public Type Type
+        {
+            get;
+        }
+
+        public override string ToString() => Name;
     }
 }

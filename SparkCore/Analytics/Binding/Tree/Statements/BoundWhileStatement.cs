@@ -11,8 +11,14 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.WhileStatement;
-        public BoundExpression Condition { get; }
-        public BoundStatement Body { get; }
+        public BoundExpression Condition
+        {
+            get;
+        }
+        public BoundStatement Body
+        {
+            get;
+        }
 
     }
 }

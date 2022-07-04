@@ -12,9 +12,18 @@ namespace SparkCore.Analytics.Binding.Scope.Statements
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.IfStatement;
-        public BoundExpression Condition { get; }
-        public BoundStatement ThenStatement { get; }
-        public BoundStatement ElseStatement { get; }
+        public BoundExpression Condition
+        {
+            get;
+        }
+        public BoundStatement ThenStatement
+        {
+            get;
+        }
+        public BoundStatement ElseStatement
+        {
+            get;
+        }
 
     }
 }
