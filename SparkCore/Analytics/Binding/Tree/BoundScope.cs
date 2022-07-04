@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Scope;
+namespace SparkCore.Analytics.Binding.Tree;
 
 internal sealed class BoundScope
 {

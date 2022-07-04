@@ -1,15 +1,15 @@
-﻿namespace SparkCore.Analytics.Binding.Scope.Statements
+﻿namespace SparkCore.Analytics.Binding.Tree.Statements
 {
     internal sealed class BoundLabelStatement : BoundStatement
     {
-        public BoundLabelStatement(LabelSymbol label)
+        public BoundLabelStatement(BoundLabel label)
         {
             Label = label;
         }
 
         public override BoundNodeKind Kind => BoundNodeKind.LabelStatement;
 
-        public LabelSymbol Label
+        public BoundLabel Label
         {
             get;
         }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using SparkCore.Analytics.Binding.Scope.Expressions;
-using SparkCore.Analytics.Binding.Scope.Statements;
+using SparkCore.Analytics.Binding.Tree.Expressions;
+using SparkCore.Analytics.Binding.Tree.Statements;
 
-namespace SparkCore.Analytics.Binding.Scope
+namespace SparkCore.Analytics.Binding.Tree
 {
     internal abstract class BoundNode
     {

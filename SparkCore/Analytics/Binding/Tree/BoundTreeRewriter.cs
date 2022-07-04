@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
-using SparkCore.Analytics.Binding.Scope;
-using SparkCore.Analytics.Binding.Scope.Expressions;
-using SparkCore.Analytics.Binding.Scope.Statements;
+using SparkCore.Analytics.Binding.Tree.Expressions;
+using SparkCore.Analytics.Binding.Tree.Statements;
 
 namespace SparkCore.Analytics.Binding.Tree;
 
@@ -43,7 +42,7 @@ internal abstract class BoundTreeRewriter
         {
             var oldStatement = node.Statements[i];
             var newStatement = RewriteStatement(node.Statements[i]);
-            if (newStatement == oldStatement)
+            if (newStatement != oldStatement)
             {
                 if (builder == null)
                 {
@@ -87,7 +86,7 @@ internal abstract class BoundTreeRewriter
         var condition = RewriteExpression(node.Condition);
         if (condition == node.Condition)
             return node;
-        return new BoundConditionalGotoStatement(node.Label, condition, node.JumpIfFalse);
+        return new BoundConditionalGotoStatement(node.Label, condition, node.JumpIfTrue);
     }
 
     protected virtual BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
@@ -131,6 +130,8 @@ internal abstract class BoundTreeRewriter
     {
         switch (node.Kind)
         {
+            case BoundNodeKind.ErrorExpression:
+                return RewriteErrorExpression((BoundErrorExpression)node);
             case BoundNodeKind.LiteralExpression:
                 return RewriteLiteralExpression((BoundLiteralExpression)node);
             case BoundNodeKind.UnaryExpression:
@@ -144,6 +145,11 @@ internal abstract class BoundTreeRewriter
             default:
                 throw new Exception($"Unexpected node: {node.Kind}");
         }
+    }
+
+    private BoundExpression RewriteErrorExpression(BoundErrorExpression node)
+    {
+        return node;
     }
 
     protected virtual BoundExpression RewriteLiteralExpression(BoundLiteralExpression node)

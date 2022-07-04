@@ -1,4 +1,6 @@
-﻿using SparkCore.Analytics.Diagnostics;
+﻿using System.Text;
+using SparkCore.Analytics.Diagnostics;
+using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
 
@@ -14,7 +16,7 @@ namespace SparkCore.Analytics.Syntax.Lexic
         private int _position;
 
         private int _start;
-        private SyntaxKind _type;
+        private SyntaxKind _kind;
         private object _value;
 
         public LexicAnalyzer(SourceText text)
@@ -23,7 +25,7 @@ namespace SparkCore.Analytics.Syntax.Lexic
         }
         public DiagnosticBag Diagnostics => _diagnostics;
         private char Current => Peek(0);
-        private char LookaHead => Peek(1);
+        private char Lookahead => Peek(1);
         private char Peek(int offset)
         {
             var index = _position + offset;
@@ -35,126 +37,129 @@ namespace SparkCore.Analytics.Syntax.Lexic
         public SyntaxToken Lex()
         {
             _start = _position;
-            _type = SyntaxKind.BadToken;
+            _kind = SyntaxKind.BadToken;
             _value = null;
 
 
             switch (Current)
             {
                 case '\0':
-                    _type = SyntaxKind.EndOfFileToken;
+                    _kind = SyntaxKind.EndOfFileToken;
                     break;
                 case '+':
-                    _type = SyntaxKind.PlusToken;
+                    _kind = SyntaxKind.PlusToken;
                     _position++;
                     break;
                 case '-':
-                    _type = SyntaxKind.MinusToken;
+                    _kind = SyntaxKind.MinusToken;
                     _position++;
                     break;
                 case '*':
-                    _type = SyntaxKind.StarToken;
+                    _kind = SyntaxKind.StarToken;
                     _position++;
                     break;
                 case '/':
-                    _type = SyntaxKind.SlashToken;
+                    _kind = SyntaxKind.SlashToken;
                     _position++;
                     break;
                 case '(':
-                    _type = SyntaxKind.OpenParentesisToken;
+                    _kind = SyntaxKind.OpenParentesisToken;
                     _position++;
                     break;
                 case ')':
-                    _type = SyntaxKind.CloseParentesisToken;
+                    _kind = SyntaxKind.CloseParentesisToken;
                     _position++;
                     break;
                 case '{':
-                    _type = SyntaxKind.OpenBraceToken;
+                    _kind = SyntaxKind.OpenBraceToken;
                     _position++;
                     break;
                 case '}':
-                    _type = SyntaxKind.CloseBraceToken;
+                    _kind = SyntaxKind.CloseBraceToken;
                     _position++;
                     break;
                 case '~':
-                    _type = SyntaxKind.TildeToken;
+                    _kind = SyntaxKind.TildeToken;
                     _position++;
                     break;
                 case '^':
-                    _type = SyntaxKind.HatToken;
+                    _kind = SyntaxKind.HatToken;
                     _position++;
                     break;
                 case '!':
                     _position++;
                     if (Current != '=')
                     {
-                        _type = SyntaxKind.BangToken;
+                        _kind = SyntaxKind.BangToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.BangEqualsToken;
+                        _kind = SyntaxKind.BangEqualsToken;
                     }
                     break;
                 case '&':
                     _position++;
                     if (Current != '&')
                     {
-                        _type = SyntaxKind.AmpersandToken;
+                        _kind = SyntaxKind.AmpersandToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.AmpersandAmpersandToken;
+                        _kind = SyntaxKind.AmpersandAmpersandToken;
                     }
                     break;
                 case '|':
                     _position++;
                     if (Current != '|')
                     {
-                        _type = SyntaxKind.PibeToken;
+                        _kind = SyntaxKind.PibeToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.PibePibeToken;
+                        _kind = SyntaxKind.PibePibeToken;
                     }
                     break;
                 case '=':
                     _position++;
                     if (Current != '=')
                     {
-                        _type = SyntaxKind.EqualsToken;
+                        _kind = SyntaxKind.EqualsToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.EqualsEqualsToken;
+                        _kind = SyntaxKind.EqualsEqualsToken;
                     }
                     break;
                 case '<':
                     _position++;
                     if (Current != '=')
                     {
-                        _type = SyntaxKind.LessToken;
+                        _kind = SyntaxKind.LessToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.LessOrEqualsToken;
+                        _kind = SyntaxKind.LessOrEqualsToken;
                     }
                     break;
                 case '>':
                     _position++;
                     if (Current != '=')
                     {
-                        _type = SyntaxKind.GreaterToken;
+                        _kind = SyntaxKind.GreaterToken;
                     }
                     else
                     {
                         _position++;
-                        _type = SyntaxKind.GreaterOrEqualsToken;
+                        _kind = SyntaxKind.GreaterOrEqualsToken;
                     }
+                    break;
+                case '"':
+                    ReadString();
                     break;
                 case '0':
                 case '1':
@@ -192,16 +197,56 @@ namespace SparkCore.Analytics.Syntax.Lexic
             }
 
             var length = _position - _start;
-            var text = SyntaxFacts.GetText(_type);
+            var text = SyntaxFacts.GetText(_kind);
             if (text == null)
                 text = _text.ToString(_start, length);
-            return new SyntaxToken(_type, _start, text, _value);
+            return new SyntaxToken(_kind, _start, text, _value);
+        }
+
+        private void ReadString()
+        {
+            // Saltar la posicion actual.
+            _position++;
+            var sb = new StringBuilder();
+            bool done = false;
+            while (!done)
+            {
+                switch (Current)
+                {
+                    case '\0':
+                    case '\r':
+                    case '\n':
+                        var span = new TextSpan(_start, 1);
+                        _diagnostics.ReportUnterminedString(span);
+                        done = true;
+                        break;
+                    case '"':
+                        if (Lookahead == '"')
+                        {
+                            sb.Append(Current);
+                            _position += 2;
+                        }
+                        else
+                        {
+                            _position++;
+                            done = true;
+                        }
+                        break;
+                    default:
+                        sb.Append(Current);
+                        _position++;
+                        break;
+                }
+            }
+
+            _kind = SyntaxKind.StringToken;
+            _value = sb.ToString();
         }
         private void ReadWhiteSpaceToken()
         {
             while (char.IsWhiteSpace(Current))
                 _position++;
-            _type = SyntaxKind.WhiteSpaceToken;
+            _kind = SyntaxKind.WhiteSpaceToken;
         }
 
         private void ReadNumberToken()
@@ -213,10 +258,10 @@ namespace SparkCore.Analytics.Syntax.Lexic
             var text = _text.ToString(_start, length);
             if (!int.TryParse(text, out var value))
             {
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(int));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, TypeSymbol.Int);
             }
             _value = value;
-            _type = SyntaxKind.NumberToken;
+            _kind = SyntaxKind.NumberToken;
         }
         private void ReadIdentifierOrKeywordToken()
         {
@@ -224,7 +269,7 @@ namespace SparkCore.Analytics.Syntax.Lexic
                 _position++;
             var length = _position - _start;
             var text = _text.ToString(_start, length);
-            _type = SyntaxFacts.GetKeywordType(text);
+            _kind = SyntaxFacts.GetKeywordType(text);
         }
     }
 }

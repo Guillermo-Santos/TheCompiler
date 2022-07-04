@@ -41,21 +41,36 @@ namespace SparkCore.Analytics.Syntax.Tree
         {
             return new SyntaxTree(text);
         }
-        public static IEnumerable<SyntaxToken> ParseTokens(string text)
+        public static ImmutableArray<SyntaxToken> ParseTokens(string text)
         {
             var sourceText = SourceText.From(text);
             return ParseTokens(sourceText);
         }
-        public static IEnumerable<SyntaxToken> ParseTokens(SourceText text)
+        public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics)
         {
-            var lexic = new LexicAnalyzer(text);
-            while (true)
+            var sourceText = SourceText.From(text);
+            return ParseTokens(sourceText, out diagnostics);
+        }
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text)
+        {
+            return ParseTokens(text, out _);
+        }
+        public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics)
+        {
+            IEnumerable<SyntaxToken> LexTokens(LexicAnalyzer lexer)
             {
-                var token = lexic.Lex();
-                if (token.Kind == SyntaxKind.EndOfFileToken)
-                    break;
-                yield return token;
+                while (true)
+                {
+                    var token = lexer.Lex();
+                    if (token.Kind == SyntaxKind.EndOfFileToken)
+                        break;
+                    yield return token;
+                }
             }
+            var l = new LexicAnalyzer(text);
+            var result = LexTokens(l).ToImmutableArray();
+            diagnostics = l.Diagnostics.ToImmutableArray();
+            return result;
         }
     }
 }

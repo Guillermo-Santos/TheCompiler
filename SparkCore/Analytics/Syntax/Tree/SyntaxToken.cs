@@ -29,5 +29,7 @@ namespace SparkCore.Analytics.Syntax.Tree
             get;
         }
         public override TextSpan Span => new TextSpan(Position, Text?.Length ?? 0);
+
+        public bool IsMissing => Text == null;
     }
 }

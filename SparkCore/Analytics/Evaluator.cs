@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using SparkCore.Analytics.Binding;
-using SparkCore.Analytics.Binding.Scope;
-using SparkCore.Analytics.Binding.Scope.Expressions;
-using SparkCore.Analytics.Binding.Scope.Statements;
+using SparkCore.Analytics.Binding.Tree;
+using SparkCore.Analytics.Binding.Tree.Expressions;
+using SparkCore.Analytics.Binding.Tree.Statements;
+using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics;
 
@@ -21,7 +22,7 @@ internal class Evaluator
     }
     public object Evaluate()
     {
-        var labelToIndex = new Dictionary<LabelSymbol, int>();
+        var labelToIndex = new Dictionary<BoundLabel, int>();
 
         for (var i = 0; i < _root.Statements.Length; i++)
         {
@@ -51,8 +52,7 @@ internal class Evaluator
                 case BoundNodeKind.ConditionalGotoStatement:
                     var cgs = (BoundConditionalGotoStatement)s;
                     var condition = (bool)EvaluateExpression(cgs.Condition)!;
-                    if (condition && !cgs.JumpIfFalse ||
-                        !condition && cgs.JumpIfFalse)
+                    if (condition == cgs.JumpIfTrue)
                         index = labelToIndex[cgs.Label];
                     else
                         index++;
@@ -149,17 +149,17 @@ internal class Evaluator
             case BoundBinaryOperatorKind.Division:
                 return (int)left / (int)right;
             case BoundBinaryOperatorKind.BitwiseAnd:
-                if (b.Type == typeof(int))
+                if (b.Type == TypeSymbol.Int)
                     return (int)left & (int)right;
                 else
                     return (bool)left & (bool)right;
             case BoundBinaryOperatorKind.BitwiseOr:
-                if (b.Type == typeof(int))
+                if (b.Type == TypeSymbol.Int)
                     return (int)left | (int)right;
                 else
                     return (bool)left | (bool)right;
             case BoundBinaryOperatorKind.BitwiseXor:
-                if (b.Type == typeof(int))
+                if (b.Type == TypeSymbol.Int)
                     return (int)left ^ (int)right;
                 else
                     return (bool)left ^ (bool)right;

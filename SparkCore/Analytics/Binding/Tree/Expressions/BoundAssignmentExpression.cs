@@ -1,6 +1,7 @@
 ﻿using System;
+using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Scope.Expressions
+namespace SparkCore.Analytics.Binding.Tree.Expressions
 {
     internal sealed class BoundAssignmentExpression : BoundExpression
     {
@@ -10,7 +11,7 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
             Expression = expression;
         }
         public override BoundNodeKind Kind => BoundNodeKind.AssignmentExpression;
-        public override Type Type => Expression.Type;
+        public override TypeSymbol Type => Expression.Type;
         public VariableSymbol Variable
         {
             get;

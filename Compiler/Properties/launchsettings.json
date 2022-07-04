@@ -1,10 +1,10 @@
-﻿{
-    "profiles": {
-      "Compiler (Package)": {
-        "commandName": "MsixPackage"
-      },
-      "Compiler (Unpackaged)": {
-        "commandName": "Project"
-      }
+{
+  "profiles": {
+    "Compiler (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Compiler (Unpackaged)": {
+      "commandName": "Project"
     }
+  }
 }

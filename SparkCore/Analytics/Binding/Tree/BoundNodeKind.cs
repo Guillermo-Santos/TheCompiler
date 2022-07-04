@@ -1,4 +1,4 @@
-﻿namespace SparkCore.Analytics.Binding.Scope
+﻿namespace SparkCore.Analytics.Binding.Tree
 {
     internal enum BoundNodeKind
     {
@@ -19,6 +19,7 @@
         BinaryExpression,
         VariableExpression,
         AssignmentExpression,
+        ErrorExpression,
     }
 
 }

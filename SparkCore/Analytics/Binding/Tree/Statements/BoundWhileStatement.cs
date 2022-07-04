@@ -1,6 +1,6 @@
-﻿using SparkCore.Analytics.Binding.Scope.Expressions;
+﻿using SparkCore.Analytics.Binding.Tree.Expressions;
 
-namespace SparkCore.Analytics.Binding.Scope.Statements
+namespace SparkCore.Analytics.Binding.Tree.Statements
 {
     internal sealed class BoundWhileStatement : BoundStatement
     {

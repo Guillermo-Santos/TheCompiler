@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Binding
 {
-    public sealed class LabelSymbol
+    public sealed class BoundLabel
     {
-        internal LabelSymbol(string name)
+        internal BoundLabel(string name)
         {
             Name = name;
         }

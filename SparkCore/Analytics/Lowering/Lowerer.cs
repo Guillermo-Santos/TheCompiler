@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using SparkCore.Analytics.Binding;
-using SparkCore.Analytics.Binding.Scope.Expressions;
-using SparkCore.Analytics.Binding.Scope.Statements;
 using SparkCore.Analytics.Binding.Tree;
+using SparkCore.Analytics.Binding.Tree.Expressions;
+using SparkCore.Analytics.Binding.Tree.Statements;
 using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Lowering;
 
@@ -16,10 +17,10 @@ internal sealed class Lowerer : BoundTreeRewriter
     private Lowerer()
     {
     }
-    private LabelSymbol GenerateLabel()
+    private BoundLabel GenerateLabel()
     {
         var name = $"Label{++_labelCount}";
-        return new LabelSymbol(name);
+        return new BoundLabel(name);
     }
     /// <summary>
     /// Reduce a given statement tree to its minimun.
@@ -46,6 +47,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         while (stack.Count > 0)
         {
             var current = stack.Pop();
+
             if (current is BoundBlockStatement block)
             {
                 foreach (var s in block.Statements.Reverse())
@@ -70,9 +72,13 @@ internal sealed class Lowerer : BoundTreeRewriter
             // <then>
             // end;
             var endLabel = GenerateLabel();
-            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, true);
+            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, false);
             var endLabelStatement = new BoundLabelStatement(endLabel);
-            var result = new BoundBlockStatement(ImmutableArray.Create(gotoFalse, node.ThenStatement, endLabelStatement));
+            var result = new BoundBlockStatement(ImmutableArray.Create(
+                gotoFalse,
+                node.ThenStatement,
+                endLabelStatement
+            ));
             return RewriteStatement(result);
         }
         else
@@ -91,7 +97,7 @@ internal sealed class Lowerer : BoundTreeRewriter
             var elseLabel = GenerateLabel();
             var endLabel = GenerateLabel();
 
-            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, true);
+            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, false);
             var gotoEndStatement = new BoundGotoStatement(endLabel);
             var elseLabelStatement = new BoundLabelStatement(elseLabel);
             var endLabelStatement = new BoundLabelStatement(endLabel);
@@ -128,7 +134,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         var gotoCheck = new BoundGotoStatement(checkLabel);
         var continueLabelStatement = new BoundLabelStatement(continueLabel);
         var checkLabelStatement = new BoundLabelStatement(checkLabel);
-        var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition, false);
+        var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition);
         var endLabelStatement = new BoundLabelStatement(endLabel);
 
         var result = new BoundBlockStatement(ImmutableArray.Create(
@@ -160,17 +166,19 @@ internal sealed class Lowerer : BoundTreeRewriter
         // }
         var variableDeclaration = new BoundVariableDeclaration(node.Variable, node.LowerBound);
         var variableExpression = new BoundVariableExpression(node.Variable);
+        var upperBoundSymbol = new VariableSymbol("upperBound", true, TypeSymbol.Int);
+        var upperBoundDeclaration = new BoundVariableDeclaration(upperBoundSymbol, node.UpperBound);
         var condition = new BoundBinaryExpression(
             variableExpression,
-            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, typeof(int), typeof(int)),
-            node.UpperBound
+            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, TypeSymbol.Int, TypeSymbol.Int),
+            new BoundVariableExpression(upperBoundSymbol)
         );
         var increment = new BoundExpressionStatement(
             new BoundAssignmentExpression(
                 node.Variable,
                 new BoundBinaryExpression(
                     variableExpression,
-                    BoundBinaryOperator.Bind(SyntaxKind.PlusToken, typeof(int), typeof(int)),
+                    BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int),
                     new BoundLiteralExpression(1)
                 )
             )
@@ -178,7 +186,11 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         var whileBody = new BoundBlockStatement(ImmutableArray.Create(node.Body, increment));
         var whileStatement = new BoundWhileStatement(condition, whileBody);
-        var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDeclaration, whileStatement));
+        var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(
+            variableDeclaration,
+            upperBoundDeclaration,
+            whileStatement
+        ));
 
         return RewriteStatement(result);
     }

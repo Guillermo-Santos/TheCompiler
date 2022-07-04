@@ -1,30 +1,29 @@
-﻿using SparkCore.Analytics.Binding.Scope.Expressions;
+﻿using SparkCore.Analytics.Binding.Tree.Expressions;
 
-namespace SparkCore.Analytics.Binding.Scope.Statements
+namespace SparkCore.Analytics.Binding.Tree.Statements;
+
+internal sealed class BoundConditionalGotoStatement : BoundStatement
 {
-    internal sealed class BoundConditionalGotoStatement : BoundStatement
+    public BoundConditionalGotoStatement(BoundLabel label, BoundExpression condition, bool jumpIfTrue = true)
     {
-        public BoundConditionalGotoStatement(LabelSymbol label, BoundExpression condition, bool jumpIfFalse = false)
-        {
-            Label = label;
-            Condition = condition;
-            JumpIfFalse = jumpIfFalse;
-        }
-
-        public override BoundNodeKind Kind => BoundNodeKind.ConditionalGotoStatement;
-
-        public LabelSymbol Label
-        {
-            get;
-        }
-        public BoundExpression Condition
-        {
-            get;
-        }
-        public bool JumpIfFalse
-        {
-            get;
-        }
+        Label = label;
+        Condition = condition;
+        JumpIfTrue = jumpIfTrue;
     }
 
+    public override BoundNodeKind Kind => BoundNodeKind.ConditionalGotoStatement;
+
+    public BoundLabel Label
+    {
+        get;
+    }
+    public BoundExpression Condition
+    {
+        get;
+    }
+    public bool JumpIfTrue
+    {
+        get;
+    }
 }
+

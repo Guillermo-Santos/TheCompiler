@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace SparkCore.Analytics.Binding.Scope.Statements
+namespace SparkCore.Analytics.Binding.Tree.Statements
 {
     internal sealed class BoundBlockStatement : BoundStatement
     {

@@ -1,6 +1,7 @@
 ﻿using System;
+using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Scope.Expressions
+namespace SparkCore.Analytics.Binding.Tree.Expressions
 {
     internal sealed class BoundUnaryExpression : BoundExpression
     {
@@ -10,7 +11,7 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
             Operand = operand;
         }
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
-        public override Type Type => Op.Type;
+        public override TypeSymbol Type => Op.Type;
         public BoundUnaryOperator Op
         {
             get;

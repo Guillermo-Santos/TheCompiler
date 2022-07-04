@@ -225,20 +225,17 @@ namespace SparkCore.Analytics.Syntax
                     return ParseParenthesizedExpression();
                 case SyntaxKind.TrueKeyword:
                 case SyntaxKind.FalseKeyword:
-                    return ParseBooleanLiteralExpression();
+                    return ParseBooleanLiteral();
                 case SyntaxKind.NumberToken:
-                    return ParseNumberLiteralExpression();
+                    return ParseNumberLiteral();
+                case SyntaxKind.StringToken:
+                    return ParseStringLiteral();
                 case SyntaxKind.IdentifierToken:
                 default:
                     return ParseNameExpression();
             }
         }
 
-        private SyntaxExpression ParseNumberLiteralExpression()
-        {
-            var numberToken = MathToken(SyntaxKind.NumberToken);
-            return new LiteralSyntaxExpression(numberToken);
-        }
 
         private SyntaxExpression ParseParenthesizedExpression()
         {
@@ -248,11 +245,22 @@ namespace SparkCore.Analytics.Syntax
             return new ParenthesizedSyntaxExpression(left, expression, right);
         }
 
-        private SyntaxExpression ParseBooleanLiteralExpression()
+        private SyntaxExpression ParseBooleanLiteral()
         {
             var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
             var keywordToken = isTrue ? MathToken(SyntaxKind.TrueKeyword) : MathToken(SyntaxKind.FalseKeyword);
             return new LiteralSyntaxExpression(keywordToken, isTrue);
+        }
+        private SyntaxExpression ParseNumberLiteral()
+        {
+            var numberToken = MathToken(SyntaxKind.NumberToken);
+            return new LiteralSyntaxExpression(numberToken);
+        }
+
+        private SyntaxExpression ParseStringLiteral()
+        {
+            var stringToken = MathToken(SyntaxKind.StringToken);
+            return new LiteralSyntaxExpression(stringToken);
         }
 
         private SyntaxExpression ParseNameExpression()

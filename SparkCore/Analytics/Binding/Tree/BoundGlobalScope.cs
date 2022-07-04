@@ -1,8 +1,9 @@
 ﻿using System.Collections.Immutable;
-using SparkCore.Analytics.Binding.Scope.Statements;
+using SparkCore.Analytics.Binding.Tree.Statements;
 using SparkCore.Analytics.Diagnostics;
+using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Scope
+namespace SparkCore.Analytics.Binding.Tree
 {
     internal sealed class BoundGlobalScope
     {

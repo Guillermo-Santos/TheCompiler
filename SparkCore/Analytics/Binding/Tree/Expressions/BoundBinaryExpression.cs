@@ -1,6 +1,7 @@
 ﻿using System;
+using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Scope.Expressions
+namespace SparkCore.Analytics.Binding.Tree.Expressions
 {
     internal sealed class BoundBinaryExpression : BoundExpression
     {
@@ -11,7 +12,7 @@ namespace SparkCore.Analytics.Binding.Scope.Expressions
             Right = right;
         }
         public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
-        public override Type Type => Op.Type;
+        public override TypeSymbol Type => Op.Type;
         public BoundExpression Left
         {
             get;

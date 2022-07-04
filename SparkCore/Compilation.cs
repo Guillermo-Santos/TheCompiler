@@ -5,10 +5,11 @@ using System.Linq;
 using System.Threading;
 using SparkCore.Analytics;
 using SparkCore.Analytics.Binding;
-using SparkCore.Analytics.Binding.Scope;
-using SparkCore.Analytics.Binding.Scope.Statements;
+using SparkCore.Analytics.Binding.Tree;
+using SparkCore.Analytics.Binding.Tree.Statements;
 using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Lowering;
+using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
 
 namespace SparkCore;
