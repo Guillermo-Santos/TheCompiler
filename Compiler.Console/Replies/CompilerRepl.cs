@@ -4,7 +4,7 @@ using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
 
-namespace Compiler.Conle;
+namespace Compiler.Cnsl.Replies;
 
 internal sealed class CompilerRepl : Repl
 {
@@ -17,7 +17,7 @@ internal sealed class CompilerRepl : Repl
     protected override void RenderLine(string line)
     {
         var tokens = SyntaxTree.ParseTokens(line);
-        foreach(var token in tokens)
+        foreach (var token in tokens)
         {
             var isNumber = token.Kind == SyntaxKind.NumberToken;
             var isIdentifier = token.Kind == SyntaxKind.IdentifierToken;
@@ -39,7 +39,7 @@ internal sealed class CompilerRepl : Repl
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                     break;
             }
-            
+
             Console.Write(token.Text);
             Console.ResetColor();
         }
@@ -77,7 +77,7 @@ internal sealed class CompilerRepl : Repl
                                        .TakeWhile(s => string.IsNullOrEmpty(s))
                                        .Take(2)
                                        .Count() == 2;
-        if(lastTwoLinesAreBlank)
+        if (lastTwoLinesAreBlank)
             return true;
         var syntaxTree = SyntaxTree.Parse(text);
 

@@ -2,8 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text;
+using Console = System.Console;
 
-namespace Compiler.Conle;
+namespace Compiler.Cnsl.Replies;
 internal abstract class Repl
 {
 
@@ -36,7 +37,7 @@ internal abstract class Repl
         private int _currentLine;
         private int _currentCharacter;
 
-        public SubmissionView(Action<string> lineRenderer,ObservableCollection<string> submissionDocument)
+        public SubmissionView(Action<string> lineRenderer, ObservableCollection<string> submissionDocument)
         {
             _lineRenderer = lineRenderer;
             _submissionDocument = submissionDocument;
@@ -79,7 +80,7 @@ internal abstract class Repl
             if (numberOfBlankLines > 0)
             {
                 var blankLine = new string(' ', Console.WindowWidth);
-                for(var i = 0; i < numberOfBlankLines; i++)
+                for (var i = 0; i < numberOfBlankLines; i++)
                 {
                     Console.SetCursorPosition(0, _cursorTop + lineCount + i);
                     Console.WriteLine(blankLine);
@@ -148,7 +149,7 @@ internal abstract class Repl
 
     private void HandleKey(ConsoleKeyInfo key, ObservableCollection<string> document, SubmissionView view)
     {
-        if (key.Modifiers == default(ConsoleModifiers))
+        if (key.Modifiers == default)
         {
             switch (key.Key)
             {
@@ -193,7 +194,7 @@ internal abstract class Repl
                     break;
             }
         }
-        else if (key.Modifiers == ConsoleModifiers.Control) 
+        else if (key.Modifiers == ConsoleModifiers.Control)
         {
             switch (key.Key)
             {
@@ -241,8 +242,8 @@ internal abstract class Repl
 
     private void HandleLeftArrow(ObservableCollection<string> document, SubmissionView view)
     {
-        if(view.CurrentCharacter > 0)
-            view.CurrentCharacter --;
+        if (view.CurrentCharacter > 0)
+            view.CurrentCharacter--;
     }
     private void HandleRightArrow(ObservableCollection<string> document, SubmissionView view)
     {
@@ -292,8 +293,9 @@ internal abstract class Repl
         var lineIndex = view.CurrentLine;
         var line = document[lineIndex];
         var start = view.CurrentCharacter;
-        if (start >= line.Length) {
-            if(view.CurrentLine == document.Count - 1)
+        if (start >= line.Length)
+        {
+            if (view.CurrentLine == document.Count - 1)
             {
                 return;
             }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Compiler.Services;
-internal class CompilationService
+namespace Compiler.ViewModels;
+internal class AnalyzerTestViewModel : BaseViewModel
 {
 }

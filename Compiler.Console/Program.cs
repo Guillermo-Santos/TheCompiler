@@ -1,4 +1,6 @@
-﻿namespace Compiler.Conle;
+﻿using Compiler.Cnsl.Replies;
+
+namespace Compiler.Cnsl;
 
 internal static class Program
 {
