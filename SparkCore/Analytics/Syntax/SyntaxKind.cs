@@ -14,6 +14,7 @@
         SlashToken,
         OpenParentesisToken,
         CloseParentesisToken,
+        CommaToken,
         OpenBraceToken,
         CloseBraceToken,
         IdentifierToken,
@@ -61,5 +62,6 @@
         BinaryExpression,
         ParenthesizedExpression,
         AssignmentExpression,
+        CallExpression,
     }
 }

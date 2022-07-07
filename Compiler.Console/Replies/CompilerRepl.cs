@@ -11,7 +11,7 @@ internal sealed class CompilerRepl : Repl
     private Compilation? _previous;
     private bool _showTree;
     private bool _showProgram;
-    private readonly Dictionary<VariableSymbol, object> _variables = new Dictionary<VariableSymbol, object>();
+    private readonly Dictionary<VariableSymbol, object> _variables = new();
 
 
     protected override void RenderLine(string line)
@@ -19,8 +19,6 @@ internal sealed class CompilerRepl : Repl
         var tokens = SyntaxTree.ParseTokens(line);
         foreach (var token in tokens)
         {
-            var isNumber = token.Kind == SyntaxKind.NumberToken;
-            var isIdentifier = token.Kind == SyntaxKind.IdentifierToken;
             switch (token.Kind)
             {
                 case SyntaxKind.IdentifierToken:
@@ -105,9 +103,12 @@ internal sealed class CompilerRepl : Repl
 
         if (!result.Diagnostics.Any())
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(result.Value);
-            Console.ResetColor();
+            if(result.Value != null)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(result.Value);
+                Console.ResetColor();
+            }
             _previous = compilation;
         }
         else

@@ -32,7 +32,7 @@ You can open the Task List using the menu `Views -> Task List`.
 │ │ └── ...
 │ └── App.xaml - app definition and lifecycle events
 │ └── Package.appxmanifest - app properties and declarations
-├── Compiler.Core/ - core project (.NET Standard)
+├── Compiler.Core/ - core project (.NET 6)
 │ ├── Contracts/ - class interfaces
 │ ├── Helpers/ - static helper classes
 │ ├── Models/ - business models

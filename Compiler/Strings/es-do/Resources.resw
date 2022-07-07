@@ -118,68 +118,65 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppDisplayName" xml:space="preserve">
-    <value>Compiler</value>
+    <value>Compilador</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>Compiler</value>
+    <value>Compilador</value>
   </data>
   <data name="ShellMenuBarItem_File.Title" xml:space="preserve">
-    <value>File</value>
+    <value>Archivo</value>
   </data>
   <data name="ShellMenuBarItem_Views.Title" xml:space="preserve">
-    <value>Views</value>
+    <value>Vistas</value>
   </data>
   <data name="ShellMenuItem_File_Exit.Text" xml:space="preserve">
-    <value>Exit</value>
+    <value>Salir</value>
   </data>
   <data name="ShellMenuItem_Views_Main.Text" xml:space="preserve">
-    <value>Main</value>
+    <value>Principal</value>
   </data>
   <data name="Main_Title.Text" xml:space="preserve">
-    <value>Main</value>
+    <value>Principal</value>
     <comment>Page title for MainPage</comment>
   </data>
   <data name="ListDetails_NoSelection.Text" xml:space="preserve">
-    <value>Select an item from the list.</value>
+    <value>Selecciona un articulo de la lista</value>
   </data>
   <data name="ShellMenuItem_Views_ListDetails.Text" xml:space="preserve">
-    <value>ListDetails</value>
+    <value>Vista de detalles</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
-    <value>Personalization</value>
+    <value>Personalizacion</value>
   </data>
   <data name="Settings_Theme.Text" xml:space="preserve">
-    <value>Theme</value>
+    <value>Tema</value>
   </data>
   <data name="Settings_Theme_Light.Content" xml:space="preserve">
-    <value>Light</value>
+    <value>Claro</value>
   </data>
   <data name="Settings_Theme_Dark.Content" xml:space="preserve">
-    <value>Dark</value>
+    <value>Oscuro</value>
   </data>
   <data name="Settings_Theme_Default.Content" xml:space="preserve">
-    <value>Default</value>
+    <value>Por defecto</value>
   </data>
   <data name="Settings_About.Text" xml:space="preserve">
-    <value>About this application</value>
+    <value>Sobre esta aplicacion</value>
   </data>
   <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>A compiler for the SparkCore programming lenguage, a lenguage developed for the class "Compilers" by Guillermo Santos.</value>
+    <value>Un compilador para el el lenguaje de programacion 'SparkCore', desarrollado para la clase de compiladores por Guillermo Santos.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement</value>
+    <value>Terminos de privacidad</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
     <value>https://YourPrivacyUrlGoesHere/</value>
   </data>
   <data name="ShellMenuBarSettingsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
-    <value>Settings</value>
+    <value>Ajustes</value>
   </data>
   <data name="Settings_Title.Text" xml:space="preserve">
-    <value>Settings</value>
+    <value>Ajustes</value>
     <comment>Page title for SettingsPage</comment>
-  </data>
-  <data name="ShellMenuItem_Views_AnalyzerTest.Text" xml:space="preserve">
-    <value>Analyzer test</value>
   </data>
 </root>

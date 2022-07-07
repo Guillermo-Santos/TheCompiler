@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Syntax.Lexic;
@@ -20,7 +21,7 @@ namespace SparkCore.Analytics.Syntax
         public DiagnosticBag Diagnostics => _diagnostics;
         public Parser(SourceText text)
         {
-            List<SyntaxToken> tokens = new List<SyntaxToken>();
+            var tokens = new List<SyntaxToken>();
             var lexer = new LexicAnalyzer(text);
             SyntaxToken token;
             do
@@ -53,7 +54,7 @@ namespace SparkCore.Analytics.Syntax
             _position++;
             return current;
         }
-        private SyntaxToken MathToken(SyntaxKind type)
+        private SyntaxToken MatchToken(SyntaxKind type)
         {
             if (Current.Kind == type)
                 return NextToken();
@@ -66,7 +67,7 @@ namespace SparkCore.Analytics.Syntax
         public CompilationSyntaxUnit ParseCompilationUnit()
         {
             var statement = ParseStatement();
-            var endOfFileToken = MathToken(SyntaxKind.EndOfFileToken);
+            var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
             return new CompilationSyntaxUnit(statement, endOfFileToken);
         }
 
@@ -92,7 +93,7 @@ namespace SparkCore.Analytics.Syntax
         private SyntaxStatement ParseBlockStatement()
         {
             var statements = ImmutableArray.CreateBuilder<SyntaxStatement>();
-            var openBraceToken = MathToken(SyntaxKind.OpenBraceToken);
+            var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
             var startToken = Current;
             while (Current.Kind != SyntaxKind.EndOfFileToken &&
                   Current.Kind != SyntaxKind.CloseBraceToken)
@@ -112,15 +113,15 @@ namespace SparkCore.Analytics.Syntax
                 }
 
             }
-            var CloseBraceToken = MathToken(SyntaxKind.CloseBraceToken);
+            var CloseBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
             return new BlockSyntaxStatement(openBraceToken, statements.ToImmutable(), CloseBraceToken);
         }
         private SyntaxStatement ParseVariableDeclaration()
         {
             var expected = Current.Kind == SyntaxKind.LetKeyword ? SyntaxKind.LetKeyword : SyntaxKind.VarKeyword;
-            var keyword = MathToken(expected);
-            var identifier = MathToken(SyntaxKind.IdentifierToken);
-            var equals = MathToken(SyntaxKind.EqualsToken);
+            var keyword = MatchToken(expected);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equals = MatchToken(SyntaxKind.EqualsToken);
             var initializer = ParseExpression();
 
             return new VariableDeclarationSyntaxStatement(keyword, identifier, equals, initializer);
@@ -128,14 +129,13 @@ namespace SparkCore.Analytics.Syntax
 
         private SyntaxStatement ParseIfStatement()
         {
-            var keyword = MathToken(SyntaxKind.IfKeyword);
+            var keyword = MatchToken(SyntaxKind.IfKeyword);
             var condition = ParseExpression();
             var statement = ParseStatement();
             var elseClause = ParseElseClause();
 
             return new IfSyntaxStatement(keyword, condition, statement, elseClause);
         }
-
 
         private ElseClauseSyntax ParseElseClause()
         {
@@ -148,7 +148,7 @@ namespace SparkCore.Analytics.Syntax
         }
         private SyntaxStatement ParseWhileStatement()
         {
-            var keyword = MathToken(SyntaxKind.WhileKeyword);
+            var keyword = MatchToken(SyntaxKind.WhileKeyword);
             var condition = ParseExpression();
             var body = ParseStatement();
 
@@ -157,11 +157,11 @@ namespace SparkCore.Analytics.Syntax
 
         private SyntaxStatement ParseForStatement()
         {
-            var keyword = MathToken(SyntaxKind.ForKeyword);
-            var identifier = MathToken(SyntaxKind.IdentifierToken);
-            var equalstoken = MathToken(SyntaxKind.EqualsToken);
+            var keyword = MatchToken(SyntaxKind.ForKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var equalstoken = MatchToken(SyntaxKind.EqualsToken);
             var lowerBound = ParseExpression();
-            var toKeyword = MathToken(SyntaxKind.ToKeyword);
+            var toKeyword = MatchToken(SyntaxKind.ToKeyword);
             var upperBound = ParseExpression();
             var body = ParseStatement();
             return new ForSyntaxStatement(keyword, identifier, equalstoken, lowerBound, toKeyword, upperBound, body);
@@ -232,40 +232,74 @@ namespace SparkCore.Analytics.Syntax
                     return ParseStringLiteral();
                 case SyntaxKind.IdentifierToken:
                 default:
-                    return ParseNameExpression();
+                    return ParseNameOrCallExpression();
             }
         }
 
 
         private SyntaxExpression ParseParenthesizedExpression()
         {
-            var left = MathToken(SyntaxKind.OpenParentesisToken);
+            var left = MatchToken(SyntaxKind.OpenParentesisToken);
             var expression = ParseExpression();
-            var right = MathToken(SyntaxKind.CloseParentesisToken);
+            var right = MatchToken(SyntaxKind.CloseParentesisToken);
             return new ParenthesizedSyntaxExpression(left, expression, right);
         }
 
         private SyntaxExpression ParseBooleanLiteral()
         {
             var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
-            var keywordToken = isTrue ? MathToken(SyntaxKind.TrueKeyword) : MathToken(SyntaxKind.FalseKeyword);
+            var keywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
             return new LiteralSyntaxExpression(keywordToken, isTrue);
         }
         private SyntaxExpression ParseNumberLiteral()
         {
-            var numberToken = MathToken(SyntaxKind.NumberToken);
+            var numberToken = MatchToken(SyntaxKind.NumberToken);
             return new LiteralSyntaxExpression(numberToken);
         }
 
         private SyntaxExpression ParseStringLiteral()
         {
-            var stringToken = MathToken(SyntaxKind.StringToken);
+            var stringToken = MatchToken(SyntaxKind.StringToken);
             return new LiteralSyntaxExpression(stringToken);
+        }
+
+        private SyntaxExpression ParseNameOrCallExpression()
+        {
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenParentesisToken)
+                return ParseCallExpression();
+            return ParseNameExpression();
+        }
+        private SyntaxExpression ParseCallExpression()
+        {
+            var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
+            var openParentesis = MatchToken(SyntaxKind.OpenParentesisToken);
+            var arguments = ParseArguments();
+            var closeParentesis = MatchToken(SyntaxKind.CloseParentesisToken);
+
+            return new CallSyntaxExpression(identifierToken, openParentesis, arguments, closeParentesis);
+        }
+
+        private SeparatedSyntaxList<SyntaxExpression> ParseArguments()
+        {
+            var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
+            while (Current.Kind != SyntaxKind.CloseParentesisToken &&
+                   Current.Kind != SyntaxKind.EndOfFileToken)
+            {
+                var expression = ParseExpression();
+                nodesAndSeparators.Add(expression);
+                if (Current.Kind != SyntaxKind.CloseParentesisToken)
+                {
+                    var comma = MatchToken(SyntaxKind.CommaToken);
+                    nodesAndSeparators.Add(comma);
+                }
+
+            }
+            return new SeparatedSyntaxList<SyntaxExpression>(nodesAndSeparators.ToImmutable());
         }
 
         private SyntaxExpression ParseNameExpression()
         {
-            var identifierToken = MathToken(SyntaxKind.IdentifierToken);
+            var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
             return new NameSyntaxExpression(identifierToken);
         }
     }

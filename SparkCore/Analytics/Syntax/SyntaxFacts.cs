@@ -136,6 +136,8 @@ namespace SparkCore.Analytics.Syntax
                     return "{";
                 case SyntaxKind.CloseBraceToken:
                     return "}";
+                case SyntaxKind.CommaToken:
+                    return ",";
                 case SyntaxKind.BangToken:
                     return "!";
                 case SyntaxKind.EqualsToken:

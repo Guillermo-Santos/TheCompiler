@@ -1,13 +1,12 @@
 ﻿using System;
 using SparkCore.Analytics.Symbols;
 
-namespace SparkCore.Analytics.Binding.Tree.Expressions
+namespace SparkCore.Analytics.Binding.Tree.Expressions;
+
+internal abstract class BoundExpression : BoundNode
 {
-    internal abstract class BoundExpression : BoundNode
+    public abstract TypeSymbol Type
     {
-        public abstract TypeSymbol Type
-        {
-            get;
-        }
+        get;
     }
 }

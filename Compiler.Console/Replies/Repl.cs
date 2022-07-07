@@ -8,7 +8,7 @@ namespace Compiler.Cnsl.Replies;
 internal abstract class Repl
 {
 
-    private readonly List<string> _submissionHistory = new List<string>();
+    private readonly List<string> _submissionHistory = new();
     private int _submissionHistoryIndex;
     private bool _done;
 

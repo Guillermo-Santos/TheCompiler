@@ -4,5 +4,7 @@
     {
         Variable,
         Type,
+        Function,
+        Parameter,
     }
 }
