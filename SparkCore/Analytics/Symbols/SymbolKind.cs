@@ -1,10 +1,10 @@
-﻿namespace SparkCore.Analytics.Symbols
+﻿namespace SparkCore.Analytics.Symbols;
+
+public enum SymbolKind
 {
-    public enum SymbolKind
-    {
-        Variable,
-        Type,
-        Function,
-        Parameter,
-    }
+    Function,
+    GlobalVariable,
+    LocalVariable,
+    Parameter,
+    Type,
 }

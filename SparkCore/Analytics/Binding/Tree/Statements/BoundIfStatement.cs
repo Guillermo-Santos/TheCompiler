@@ -1,29 +1,28 @@
 ﻿using SparkCore.Analytics.Binding.Tree.Expressions;
 
-namespace SparkCore.Analytics.Binding.Tree.Statements
+namespace SparkCore.Analytics.Binding.Tree.Statements;
+
+internal sealed class BoundIfStatement : BoundStatement
 {
-    internal sealed class BoundIfStatement : BoundStatement
+    public BoundIfStatement(BoundExpression condition, BoundStatement thenStatement, BoundStatement elseStatement)
     {
-        public BoundIfStatement(BoundExpression condition, BoundStatement thenStatement, BoundStatement elseStatement)
-        {
-            Condition = condition;
-            ThenStatement = thenStatement;
-            ElseStatement = elseStatement;
-        }
-
-        public override BoundNodeKind Kind => BoundNodeKind.IfStatement;
-        public BoundExpression Condition
-        {
-            get;
-        }
-        public BoundStatement ThenStatement
-        {
-            get;
-        }
-        public BoundStatement ElseStatement
-        {
-            get;
-        }
-
+        Condition = condition;
+        ThenStatement = thenStatement;
+        ElseStatement = elseStatement;
     }
+
+    public override BoundNodeKind Kind => BoundNodeKind.IfStatement;
+    public BoundExpression Condition
+    {
+        get;
+    }
+    public BoundStatement ThenStatement
+    {
+        get;
+    }
+    public BoundStatement ElseStatement
+    {
+        get;
+    }
+
 }

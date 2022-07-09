@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class ParenthesizedSyntaxExpression : SyntaxExpression
+    public sealed class ParenthesizedSyntaxExpression : ExpressionSyntax
     {
-        public ParenthesizedSyntaxExpression(SyntaxToken openParenthesisToken, SyntaxExpression expression, SyntaxToken closeParenthesisToken)
+        public ParenthesizedSyntaxExpression(SyntaxToken openParenthesisToken, ExpressionSyntax expression, SyntaxToken closeParenthesisToken)
         {
             OpenParenthesisToken = openParenthesisToken;
             Expression = expression;
@@ -14,7 +14,7 @@
         {
             get;
         }
-        public SyntaxExpression Expression
+        public ExpressionSyntax Expression
         {
             get;
         }

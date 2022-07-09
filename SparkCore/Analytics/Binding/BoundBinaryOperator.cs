@@ -2,7 +2,7 @@
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax;
 
-namespace SparkCore.Analytics.Binding.Tree.Expressions
+namespace SparkCore.Analytics.Binding
 {
     internal sealed class BoundBinaryOperator
     {

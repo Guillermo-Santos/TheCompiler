@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class UnarySyntaxExpression : SyntaxExpression
+    public sealed class UnarySyntaxExpression : ExpressionSyntax
     {
-        public UnarySyntaxExpression(SyntaxToken operatorToken, SyntaxExpression operand)
+        public UnarySyntaxExpression(SyntaxToken operatorToken, ExpressionSyntax operand)
         {
             OperatorToken = operatorToken;
             Operand = operand;
@@ -13,7 +13,7 @@
         {
             get;
         }
-        public SyntaxExpression Operand
+        public ExpressionSyntax Operand
         {
             get;
         }

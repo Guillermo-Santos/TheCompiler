@@ -14,6 +14,9 @@ internal static class BuiltinFunctions
     public static FunctionSymbol Input = new("input",
                                              ImmutableArray<ParameterSymbol>.Empty, 
                                              TypeSymbol.String);
+    public static FunctionSymbol Random = new("random",
+                                             ImmutableArray.Create(new ParameterSymbol("max", TypeSymbol.Int)),
+                                             TypeSymbol.Int);
     internal static IEnumerable<FunctionSymbol> GetAll()
         => typeof(BuiltinFunctions).GetFields(BindingFlags.Public | BindingFlags.Static)
                                    .Where(f => f.FieldType == typeof(FunctionSymbol))

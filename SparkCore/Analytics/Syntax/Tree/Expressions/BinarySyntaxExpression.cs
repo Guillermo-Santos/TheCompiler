@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class BinarySyntaxExpression : SyntaxExpression
+    public sealed class BinarySyntaxExpression : ExpressionSyntax
     {
-        public BinarySyntaxExpression(SyntaxExpression left, SyntaxToken operatorToken, SyntaxExpression right)
+        public BinarySyntaxExpression(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
         {
             Left = left;
             OperatorToken = operatorToken;
@@ -10,7 +10,7 @@
         }
         public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
 
-        public SyntaxExpression Left
+        public ExpressionSyntax Left
         {
             get;
         }
@@ -18,7 +18,7 @@
         {
             get;
         }
-        public SyntaxExpression Right
+        public ExpressionSyntax Right
         {
             get;
         }

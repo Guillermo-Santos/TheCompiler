@@ -27,7 +27,7 @@ namespace SparkCore.Analytics.Syntax.Tree
         {
             get;
         }
-        public CompilationSyntaxUnit Root
+        public CompilationUnitSyntax Root
         {
             get;
         }

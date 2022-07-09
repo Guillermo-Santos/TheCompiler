@@ -70,7 +70,8 @@ public class EvaluationTests
     [InlineData("{ var i = 10 var result = 0 while i > 0 { result = result + 1 i = i - 1} result}", 10)]
     [InlineData("{ var result = 0 for i = 1 to 100 { result = result + i} result}", 5050)]
     [InlineData("{ var result = 0 var e = 0 for i = 1 to 10 {result = result + 1 if i==5 e = 10} result = result * e}", 100)]
-    [InlineData("{ var a = 10 for i = 1 to (a = a - 1) {} a}",9)]
+    [InlineData("{ var a = 10 for i = 1 to (a = a - 1) {} a}", 9)]
+    [InlineData("{ var a = 0 do{ a = a + 1 }while a < 10 a}", 10)]
     #endregion
     public void SyntaxFact_GetText_RoundTrips(string text, object expectedResult)
     {
@@ -91,7 +92,7 @@ public class EvaluationTests
             ";
 
         var diagnostics = @"
-                Variable 'x' is already declared.
+                'x' is already declared.
             ";
 
         AssertDiagnostics(text, diagnostics);
@@ -161,6 +162,25 @@ public class EvaluationTests
 
         var diagnostics = @"
                 Cannot convert type 'bool' to 'int'.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+
+    }
+    [Fact]
+    public void Evaluate_DoWhileStatement_Reports_CannotConvert_LowerBound()
+    {
+        var text = @"
+                {
+                    var x = 0
+                    do
+                        x = 10
+                    while [10]
+                }
+            ";
+
+        var diagnostics = @"
+                Cannot convert type 'int' to 'bool'.
             ";
 
         AssertDiagnostics(text, diagnostics);
@@ -278,7 +298,22 @@ public class EvaluationTests
         AssertDiagnostics(text, diagnostics);
 
     }
+    [Fact]
+    public void Evaluator_Variables_Can_Shadow_Functions()
+    {
+        var text = @"
+                {
+                    let print = 42
+                    [print](""test"")
+                }
+            ";
 
+        var diagnostics = @"
+                Function 'print' doesn't exist.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
     private static void AssertValue(string text, object expectedResult)
     {
         var syntaxTree = SyntaxTree.Parse(text);

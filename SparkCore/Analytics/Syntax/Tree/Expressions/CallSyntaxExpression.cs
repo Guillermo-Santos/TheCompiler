@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions;
 
-public sealed class CallSyntaxExpression : SyntaxExpression
+public sealed class CallSyntaxExpression : ExpressionSyntax
 {
-    public CallSyntaxExpression(SyntaxToken identifier, SyntaxToken openParentesis, SeparatedSyntaxList<SyntaxExpression> arguments, SyntaxToken closeParentesis)
+    public CallSyntaxExpression(SyntaxToken identifier, SyntaxToken openParentesis, SeparatedSyntaxList<ExpressionSyntax> arguments, SyntaxToken closeParentesis)
     {
         Identifier = identifier;
         OpenParentesis = openParentesis;
@@ -19,7 +19,7 @@ public sealed class CallSyntaxExpression : SyntaxExpression
     {
         get;
     }
-    public SeparatedSyntaxList<SyntaxExpression> Arguments
+    public SeparatedSyntaxList<ExpressionSyntax> Arguments
     {
         get;
     }

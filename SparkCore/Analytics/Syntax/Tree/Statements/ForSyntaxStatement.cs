@@ -2,9 +2,9 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
-    public sealed class ForSyntaxStatement : SyntaxStatement
+    public sealed class ForSyntaxStatement : StatementSyntax
     {
-        public ForSyntaxStatement(SyntaxToken keyword, SyntaxToken identifier, SyntaxToken equalsToken, SyntaxExpression lowerBound, SyntaxToken toKeyword, SyntaxExpression upperBound, SyntaxStatement body)
+        public ForSyntaxStatement(SyntaxToken keyword, SyntaxToken identifier, SyntaxToken equalsToken, ExpressionSyntax lowerBound, SyntaxToken toKeyword, ExpressionSyntax upperBound, StatementSyntax body)
         {
             Keyword = keyword;
             Identifier = identifier;
@@ -28,7 +28,7 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         {
             get;
         }
-        public SyntaxExpression LowerBound
+        public ExpressionSyntax LowerBound
         {
             get;
         }
@@ -36,11 +36,11 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         {
             get;
         }
-        public SyntaxExpression UpperBound
+        public ExpressionSyntax UpperBound
         {
             get;
         }
-        public SyntaxStatement Body
+        public StatementSyntax Body
         {
             get;
         }

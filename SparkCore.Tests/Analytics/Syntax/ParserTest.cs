@@ -143,11 +143,11 @@ namespace SparkCore.Tests.Analytics.Syntax
                 }
             }
         }
-        private static SyntaxExpression ParseExpression(string text)
+        private static ExpressionSyntax ParseExpression(string text)
         {
             SyntaxTree syntaxTree = SyntaxTree.Parse(text);
             var root = syntaxTree.Root;
-            var statement = root.Statement;
+            var statement = root.Members;
             return Assert.IsType<ExpressionSyntaxStatement>(statement).Expression;
         }
     }

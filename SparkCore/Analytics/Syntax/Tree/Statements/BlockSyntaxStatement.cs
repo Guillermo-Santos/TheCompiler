@@ -2,9 +2,9 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
-    public sealed class BlockSyntaxStatement : SyntaxStatement
+    public sealed class BlockSyntaxStatement : StatementSyntax
     {
-        public BlockSyntaxStatement(SyntaxToken openBraceToken, ImmutableArray<SyntaxStatement> statements, SyntaxToken closeBraceToken)
+        public BlockSyntaxStatement(SyntaxToken openBraceToken, ImmutableArray<StatementSyntax> statements, SyntaxToken closeBraceToken)
         {
             OpenBraceToken = openBraceToken;
             Statements = statements;
@@ -16,7 +16,7 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
         {
             get;
         }
-        public ImmutableArray<SyntaxStatement> Statements
+        public ImmutableArray<StatementSyntax> Statements
         {
             get;
         }

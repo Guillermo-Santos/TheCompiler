@@ -1,6 +1,6 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class LiteralSyntaxExpression : SyntaxExpression
+    public sealed class LiteralSyntaxExpression : ExpressionSyntax
     {
         public LiteralSyntaxExpression(SyntaxToken literalToken)
             : this(literalToken, literalToken.Value)
