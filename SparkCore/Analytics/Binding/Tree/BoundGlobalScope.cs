@@ -6,13 +6,13 @@ using SparkCore.Analytics.Symbols;
 namespace SparkCore.Analytics.Binding.Tree;
 internal sealed class BoundGlobalScope
 {
-    public BoundGlobalScope(BoundGlobalScope previous, ImmutableArray<Diagnostic> diagnostics, ImmutableArray<FunctionSymbol> functions, ImmutableArray<VariableSymbol> variables, BoundStatement statement)
+    public BoundGlobalScope(BoundGlobalScope previous, ImmutableArray<Diagnostic> diagnostics, ImmutableArray<FunctionSymbol> functions, ImmutableArray<VariableSymbol> variables, ImmutableArray<BoundStatement> statements)
     {
         Previous = previous;
         Diagnostics = diagnostics;
         Functions = functions;
         Variables = variables;
-        Statement = statement;
+        Statements = statements;
     }
 
     public BoundGlobalScope Previous
@@ -31,7 +31,7 @@ internal sealed class BoundGlobalScope
     {
         get;
     }
-    public BoundStatement Statement
+    public ImmutableArray<BoundStatement> Statements
     {
         get;
     }

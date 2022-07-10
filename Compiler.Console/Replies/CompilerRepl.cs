@@ -4,7 +4,7 @@ using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Text;
 
-namespace Compiler.Cnsl.Replies;
+namespace Compiler.spi.Replies;
 
 internal sealed class CompilerRepl : Repl
 {
@@ -103,7 +103,7 @@ internal sealed class CompilerRepl : Repl
 
         if (!result.Diagnostics.Any())
         {
-            if(result.Value != null)
+            if (result.Value != null)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(result.Value);
@@ -113,7 +113,7 @@ internal sealed class CompilerRepl : Repl
         }
         else
         {
-            foreach (var diagnostic in result.Diagnostics)
+            foreach (var diagnostic in result.Diagnostics.OrderBy(diag => diag.Span, new TextSpanComparer()))
             {
                 var lineIndex = syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
                 var line = syntaxTree.Text.Lines[lineIndex];

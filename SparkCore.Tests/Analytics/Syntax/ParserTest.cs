@@ -1,6 +1,7 @@
 ﻿using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
+using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
 
 namespace SparkCore.Tests.Analytics.Syntax
@@ -147,8 +148,9 @@ namespace SparkCore.Tests.Analytics.Syntax
         {
             SyntaxTree syntaxTree = SyntaxTree.Parse(text);
             var root = syntaxTree.Root;
-            var statement = root.Members;
-            return Assert.IsType<ExpressionSyntaxStatement>(statement).Expression;
+            var member = Assert.Single(root.Members);
+            var globalStatement = Assert.IsType<GlobalStatementSyntax>(member);
+            return Assert.IsType<ExpressionSyntaxStatement>(globalStatement.Statement).Expression;
         }
     }
 }

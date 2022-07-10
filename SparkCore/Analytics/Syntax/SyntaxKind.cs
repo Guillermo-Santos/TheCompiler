@@ -33,7 +33,10 @@ public enum SyntaxKind
     LessOrEqualsToken,
     GreaterToken,
     GreaterOrEqualsToken,
+    
     //KEYWORDS
+    BreakKeyword,
+    ContinueKeyword,
     DoKeyword,
     ElseKeyword,
     FalseKeyword,
@@ -62,6 +65,8 @@ public enum SyntaxKind
     WhileStatement,
     DoWhileStatement,
     ForStatement,
+    BreakStatement,
+    ContinueStatement,
 
     // EXPRESSIONS
     LiteralExpression,

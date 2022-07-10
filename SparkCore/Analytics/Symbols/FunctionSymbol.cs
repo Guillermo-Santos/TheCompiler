@@ -2,7 +2,6 @@
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 
 namespace SparkCore.Analytics.Symbols;
-
 public sealed class FunctionSymbol : Symbol
 {
     public FunctionSymbol(string name, ImmutableArray<ParameterSymbol> parameters, TypeSymbol type, FunctionDeclarationSyntax declaration = null) : base(name)

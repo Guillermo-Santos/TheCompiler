@@ -12,13 +12,13 @@ internal sealed class BoundUnaryOperator
     }
     private BoundUnaryOperator(SyntaxKind syntaxtype, BoundUnaryOperatorKind kind, TypeSymbol operandType, TypeSymbol resultType)
     {
-        Syntaxtype = syntaxtype;
+        SyntaxKind = syntaxtype;
         Kind = kind;
         OperandType = operandType;
         Type = resultType;
     }
 
-    public SyntaxKind Syntaxtype
+    public SyntaxKind SyntaxKind
     {
         get;
     }
@@ -48,7 +48,7 @@ internal sealed class BoundUnaryOperator
     {
         foreach (var op in _operators)
         {
-            if (op.Syntaxtype == SyntaxType && op.OperandType == operandtype)
+            if (op.SyntaxKind == SyntaxType && op.OperandType == operandtype)
                 return op;
         }
         return null;

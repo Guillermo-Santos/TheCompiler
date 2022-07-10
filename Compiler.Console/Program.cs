@@ -1,6 +1,6 @@
-﻿using Compiler.Cnsl.Replies;
+﻿using Compiler.spi.Replies;
 
-namespace Compiler.Cnsl;
+namespace Compiler.spi;
 
 internal static class Program
 {

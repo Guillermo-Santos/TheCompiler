@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Text;
 using Console = System.Console;
 
-namespace Compiler.Cnsl.Replies;
+namespace Compiler.spi.Replies;
 internal abstract class Repl
 {
 
@@ -209,7 +209,8 @@ internal abstract class Repl
 
     private void HandleEscape(ObservableCollection<string> document, SubmissionView view)
     {
-        document[view.CurrentLine] = string.Empty;
+        document.Clear();
+        document.Add(string.Empty);
         view.CurrentCharacter = 0;
     }
     private void HandleEnter(ObservableCollection<string> document, SubmissionView view)

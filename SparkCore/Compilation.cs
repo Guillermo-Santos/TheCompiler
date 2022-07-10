@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 using SparkCore.Analytics;
 using SparkCore.Analytics.Binding;
@@ -66,22 +67,28 @@ public class Compilation
         if(program.Diagnostics.Any())
             return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
 
-        var statement = GetStatement();
-        var evaluator = new Evaluator(program.FunctionBodies, statement, variables);
+        var evaluator = new Evaluator(program, variables);
         var value = evaluator.Evaluate();
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
 
     public void EmitTree(TextWriter writter)
     {
-        var statement = GetStatement();
-        statement.WriteTo(writter);
-    }
-
-    private BoundBlockStatement GetStatement()
-    {
-        var result = GlobalScope.Statement;
-        return Lowerer.Lower(result);
+        var program = Binder.BindProgram(GlobalScope);
+        if (program.Statement.Statements.Any())
+        {
+            program.Statement.WriteTo(writter);
+        }
+        else
+        {
+            foreach(var functionBody in program.Functions)
+            {
+                if (!GlobalScope.Functions.Contains(functionBody.Key))
+                    continue;
+                functionBody.Key.WriteTo(writter);
+                functionBody.Value.WriteTo(writter);
+            }
+        }
     }
 
 }

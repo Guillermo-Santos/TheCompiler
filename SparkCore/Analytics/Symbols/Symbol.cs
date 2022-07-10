@@ -1,4 +1,6 @@
-﻿namespace SparkCore.Analytics.Symbols
+﻿using System.IO;
+
+namespace SparkCore.Analytics.Symbols
 {
     public abstract class Symbol
     {
@@ -15,6 +17,17 @@
         {
             get;
         }
-        public override string ToString() => Name;
+        public void WriteTo(TextWriter writer)
+        {
+            SymbolPrinter.WriteTo(this, writer);
+        }
+        public override string ToString()
+        {
+            using(var writer = new StringWriter())
+            {
+                WriteTo(writer);
+                return writer.ToString();
+            }
+        }
     }
 }

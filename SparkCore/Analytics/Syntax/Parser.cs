@@ -15,10 +15,8 @@ internal sealed class Parser
 {
     private readonly DiagnosticBag _diagnostics = new();
     private readonly SourceText _text;
-
     private readonly ImmutableArray<SyntaxToken> _tokens;
     private int _position;
-    public DiagnosticBag Diagnostics => _diagnostics;
     public Parser(SourceText text)
     {
         var tokens = new List<SyntaxToken>();
@@ -32,10 +30,12 @@ internal sealed class Parser
                 tokens.Add(token);
             }
         } while (token.Kind != SyntaxKind.EndOfFileToken);
+        
+        _text = text;
         _tokens = tokens.ToImmutableArray();
         _diagnostics.AddRange(lexer.Diagnostics);
-        _text = text;
     }
+    public DiagnosticBag Diagnostics => _diagnostics;
 
     private SyntaxToken Peek(int offset)
     {
@@ -104,6 +104,7 @@ internal sealed class Parser
     {
         if (Current.Kind == SyntaxKind.FunctionKeyword)
             return ParseFunctionDeclaration();
+
         return ParseGlobalStatement();
     }
 
@@ -124,15 +125,23 @@ internal sealed class Parser
     {
 
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
-        while (Current.Kind != SyntaxKind.CloseParentesisToken &&
+
+        var parseNextParameter = true;
+        while (parseNextParameter && 
+               Current.Kind != SyntaxKind.CloseParentesisToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {
             var parameter = ParseParameter();
             nodesAndSeparators.Add(parameter);
-            if (Current.Kind != SyntaxKind.CloseParentesisToken)
+
+            if (Current.Kind == SyntaxKind.CommaToken)
             {
                 var comma = MatchToken(SyntaxKind.CommaToken);
                 nodesAndSeparators.Add(comma);
+            }
+            else
+            {
+                parseNextParameter = false;
             }
 
         }
@@ -170,17 +179,23 @@ internal sealed class Parser
                 return ParseDoWhileStatement();
             case SyntaxKind.ForKeyword:
                 return ParseForStatement();
+            case SyntaxKind.BreakKeyword:
+                return ParseBreakStatement();
+            case SyntaxKind.ContinueKeyword:
+                return ParseContinueStatement();
         }
         return ParseExpressionStatement();
     }
+
     private BlockSyntaxStatement ParseBlockStatement()
     {
         var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
         var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
-        var startToken = Current;
         while (Current.Kind != SyntaxKind.EndOfFileToken &&
               Current.Kind != SyntaxKind.CloseBraceToken)
         {
+            var startToken = Current;
+
             var statement = ParseStatement();
             statements.Add(statement);
             // If ParseStatement() did not consume any tokens,
@@ -271,6 +286,18 @@ internal sealed class Parser
         var body = ParseStatement();
         return new ForSyntaxStatement(keyword, identifier, equalstoken, lowerBound, toKeyword, upperBound, body);
     }
+
+    private StatementSyntax ParseBreakStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.BreakKeyword);
+        return new BreakStatementSyntax(keyword);
+    }
+    private StatementSyntax ParseContinueStatement()
+    {
+        var keyword = MatchToken(SyntaxKind.ContinueKeyword);
+        return new ContinueStatementSyntax(keyword);
+    }
+
     private StatementSyntax ParseExpressionStatement()
     {
         var expression = ParseExpression();
@@ -379,15 +406,24 @@ internal sealed class Parser
     private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
     {
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
-        while (Current.Kind != SyntaxKind.CloseParentesisToken &&
+
+        var parseNextArgument = true;
+        while (parseNextArgument && 
+               Current.Kind != SyntaxKind.CloseParentesisToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {
             var expression = ParseExpression();
             nodesAndSeparators.Add(expression);
-            if (Current.Kind != SyntaxKind.CloseParentesisToken)
+
+
+            if (Current.Kind == SyntaxKind.CommaToken)
             {
                 var comma = MatchToken(SyntaxKind.CommaToken);
                 nodesAndSeparators.Add(comma);
+            }
+            else
+            {
+                parseNextArgument = false;
             }
 
         }

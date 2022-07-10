@@ -61,6 +61,12 @@ public class EvaluationTests
     [InlineData("!true", false)]
     [InlineData("!false", true)]
     [InlineData("var a = 10", 10)]
+    [InlineData("\"test\"", "test")]
+    [InlineData("\"te\"\"st\"", "te\"st")]
+    [InlineData("\"test\" == \"test\"", true)]
+    [InlineData("\"test\" != \"test\"", false)]
+    [InlineData("\"test\" == \"asd\"", false)]
+    [InlineData("\"test\" != \"asd\"", true)]
     [InlineData("{var a = 10 (a * a)}", 100)]
     [InlineData("{ var a = 0 (a = 10) * a}", 100)]
     [InlineData("{ var a = 0 if a == 0 a = 10 a }", 10)]
@@ -114,6 +120,44 @@ public class EvaluationTests
         AssertDiagnostics(text, diagnostics);
 
     }
+
+    [Fact]
+    public void Evaluator_InvokeFunctionArguments_NoInfiniteLoop()
+    {
+        var text = @"
+                print(""Hi""[[=]][)]
+            ";
+
+        var diagnostics = @"
+                Unexpected token <EqualsToken>, expected <CloseParentesisToken>.
+                Unexpected token <EqualsToken>, expected <IdentifierToken>.
+                Unexpected token <CloseParentesisToken>, expected <IdentifierToken>.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_FunctionParameters_NoInfiniteLoop()
+    {
+        var text = @"
+                function hi(name: string[[[=]]][)]
+                {
+                    print(""Hi "" + name + ""!"" )
+                }[]
+            ";
+
+        var diagnostics = @"
+                Unexpected token <EqualsToken>, expected <CloseParentesisToken>.
+                Unexpected token <EqualsToken>, expected <OpenBraceToken>.
+                Unexpected token <EqualsToken>, expected <IdentifierToken>.
+                Unexpected token <CloseParentesisToken>, expected <IdentifierToken>.
+                Unexpected token <EndOfFileToken>, expected <CloseBraceToken>.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
     [Fact]
     public void Evaluate_IfStatement_Reports_CannotConvert()
     {
@@ -219,7 +263,7 @@ public class EvaluationTests
     [Fact]
     public void Evaluate_NameExpression_Reports_NoErrorForInsertedToken()
     {
-        var text = @"[]";
+        var text = @"1 + []";
 
         var diagnostics = @"
                 Unexpected token <EndOfFileToken>, expected <IdentifierToken>.

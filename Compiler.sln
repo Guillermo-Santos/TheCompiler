@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SparkCore", "SparkCore\Spar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SparkCore.Tests", "SparkCore.Tests\SparkCore.Tests.csproj", "{D16E586A-289B-4B61-9F60-47E362C1C427}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Compiler.Cnsl", "Compiler.Console\Compiler.Cnsl.csproj", "{1A78CB60-940A-414D-BAB5-EED87EF446EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Compiler.spi", "Compiler.Console\Compiler.spi.csproj", "{1A78CB60-940A-414D-BAB5-EED87EF446EA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SparkCore", "SparkCore", "{3325E2F1-0BE1-45EF-B9F1-D26059CE9A83}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Spark", "Spark", "{3325E2F1-0BE1-45EF-B9F1-D26059CE9A83}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compiler", "Compiler", "{6C333A34-B56A-4D49-980C-A977759804AD}"
 EndProject

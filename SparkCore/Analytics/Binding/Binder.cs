@@ -17,12 +17,14 @@ using System.Linq.Expressions;
 using SparkCore.Analytics.Lowering;
 
 namespace SparkCore.Analytics.Binding;
-
-//TODO: Change for syntax and BoundLowering from 'for <var> = <lower> to <upper> <body>' to 'for(ExpressionStatement ; condition ; increment) <body>'
+// Waiting to have 'break' and 'continue' statements to do this:
+// TODO: Change for syntax and BoundLowering from 'for <var> = <lower> to <upper> <body>' to 'for(ExpressionStatement ; condition ; increment) <body>'
 internal sealed class Binder
 {
     private readonly DiagnosticBag _diagnostics = new();
     private readonly FunctionSymbol _function;
+    private readonly Stack<(BoundLabel BreakLabel, BoundLabel ContinueLabel)> _loopStack = new();
+    private int _labelCounter;
     private BoundScope _scope;
     public DiagnosticBag Diagnostics => _diagnostics;
 
@@ -47,13 +49,13 @@ internal sealed class Binder
             binder.BindFunctionDeclaration(function);
 
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
         foreach(var globalStatement in syntax.Members.OfType<GlobalStatementSyntax>())
         {
-            var s = binder.BindStatement(globalStatement.Statement);
-            statements.Add(s);
+            var statement = binder.BindStatement(globalStatement.Statement);
+            statements.Add(statement);
         }
 
-        var statement = new BoundBlockStatement(statements.ToImmutable());
         var functions = binder._scope.GetDeclaredFunctions();
         var variables = binder._scope.GetDeclaredVariales();
         var diagnostics = binder._diagnostics.ToImmutableArray();
@@ -63,7 +65,7 @@ internal sealed class Binder
             diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
         }
 
-        return new BoundGlobalScope(previous, diagnostics, functions, variables, statement);
+        return new BoundGlobalScope(previous, diagnostics, functions, variables, statements.ToImmutable());
     }
 
     public static BoundProgram BindProgram(BoundGlobalScope globalScope)
@@ -71,7 +73,7 @@ internal sealed class Binder
         var parentScope = CreateParenScopes(globalScope);
 
         var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
-        var diagnostics = new DiagnosticBag();
+        var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
         var scope = globalScope;
 
         while(scope != null)
@@ -90,7 +92,9 @@ internal sealed class Binder
             scope = scope.Previous;
         }
 
-        return new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
+        var statement = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
+
+        return new BoundProgram(diagnostics.ToImmutable(), functionBodies.ToImmutable(), statement);
     }
 
     private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
@@ -161,6 +165,7 @@ internal sealed class Binder
         return result;
     }
 
+    private BoundStatement BindErrorStatement() => new BoundExpressionStatement(new BoundErrorExpression());
     private BoundStatement BindStatement(StatementSyntax syntax)
     {
         switch (syntax.Kind)
@@ -177,12 +182,15 @@ internal sealed class Binder
                 return BindDoWhileStatement((DoWhileSyntaxStatement)syntax);
             case SyntaxKind.ForStatement:
                 return BindForStatement((ForSyntaxStatement)syntax);
+            case SyntaxKind.BreakStatement:
+                return BindBreakStatement((BreakStatementSyntax)syntax);
+            case SyntaxKind.ContinueStatement:
+                return BindContinueStatement((ContinueStatementSyntax)syntax);
             case SyntaxKind.ExpressionStatement:
                 return BindExpressionStatement((ExpressionSyntaxStatement)syntax);
             default:
                 throw new Exception($"Unexpected syntax: {syntax.Kind}");
         }
-
     }
     private BoundStatement BindBlockStatement(BlockSyntaxStatement syntax)
     {
@@ -228,14 +236,14 @@ internal sealed class Binder
     private BoundStatement BindWhileStatement(WhileSyntaxStatement syntax)
     {
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
-        var body = BindStatement(syntax.Body);
-        return new BoundWhileStatement(condition, body);
+        var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
+        return new BoundWhileStatement(condition, body, breakLabel, continueLabel);
     }
     private BoundStatement BindDoWhileStatement(DoWhileSyntaxStatement syntax)
     {
-        var body = BindStatement(syntax.Body);
+        var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
-        return new BoundDoWhileStatement(body, condition);
+        return new BoundDoWhileStatement(body, condition, breakLabel, continueLabel);
     }
     private BoundStatement BindForStatement(ForSyntaxStatement syntax)
     {
@@ -246,11 +254,45 @@ internal sealed class Binder
         var identifier = syntax.Identifier;
         var variable = BindVariable(identifier, isReadOnly: true, TypeSymbol.Int);
 
-        var body = BindStatement(syntax.Body);
+        var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
 
         _scope = _scope.Parent;
 
-        return new BoundForStatement(variable, lowerBound, upperBound, body);
+        return new BoundForStatement(variable, lowerBound, upperBound, body, breakLabel, continueLabel);
+    }
+    private BoundStatement BindLoopBody(StatementSyntax body, out BoundLabel breakLabel, out BoundLabel continueLabel)
+    {
+        _labelCounter++;
+        breakLabel = new($"break{_labelCounter}");
+        continueLabel = new($"continue{_labelCounter}");
+
+        _loopStack.Push((breakLabel, continueLabel));
+        var boundBody = BindStatement(body);
+        _loopStack.Pop();
+
+        return boundBody;
+    }
+    private BoundStatement BindBreakStatement(BreakStatementSyntax syntax)
+    {
+        if(_loopStack.Count == 0)
+        {
+            _diagnostics.ReportInvalidBreackOrContinue(syntax.Keyword.Span, syntax.Keyword.Text);
+            return BindErrorStatement();
+        }
+        var breakLabel = _loopStack.Peek().BreakLabel;
+        return new BoundGotoStatement(breakLabel);
+    }
+
+
+    private BoundStatement BindContinueStatement(ContinueStatementSyntax syntax)
+    {
+        if (_loopStack.Count == 0)
+        {
+            _diagnostics.ReportInvalidBreackOrContinue(syntax.Keyword.Span, syntax.Keyword.Text);
+            return BindErrorStatement();
+        }
+        var continueLabel = _loopStack.Peek().ContinueLabel;
+        return new BoundGotoStatement(continueLabel);
     }
     private BoundStatement BindExpressionStatement(ExpressionSyntaxStatement syntax)
     {
@@ -442,8 +484,7 @@ internal sealed class Binder
 
         if (!conversion.Exists)
         {
-            if (expression.Type != TypeSymbol.Error &&
-                type != TypeSymbol.Error)
+            if (expression.Type != TypeSymbol.Error && type != TypeSymbol.Error)
             {
                 _diagnostics.ReportCannotConvert(diagnosticSpan, expression.Type, type);
             }
