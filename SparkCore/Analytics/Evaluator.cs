@@ -69,6 +69,10 @@ internal class Evaluator
                 case BoundNodeKind.LabelStatement:
                     index++;
                     break;
+                case BoundNodeKind.ReturnStatement:
+                    var rs = (BoundReturnStatement)s;
+                    _lastValue = rs.Expression == null ? null : EvaluateExpression(rs.Expression);
+                    return _lastValue;
                 default:
                     throw new Exception($"Unexpected node operator {s.Kind}");
             }
@@ -86,6 +90,8 @@ internal class Evaluator
     {
         _lastValue = EvaluateExpression(node.Expression);
     }
+
+
     private object EvaluateExpression(BoundExpression node)
     {
         switch (node.Kind)

@@ -2,7 +2,6 @@
 using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Binding.Tree.Statements;
-
 internal sealed class BoundForStatement : BoundLoopStatement
 {
 

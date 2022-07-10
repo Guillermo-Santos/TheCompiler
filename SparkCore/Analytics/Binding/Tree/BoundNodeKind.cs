@@ -13,6 +13,7 @@ internal enum BoundNodeKind
     VariableDeclaration,
     WhileStatement,
     DoWhileStatement,
+    ReturnStatement,
 
     //EXPRESSIONS
     UnaryExpression,

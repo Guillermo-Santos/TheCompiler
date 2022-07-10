@@ -18,6 +18,8 @@ using SparkCore.Analytics.Lowering;
 
 namespace SparkCore.Analytics.Binding;
 // Waiting to have 'break' and 'continue' statements to do this:
+// TODO: Add ';' "SemiColonToken" to the lenguage and all expressions / statements that need it.
+// TODO: Add non obligatory assigned variables (let x = "asdad"  --> let x : string;)
 // TODO: Change for syntax and BoundLowering from 'for <var> = <lower> to <upper> <body>' to 'for(ExpressionStatement ; condition ; increment) <body>'
 internal sealed class Binder
 {
@@ -118,8 +120,6 @@ internal sealed class Binder
         }
 
         var type = BindTypeClause(syntax.Type) ?? TypeSymbol.Void;
-        if (type != TypeSymbol.Void)
-            _diagnostics.XXX_ReportFunctionsAreUnsupported(syntax.Type.Span);
 
         var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
 
@@ -186,12 +186,15 @@ internal sealed class Binder
                 return BindBreakStatement((BreakStatementSyntax)syntax);
             case SyntaxKind.ContinueStatement:
                 return BindContinueStatement((ContinueStatementSyntax)syntax);
+            case SyntaxKind.ReturnStatement:
+                return BindReturnStatement((ReturnStatementSyntax)syntax);
             case SyntaxKind.ExpressionStatement:
                 return BindExpressionStatement((ExpressionStatementSyntax)syntax);
             default:
                 throw new Exception($"Unexpected syntax: {syntax.Kind}");
         }
     }
+
     private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
@@ -282,8 +285,6 @@ internal sealed class Binder
         var breakLabel = _loopStack.Peek().BreakLabel;
         return new BoundGotoStatement(breakLabel);
     }
-
-
     private BoundStatement BindContinueStatement(ContinueStatementSyntax syntax)
     {
         if (_loopStack.Count == 0)
@@ -293,6 +294,32 @@ internal sealed class Binder
         }
         var continueLabel = _loopStack.Peek().ContinueLabel;
         return new BoundGotoStatement(continueLabel);
+    }
+    private BoundStatement BindReturnStatement(ReturnStatementSyntax syntax)
+    {
+        var expression = syntax.Expression == null ? null : BindExpression(syntax.Expression);
+
+        if(_function == null)
+        {
+            _diagnostics.ReportInvalidReturn(syntax.ReturnKeyword.Span);
+        }
+        else
+        {
+            if (_function.Type == TypeSymbol.Void)
+            {
+                if (expression != null)
+                    _diagnostics.ReportInvalidReturnExpression(syntax.Expression.Span, _function.Name);
+            }
+            else
+            {
+                if (expression == null)
+                    _diagnostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Span, _function.Type);
+                else
+                    expression = BindConversion(syntax.Expression.Span, expression, _function.Type);
+            }
+        }
+
+        return new BoundReturnStatement(expression);
     }
     private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {

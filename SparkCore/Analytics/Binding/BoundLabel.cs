@@ -1,17 +1,16 @@
-﻿namespace SparkCore.Analytics.Binding
+﻿namespace SparkCore.Analytics.Binding;
+
+public sealed class BoundLabel
 {
-    public sealed class BoundLabel
+    internal BoundLabel(string name)
     {
-        internal BoundLabel(string name)
-        {
-            Name = name;
-        }
-
-        public string Name
-        {
-            get;
-        }
-
-        public override string ToString() => Name;
+        Name = name;
     }
+
+    public string Name
+    {
+        get;
+    }
+
+    public override string ToString() => Name;
 }
