@@ -171,28 +171,28 @@ internal sealed class Binder
         switch (syntax.Kind)
         {
             case SyntaxKind.BlockStatement:
-                return BindBlockStatement((BlockSyntaxStatement)syntax);
+                return BindBlockStatement((BlockStatementSyntax)syntax);
             case SyntaxKind.VariableDeclarationStatement:
-                return BindVariableDeclaration((VariableDeclarationSyntaxStatement)syntax);
+                return BindVariableDeclaration((VariableDeclarationStatementSyntax)syntax);
             case SyntaxKind.IfStatement:
-                return BindIfStatement((IfSyntaxStatement)syntax);
+                return BindIfStatement((IfStatementSyntax)syntax);
             case SyntaxKind.WhileStatement:
-                return BindWhileStatement((WhileSyntaxStatement)syntax);
+                return BindWhileStatement((WhileStatementSyntax)syntax);
             case SyntaxKind.DoWhileStatement:
-                return BindDoWhileStatement((DoWhileSyntaxStatement)syntax);
+                return BindDoWhileStatement((DoWhileStatementSyntax)syntax);
             case SyntaxKind.ForStatement:
-                return BindForStatement((ForSyntaxStatement)syntax);
+                return BindForStatement((ForStatementSyntax)syntax);
             case SyntaxKind.BreakStatement:
                 return BindBreakStatement((BreakStatementSyntax)syntax);
             case SyntaxKind.ContinueStatement:
                 return BindContinueStatement((ContinueStatementSyntax)syntax);
             case SyntaxKind.ExpressionStatement:
-                return BindExpressionStatement((ExpressionSyntaxStatement)syntax);
+                return BindExpressionStatement((ExpressionStatementSyntax)syntax);
             default:
                 throw new Exception($"Unexpected syntax: {syntax.Kind}");
         }
     }
-    private BoundStatement BindBlockStatement(BlockSyntaxStatement syntax)
+    private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
         _scope = new BoundScope(_scope);
@@ -206,7 +206,7 @@ internal sealed class Binder
 
         return new BoundBlockStatement(statements.ToImmutable());
     }
-    private BoundStatement BindVariableDeclaration(VariableDeclarationSyntaxStatement syntax)
+    private BoundStatement BindVariableDeclaration(VariableDeclarationStatementSyntax syntax)
     {
         var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
         var type = BindTypeClause(syntax.TypeClause);
@@ -226,26 +226,26 @@ internal sealed class Binder
             _diagnostics.ReportUndefinedType(syntax.Identifier.Span, syntax.Identifier.Text);
         return type;
     }
-    private BoundStatement BindIfStatement(IfSyntaxStatement syntax)
+    private BoundStatement BindIfStatement(IfStatementSyntax syntax)
     {
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
         var thenStatement = BindStatement(syntax.ThenStatement);
         var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
         return new BoundIfStatement(condition, thenStatement, elseStatement);
     }
-    private BoundStatement BindWhileStatement(WhileSyntaxStatement syntax)
+    private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
     {
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
         var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
         return new BoundWhileStatement(condition, body, breakLabel, continueLabel);
     }
-    private BoundStatement BindDoWhileStatement(DoWhileSyntaxStatement syntax)
+    private BoundStatement BindDoWhileStatement(DoWhileStatementSyntax syntax)
     {
         var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
         var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
         return new BoundDoWhileStatement(body, condition, breakLabel, continueLabel);
     }
-    private BoundStatement BindForStatement(ForSyntaxStatement syntax)
+    private BoundStatement BindForStatement(ForStatementSyntax syntax)
     {
         var lowerBound = BindExpression(syntax.LowerBound, TypeSymbol.Int);
         var upperBound = BindExpression(syntax.UpperBound, TypeSymbol.Int);
@@ -294,7 +294,7 @@ internal sealed class Binder
         var continueLabel = _loopStack.Peek().ContinueLabel;
         return new BoundGotoStatement(continueLabel);
     }
-    private BoundStatement BindExpressionStatement(ExpressionSyntaxStatement syntax)
+    private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
         var expression = BindExpression(syntax.Expression, canBeVoid: true);
         return new BoundExpressionStatement(expression);
@@ -320,34 +320,34 @@ internal sealed class Binder
         switch (syntax.Kind)
         {
             case SyntaxKind.ParenthesizedExpression:
-                return BindParenthesizedExpression((ParenthesizedSyntaxExpression)syntax);
+                return BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax);
             case SyntaxKind.LiteralExpression:
-                return BindLiteralExpression((LiteralSyntaxExpression)syntax);
+                return BindLiteralExpression((LiteralExpressionSyntax)syntax);
             case SyntaxKind.NameExpression:
-                return BindNameExpression((NameSyntaxExpression)syntax);
+                return BindNameExpression((NameExpressionSyntax)syntax);
             case SyntaxKind.AssignmentExpression:
-                return BindAssignmentExpression((AssignmentSyntaxExpression)syntax);
+                return BindAssignmentExpression((AssignmentExpressionSyntax)syntax);
             case SyntaxKind.UnaryExpression:
-                return BindUnaryExpression((UnarySyntaxExpression)syntax);
+                return BindUnaryExpression((UnaryExpressionSyntax)syntax);
             case SyntaxKind.BinaryExpression:
-                return BindBinaryExpression((BinarySyntaxExpression)syntax);
+                return BindBinaryExpression((BinaryExpressionSyntax)syntax);
             case SyntaxKind.CallExpression:
-                return BindCallExpression((CallSyntaxExpression)syntax);
+                return BindCallExpression((CallExpressionSyntax)syntax);
             default:
                 throw new Exception($"Unexpected syntax: {syntax.Kind}");
         }
 
     }
-    private BoundExpression BindParenthesizedExpression(ParenthesizedSyntaxExpression syntax)
+    private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
     {
         return BindExpression(syntax.Expression);
     }
-    private BoundExpression BindLiteralExpression(LiteralSyntaxExpression syntax)
+    private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
     {
         var value = syntax.Value ?? 0;
         return new BoundLiteralExpression(value);
     }
-    private BoundExpression BindNameExpression(NameSyntaxExpression syntax)
+    private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
         if (syntax.IdentifierToken.IsMissing)
@@ -364,7 +364,7 @@ internal sealed class Binder
         }
         return new BoundVariableExpression(variable);
     }
-    private BoundExpression BindAssignmentExpression(AssignmentSyntaxExpression syntax)
+    private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
@@ -384,7 +384,7 @@ internal sealed class Binder
 
         return new BoundAssignmentExpression(variable, convertedExpression);
     }
-    private BoundExpression BindUnaryExpression(UnarySyntaxExpression syntax)
+    private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
     {
         var boundOperand = BindExpression(syntax.Operand);
 
@@ -401,7 +401,7 @@ internal sealed class Binder
         }
         return new BoundUnaryExpression(boundOperator, boundOperand);
     }
-    private BoundExpression BindBinaryExpression(BinarySyntaxExpression syntax)
+    private BoundExpression BindBinaryExpression(BinaryExpressionSyntax syntax)
     {
         var boundLeft = BindExpression(syntax.Left);
         var boundRight = BindExpression(syntax.Right);
@@ -419,7 +419,7 @@ internal sealed class Binder
         }
         return new BoundBinaryExpression(boundLeft, boundOperatorType, boundRight);
     }
-    private BoundExpression BindCallExpression(CallSyntaxExpression syntax)
+    private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
     {
         if (syntax.Arguments.Count == 1 && LookUpType(syntax.Identifier.Text) is TypeSymbol type)
             return BindConversion(syntax.Arguments[0], type, allowExplicit: true);
@@ -440,20 +440,39 @@ internal sealed class Binder
         
         if(syntax.Arguments.Count != function.Parameters.Length)
         {
-            _diagnostics.ReportWrongArgumentCount(syntax.Span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
+            TextSpan span;
+            if (syntax.Arguments.Count > function.Parameters.Length)
+            {
+                SyntaxNode firstExceedingNode;
+                if (function.Parameters.Length > 0)
+                    firstExceedingNode = syntax.Arguments.GetSeparator(function.Parameters.Length - 1);
+                else
+                    firstExceedingNode = syntax.Arguments[0];
+                var lastExceedingArgument = syntax.Arguments[syntax.Arguments.Count - 1];
+                span = TextSpan.FromBounds(firstExceedingNode.Span.Start, lastExceedingArgument.Span.End);
+            }
+            else
+            {
+                span = syntax.CloseParentesis.Span;
+            }
+            _diagnostics.ReportWrongArgumentCount(span, function.Name, function.Parameters.Length, syntax.Arguments.Count);
             return new BoundErrorExpression();
         }
 
+        var hasErrors = false;
         for(var i = 0; i < syntax.Arguments.Count; i++)
         {
             var argument = boundArguments[i];
             var parameter = function.Parameters[i];
             if(argument.Type != parameter.Type)
             {
-                _diagnostics.ReportWrongArgumentType(syntax.Arguments[i].Span, parameter.Name, parameter.Type, argument.Type);
-                return new BoundErrorExpression();
+                if(argument.Type != TypeSymbol.Error)
+                    _diagnostics.ReportWrongArgumentType(syntax.Arguments[i].Span, parameter.Name, parameter.Type, argument.Type);
+                hasErrors = true;
             }
         }
+        if (hasErrors)
+            return new BoundErrorExpression();
 
         return new BoundCallExpression(function, boundArguments.ToImmutable());
     }

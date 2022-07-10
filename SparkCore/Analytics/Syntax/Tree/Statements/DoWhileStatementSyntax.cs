@@ -2,9 +2,9 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class DoWhileSyntaxStatement : StatementSyntax
+public sealed class DoWhileStatementSyntax : StatementSyntax
 {
-    public DoWhileSyntaxStatement(SyntaxToken doKeyword, StatementSyntax body, SyntaxToken whileKeyword, ExpressionSyntax condition)
+    public DoWhileStatementSyntax(SyntaxToken doKeyword, StatementSyntax body, SyntaxToken whileKeyword, ExpressionSyntax condition)
     {
         DoKeyword = doKeyword;
         Body = body;

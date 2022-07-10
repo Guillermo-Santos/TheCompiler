@@ -43,9 +43,10 @@ public enum SyntaxKind
     ForKeyword,
     FunctionKeyword,
     IfKeyword,
+    LetKeyword,
+    ReturnKeyword,
     ToKeyword,
     TrueKeyword,
-    LetKeyword,
     VarKeyword,
     WhileKeyword,
 
@@ -59,7 +60,6 @@ public enum SyntaxKind
 
     //STATEMENTS
     BlockStatement,
-    ExpressionStatement,
     VariableDeclarationStatement,
     IfStatement,
     WhileStatement,
@@ -67,6 +67,8 @@ public enum SyntaxKind
     ForStatement,
     BreakStatement,
     ContinueStatement,
+    ReturnStatement,
+    ExpressionStatement,
 
     // EXPRESSIONS
     LiteralExpression,

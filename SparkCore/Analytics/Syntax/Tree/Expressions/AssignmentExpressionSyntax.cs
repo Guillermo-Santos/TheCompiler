@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class AssignmentSyntaxExpression : ExpressionSyntax
+    public sealed class AssignmentExpressionSyntax : ExpressionSyntax
     {
-        public AssignmentSyntaxExpression(SyntaxToken identifierToken, SyntaxToken equalsToken, ExpressionSyntax expression)
+        public AssignmentExpressionSyntax(SyntaxToken identifierToken, SyntaxToken equalsToken, ExpressionSyntax expression)
         {
             IdentifierToken = identifierToken;
             EqualsToken = equalsToken;

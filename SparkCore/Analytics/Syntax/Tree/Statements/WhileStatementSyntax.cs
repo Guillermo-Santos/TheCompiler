@@ -2,9 +2,9 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
-    public sealed class WhileSyntaxStatement : StatementSyntax
+    public sealed class WhileStatementSyntax : StatementSyntax
     {
-        public WhileSyntaxStatement(SyntaxToken keyword, ExpressionSyntax condition, StatementSyntax body)
+        public WhileStatementSyntax(SyntaxToken keyword, ExpressionSyntax condition, StatementSyntax body)
         {
             Keyword = keyword;
             Condition = condition;

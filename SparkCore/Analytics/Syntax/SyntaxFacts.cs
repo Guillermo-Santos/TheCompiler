@@ -92,6 +92,8 @@ public static class SyntaxFacts
                 return SyntaxKind.IfKeyword;
             case "let":
                 return SyntaxKind.LetKeyword;
+            case "return":
+                return SyntaxKind.ReturnKeyword;
             case "to":
                 return SyntaxKind.ToKeyword;
             case "true":
@@ -193,6 +195,8 @@ public static class SyntaxFacts
             case SyntaxKind.LetKeyword:
                 return "let";
             case SyntaxKind.ToKeyword:
+                return "return";
+            case SyntaxKind.ReturnKeyword:
                 return "to";
             case SyntaxKind.TrueKeyword:
                 return "true";

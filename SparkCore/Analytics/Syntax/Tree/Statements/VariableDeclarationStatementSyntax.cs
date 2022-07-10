@@ -3,9 +3,9 @@ using SparkCore.Analytics.Syntax.Tree.Nodes;
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class VariableDeclarationSyntaxStatement : StatementSyntax
+public sealed class VariableDeclarationStatementSyntax : StatementSyntax
 {
-    public VariableDeclarationSyntaxStatement(SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
+    public VariableDeclarationStatementSyntax(SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
     {
         Keyword = keyword;
         Identifier = identifier;

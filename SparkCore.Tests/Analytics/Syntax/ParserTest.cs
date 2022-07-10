@@ -150,7 +150,7 @@ namespace SparkCore.Tests.Analytics.Syntax
             var root = syntaxTree.Root;
             var member = Assert.Single(root.Members);
             var globalStatement = Assert.IsType<GlobalStatementSyntax>(member);
-            return Assert.IsType<ExpressionSyntaxStatement>(globalStatement.Statement).Expression;
+            return Assert.IsType<ExpressionStatementSyntax>(globalStatement.Statement).Expression;
         }
     }
 }

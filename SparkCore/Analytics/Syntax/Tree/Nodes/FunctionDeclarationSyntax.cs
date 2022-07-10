@@ -6,7 +6,7 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes;
 public sealed class FunctionDeclarationSyntax : MemberSyntax
 {
 
-    public FunctionDeclarationSyntax(SyntaxToken functionKeyword, SyntaxToken identifier, SyntaxToken openParentesisToken, SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParentesisToken, TypeClauseSyntax type, BlockSyntaxStatement body)
+    public FunctionDeclarationSyntax(SyntaxToken functionKeyword, SyntaxToken identifier, SyntaxToken openParentesisToken, SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParentesisToken, TypeClauseSyntax type, BlockStatementSyntax body)
     {
         FunctionKeyword = functionKeyword;
         Identifier = identifier;
@@ -43,7 +43,7 @@ public sealed class FunctionDeclarationSyntax : MemberSyntax
     {
         get;
     }
-    public BlockSyntaxStatement Body
+    public BlockStatementSyntax Body
     {
         get;
     }

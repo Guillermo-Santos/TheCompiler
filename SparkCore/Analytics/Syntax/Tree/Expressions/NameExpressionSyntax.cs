@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class NameSyntaxExpression : ExpressionSyntax
+    public sealed class NameExpressionSyntax : ExpressionSyntax
     {
-        public NameSyntaxExpression(SyntaxToken identifierToken)
+        public NameExpressionSyntax(SyntaxToken identifierToken)
         {
             IdentifierToken = identifierToken;
         }

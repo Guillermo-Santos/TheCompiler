@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class BinarySyntaxExpression : ExpressionSyntax
+    public sealed class BinaryExpressionSyntax : ExpressionSyntax
     {
-        public BinarySyntaxExpression(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
+        public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
         {
             Left = left;
             OperatorToken = operatorToken;

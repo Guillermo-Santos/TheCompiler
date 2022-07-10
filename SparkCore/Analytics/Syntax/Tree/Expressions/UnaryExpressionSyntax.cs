@@ -1,8 +1,8 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    public sealed class UnarySyntaxExpression : ExpressionSyntax
+    public sealed class UnaryExpressionSyntax : ExpressionSyntax
     {
-        public UnarySyntaxExpression(SyntaxToken operatorToken, ExpressionSyntax operand)
+        public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax operand)
         {
             OperatorToken = operatorToken;
             Operand = operand;

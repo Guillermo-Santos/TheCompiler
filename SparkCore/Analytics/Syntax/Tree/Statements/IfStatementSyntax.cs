@@ -3,9 +3,9 @@ using SparkCore.Analytics.Syntax.Tree.Nodes;
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
-    public sealed class IfSyntaxStatement : StatementSyntax
+    public sealed class IfStatementSyntax : StatementSyntax
     {
-        public IfSyntaxStatement(SyntaxToken ifKeyword, ExpressionSyntax condition, StatementSyntax thenStatement, ElseClauseSyntax elseClause)
+        public IfStatementSyntax(SyntaxToken ifKeyword, ExpressionSyntax condition, StatementSyntax thenStatement, ElseClauseSyntax elseClause)
         {
             IfKeyword = ifKeyword;
             Condition = condition;

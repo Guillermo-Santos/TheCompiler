@@ -187,7 +187,7 @@ internal sealed class Parser
         return ParseExpressionStatement();
     }
 
-    private BlockSyntaxStatement ParseBlockStatement()
+    private BlockStatementSyntax ParseBlockStatement()
     {
         var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
         var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
@@ -212,7 +212,7 @@ internal sealed class Parser
 
         }
         var CloseBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
-        return new BlockSyntaxStatement(openBraceToken, statements.ToImmutable(), CloseBraceToken);
+        return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), CloseBraceToken);
     }
     private StatementSyntax ParseVariableDeclaration()
     {
@@ -223,7 +223,7 @@ internal sealed class Parser
         var equals = MatchToken(SyntaxKind.EqualsToken);
         var initializer = ParseExpression();
 
-        return new VariableDeclarationSyntaxStatement(keyword, identifier, typeClause, equals, initializer);
+        return new VariableDeclarationStatementSyntax(keyword, identifier, typeClause, equals, initializer);
     }
     private TypeClauseSyntax ParseOptionalTypeClause()
     {
@@ -247,7 +247,7 @@ internal sealed class Parser
         var statement = ParseStatement();
         var elseClause = ParseElseClause();
 
-        return new IfSyntaxStatement(keyword, condition, statement, elseClause);
+        return new IfStatementSyntax(keyword, condition, statement, elseClause);
     }
     private ElseClauseSyntax ParseElseClause()
     {
@@ -264,7 +264,7 @@ internal sealed class Parser
         var condition = ParseExpression();
         var body = ParseStatement();
 
-        return new WhileSyntaxStatement(keyword, condition, body);
+        return new WhileStatementSyntax(keyword, condition, body);
     }
     private StatementSyntax ParseDoWhileStatement()
     {
@@ -273,7 +273,7 @@ internal sealed class Parser
         var whilekeyword = MatchToken(SyntaxKind.WhileKeyword);
         var condition = ParseExpression();
 
-        return new DoWhileSyntaxStatement(dokeyword, body, whilekeyword, condition);
+        return new DoWhileStatementSyntax(dokeyword, body, whilekeyword, condition);
     }
     private StatementSyntax ParseForStatement()
     {
@@ -284,7 +284,7 @@ internal sealed class Parser
         var toKeyword = MatchToken(SyntaxKind.ToKeyword);
         var upperBound = ParseExpression();
         var body = ParseStatement();
-        return new ForSyntaxStatement(keyword, identifier, equalstoken, lowerBound, toKeyword, upperBound, body);
+        return new ForStatementSyntax(keyword, identifier, equalstoken, lowerBound, toKeyword, upperBound, body);
     }
 
     private StatementSyntax ParseBreakStatement()
@@ -301,7 +301,7 @@ internal sealed class Parser
     private StatementSyntax ParseExpressionStatement()
     {
         var expression = ParseExpression();
-        return new ExpressionSyntaxStatement(expression);
+        return new ExpressionStatementSyntax(expression);
     }
 
     private ExpressionSyntax ParseExpression()
@@ -316,7 +316,7 @@ internal sealed class Parser
             var identifierToken = NextToken();
             var operatorToken = NextToken();
             var right = ParseAssigmentExpression();
-            return new AssignmentSyntaxExpression(identifierToken, operatorToken, right);
+            return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
         }
 
         return ParseBinaryExpression();
@@ -330,7 +330,7 @@ internal sealed class Parser
         {
             var operatorToken = NextToken();
             var operand = ParseBinaryExpression(unaryOperatorPrecedence);
-            left = new UnarySyntaxExpression(operatorToken, operand);
+            left = new UnaryExpressionSyntax(operatorToken, operand);
         }
         else
         {
@@ -343,7 +343,7 @@ internal sealed class Parser
                 break;
             var operatorToken = NextToken();
             var right = ParseBinaryExpression(precedence);
-            left = new BinarySyntaxExpression(left, operatorToken, right);
+            left = new BinaryExpressionSyntax(left, operatorToken, right);
         }
         return left;
     }
@@ -370,23 +370,23 @@ internal sealed class Parser
         var left = MatchToken(SyntaxKind.OpenParentesisToken);
         var expression = ParseExpression();
         var right = MatchToken(SyntaxKind.CloseParentesisToken);
-        return new ParenthesizedSyntaxExpression(left, expression, right);
+        return new ParenthesizedExpressionSyntax(left, expression, right);
     }
     private ExpressionSyntax ParseBooleanLiteral()
     {
         var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
         var keywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
-        return new LiteralSyntaxExpression(keywordToken, isTrue);
+        return new LiteralExpressionSyntax(keywordToken, isTrue);
     }
     private ExpressionSyntax ParseNumberLiteral()
     {
         var numberToken = MatchToken(SyntaxKind.NumberToken);
-        return new LiteralSyntaxExpression(numberToken);
+        return new LiteralExpressionSyntax(numberToken);
     }
     private ExpressionSyntax ParseStringLiteral()
     {
         var stringToken = MatchToken(SyntaxKind.StringToken);
-        return new LiteralSyntaxExpression(stringToken);
+        return new LiteralExpressionSyntax(stringToken);
     }
     private ExpressionSyntax ParseNameOrCallExpression()
     {
@@ -401,7 +401,7 @@ internal sealed class Parser
         var arguments = ParseArguments();
         var closeParentesis = MatchToken(SyntaxKind.CloseParentesisToken);
 
-        return new CallSyntaxExpression(identifierToken, openParentesis, arguments, closeParentesis);
+        return new CallExpressionSyntax(identifierToken, openParentesis, arguments, closeParentesis);
     }
     private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
     {
@@ -432,6 +432,6 @@ internal sealed class Parser
     private ExpressionSyntax ParseNameExpression()
     {
         var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
-        return new NameSyntaxExpression(identifierToken);
+        return new NameExpressionSyntax(identifierToken);
     }
 }
