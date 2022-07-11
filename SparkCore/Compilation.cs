@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -58,13 +59,25 @@ public class Compilation
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
         var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+
         if (diagnostics.Any())
         {
             return new EvaluationResult(diagnostics, null);
         }
-
         var program = Binder.BindProgram(GlobalScope);
-        if(program.Diagnostics.Any())
+
+        var appPath = Environment.GetCommandLineArgs()[0];
+        var appDirectory = Path.GetDirectoryName(appPath);
+        var cfgPath = Path.Combine(appDirectory, "cfg.dot");
+        var cfgStatement = !program.Statement.Statements.Any() && program.Functions.Any()
+                              ? program.Functions.Last().Value
+                              : program.Statement;
+        var cfg = ControlFlowGraph.Create(cfgStatement);
+        using (var streamWriter = new StreamWriter(cfgPath))
+            cfg.WriteTo(streamWriter);
+
+
+        if (program.Diagnostics.Any())
             return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
 
         var evaluator = new Evaluator(program, variables);

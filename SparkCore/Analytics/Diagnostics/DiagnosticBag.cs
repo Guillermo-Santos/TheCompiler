@@ -130,17 +130,22 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    internal void ReportInvalidReturn(TextSpan span)
+    public void ReportAllPathsMustReturn(TextSpan span)
+    {
+        var message = "Not all code paths return a value.";
+        Report(span, message);
+    }
+    public void ReportInvalidReturn(TextSpan span)
     {
         var message = "The 'return' keyword can only be used insede of functions.";
         Report(span, message);
     }
-    internal void ReportInvalidReturnExpression(TextSpan span, string functionName)
+    public void ReportInvalidReturnExpression(TextSpan span, string functionName)
     {
         var message = $"Since the function '{functionName}' does not return a value, the 'return' keyword cannot be followed by an expression.";
         Report(span, message);
     }
-    internal void ReportMissingReturnExpression(TextSpan span, TypeSymbol returnType)
+    public void ReportMissingReturnExpression(TextSpan span, TypeSymbol returnType)
     {
         var message = $"An expression of type '{returnType}' expected.";
         Report(span, message);

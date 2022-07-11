@@ -183,8 +183,9 @@ internal sealed class Parser
                 return ParseContinueStatement();
             case SyntaxKind.ReturnKeyword:
                 return ParseReturnStatement();
+            default:
+                return ParseExpressionStatement();
         }
-        return ParseExpressionStatement();
     }
 
     private BlockStatementSyntax ParseBlockStatement()
