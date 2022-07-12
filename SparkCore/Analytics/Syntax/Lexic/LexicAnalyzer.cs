@@ -187,7 +187,7 @@ internal sealed class LexicAnalyzer
                 ReadWhiteSpaceToken();
                 break;
             default:
-                if (char.IsLetter(Current))
+                if (char.IsLetter(Current) || char.Equals(Current, '_'))
                 {
                     ReadIdentifierOrKeywordToken();
                 }
@@ -272,7 +272,7 @@ internal sealed class LexicAnalyzer
     }
     private void ReadIdentifierOrKeywordToken()
     {
-        while (char.IsLetter(Current))
+        while (char.IsLetter(Current) || char.Equals(Current, '_') || char.IsDigit(Current))
             _position++;
         var length = _position - _start;
         var text = _text.ToString(_start, length);

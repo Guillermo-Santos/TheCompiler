@@ -13,7 +13,9 @@ namespace SparkCore.Analytics.Lowering;
 
 internal sealed class Lowerer : BoundTreeRewriter
 {
+    // A counter for all the generated labels.
     private int _labelCount;
+    // A counter for all the generate temporal variables.
     private int _tVariableCount;
     private Lowerer()
     {
@@ -232,8 +234,6 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         return RewriteStatement(result);
     }
-
-
     protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
     {
 
@@ -245,9 +245,11 @@ internal sealed class Lowerer : BoundTreeRewriter
         var expressionStatement = result.Statements.Last();
         var initializer = ((BoundExpressionStatement)expressionStatement).Expression;
 
-        // statements equals the lowering of the expression without the expression statement used to in the initializer.
+        // statements equals the lowering of the expression without the expression statement used in the initializer.
         var statements = result.Statements.Remove(expressionStatement);
+        // then we take this initializer and create a variable declaration for the original variable and the new initializer.
         var variableDeclaration = new BoundVariableDeclaration(node.Variable, initializer);
+        // and add it to the statements
         statements = statements.Add(variableDeclaration);
 
         return RewriteStatement(new BoundBlockStatement(statements));
@@ -260,10 +262,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         }
 
         return RewriteStatement(result);
-
     }
-
-    //TODO: Cambiar el RewriteReturnStatement() de igual manera que RewriteVariableDeclaration() y RewriteExpressionStatement()
     protected override BoundStatement RewriteReturnStatement(BoundReturnStatement node)
     {
         if (!NeedRewriteExpression(node.Expression, out BoundBlockStatement result))
@@ -276,26 +275,30 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         // statements equals the lowering of the expression without the expression statement used to in the initializer.
         var statements = result.Statements.Remove(expressionStatement);
+        // we create a temporal variable with the initializer.
         var temp = GenerateTemporalVariable(initializer.Type);
         var tempDeclaration = new BoundVariableDeclaration(temp, initializer);
+        // We add the temporal variable declaration to the statements.
         statements = statements.Add(tempDeclaration);
         var returnStatement = new BoundReturnStatement(new BoundVariableExpression(temp));
         statements = statements.Add(returnStatement);
 
         return RewriteStatement(new BoundBlockStatement(statements));
     }
-
     private bool NeedRewriteExpression(BoundExpression expressionToEvaluate, out BoundBlockStatement result)
     {
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
         BoundExpression GetNewChild(BoundExpression old)
         {
+            // If is a variable expression or a literal expression,
             if (old is BoundVariableExpression || old is BoundLiteralExpression)
             {
+                // We parse it as it is.
                 return old;
             }
             else
             {
+                // else, we create a temporal variable with the expression.
                 var temp = GenerateTemporalVariable(old.Type);
                 var tempDeclaration = new BoundVariableDeclaration(temp, old);
                 var tempVarExpression = new BoundVariableExpression(temp);
@@ -430,5 +433,4 @@ internal sealed class Lowerer : BoundTreeRewriter
         result = null;
         return false;
     }
-
 }
