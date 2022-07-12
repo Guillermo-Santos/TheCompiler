@@ -1,6 +1,6 @@
 using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Tests.Analytics.Syntax.Lexic;
 
@@ -192,6 +192,10 @@ public class LexerTest
         if (t1IsKeyword && t2IsKeyword)
             return true;
         if (t1IsKeyword && t2Type == SyntaxKind.IdentifierToken)
+            return true;
+        if (t1IsKeyword && t2Type == SyntaxKind.NumberToken)
+            return true;
+        if (t1Type == SyntaxKind.IdentifierToken && t2Type == SyntaxKind.NumberToken)
             return true;
         if (t1Type == SyntaxKind.IdentifierToken && t2IsKeyword)
             return true;

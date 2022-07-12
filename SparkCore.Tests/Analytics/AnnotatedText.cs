@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Tests.Analytics
 {

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Syntax.Lexic;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Tree
 {

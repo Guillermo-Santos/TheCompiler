@@ -1,4 +1,4 @@
-﻿namespace SparkCore.Analytics.Text
+﻿namespace SparkCore.IO.Text
 {
     public struct TextSpan
     {

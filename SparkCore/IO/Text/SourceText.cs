@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace SparkCore.Analytics.Text
+namespace SparkCore.IO.Text
 {
     public sealed class SourceText
     {

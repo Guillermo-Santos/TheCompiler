@@ -1,4 +1,4 @@
-﻿namespace SparkCore.Analytics.Text
+﻿namespace SparkCore.IO.Text
 {
     public sealed class TextLine
     {

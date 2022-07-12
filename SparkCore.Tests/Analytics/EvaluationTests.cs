@@ -67,6 +67,7 @@ public class EvaluationTests
     [InlineData("\"test\" != \"test\"", false)]
     [InlineData("\"test\" == \"asd\"", false)]
     [InlineData("\"test\" != \"asd\"", true)]
+    [InlineData("\"test\" + \"asd\"", "testasd")]
     [InlineData("{var a = 10 (a * a)}", 100)]
     [InlineData("{ var a = 0 (a = 10) * a}", 100)]
     [InlineData("{ var a = 0 if a == 0 a = 10 a }", 10)]
@@ -184,7 +185,21 @@ public class EvaluationTests
 
         AssertDiagnostics(text, diagnostics);
     }
+    [Fact]
+    public void Evaluator_FunctionReturn_Missing()
+    {
+        var text = @"
+                function [add](a: int, b: int): int
+                {
+                }
+            ";
 
+        var diagnostics = @"
+                Not all code paths return a value.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
     [Fact]
     public void Evaluate_IfStatement_Reports_CannotConvert()
     {
@@ -336,6 +351,17 @@ public class EvaluationTests
 
     }
     [Fact]
+    public void Evaluator_AssignmentExpression_Reports_NotAVariable()
+    {
+        var text = @"[print] = 42";
+
+        var diagnostics = @"
+                'print' is not a variable.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    [Fact]
     public void Evaluate_AssigmentExpression_Reports_CannotAssign()
     {
         var text = @"
@@ -370,6 +396,34 @@ public class EvaluationTests
 
     }
     [Fact]
+    public void Evaluator_CallExpression_Reports_Undefined()
+    {
+        var text = @"[foo](42)";
+
+        var diagnostics = @"
+                Function 'foo' doesn't exist.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void Evaluator_CallExpression_Reports_NotAFunction()
+    {
+        var text = @"
+                {
+                    let foo = 42
+                    [foo](42)
+                }
+            ";
+
+        var diagnostics = @"
+                'foo' is not a function.
+            ";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    [Fact]
     public void Evaluator_Variables_Can_Shadow_Functions()
     {
         var text = @"
@@ -380,7 +434,7 @@ public class EvaluationTests
             ";
 
         var diagnostics = @"
-                Function 'print' doesn't exist.
+                'print' is not a function.
             ";
 
         AssertDiagnostics(text, diagnostics);

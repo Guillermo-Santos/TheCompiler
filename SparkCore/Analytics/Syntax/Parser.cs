@@ -7,7 +7,7 @@ using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax;
 

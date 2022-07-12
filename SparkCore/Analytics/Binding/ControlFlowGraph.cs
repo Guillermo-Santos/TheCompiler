@@ -11,6 +11,7 @@ using SparkCore.Analytics.Binding.Tree.Expressions;
 using SparkCore.Analytics.Binding.Tree.Statements;
 using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Symbols;
+using System.CodeDom.Compiler;
 
 namespace SparkCore.Analytics.Binding;
 internal sealed class ControlFlowGraph
@@ -72,13 +73,16 @@ internal sealed class ControlFlowGraph
             if (IsEnd)
                 return "<End>";
 
-            using (var stringWriter = new StringWriter())
+            using (var writter = new StringWriter())
             {
-                foreach (var statement in Statements)
+                using(var indentedWriter = new IndentedTextWriter(writter))
                 {
-                    statement.WriteTo(stringWriter);
+                    foreach (var statement in Statements)
+                    {
+                        statement.WriteTo(indentedWriter);
+                    }
+                    return writter.ToString();
                 }
-                return stringWriter.ToString();
             }
         }
 
@@ -309,7 +313,7 @@ internal sealed class ControlFlowGraph
     {
         string Quote(string text)
         {
-            return "\"" + text.Replace("\"", "\\\"") + "\"";
+            return "\"" + text.TrimEnd().Replace("\\", "\\\\").Replace(Environment.NewLine, "\\l") + "\"";
         }
 
         writer.WriteLine("digraph G {");
@@ -325,7 +329,7 @@ internal sealed class ControlFlowGraph
         foreach(var block in Blocks)
         {
             var id = blockIds[block];
-            var label = Quote(block.ToString().Replace(Environment.NewLine, "\\l"));
+            var label = Quote(block.ToString());
             writer.WriteLine($"    {id} [label = {label}, shape = box]");
         }
 

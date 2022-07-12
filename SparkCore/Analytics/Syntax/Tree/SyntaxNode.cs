@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Tree;
 

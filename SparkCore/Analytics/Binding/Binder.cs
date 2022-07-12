@@ -12,9 +12,9 @@ using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
-using SparkCore.Analytics.Text;
 using System.Linq.Expressions;
 using SparkCore.Analytics.Lowering;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Binding;
 // Waiting to have 'break' and 'continue' statements to do this:
@@ -129,7 +129,7 @@ internal sealed class Binder
 
         var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
 
-        if (!_scope.TryDeclareFunction(function))
+        if (!function.Declaration.Identifier.IsMissing && !_scope.TryDeclareFunction(function))
         {
             _diagnostics.ReportSymbolAlreadyDeclared(syntax.Identifier.Span, function.Name);
         }
@@ -221,7 +221,7 @@ internal sealed class Binder
         var type = BindTypeClause(syntax.TypeClause);
         var initializer = BindExpression(syntax.Initializer);
         var variableType = type ?? initializer.Type;
-        var variable = BindVariable(syntax.Identifier, isReadOnly, variableType);
+        var variable = BindVariableDeclaration(syntax.Identifier, isReadOnly, variableType);
         var convertedInitializer = BindConversion(syntax.Initializer.Span, initializer, variableType);
 
         return new BoundVariableDeclaration(variable, convertedInitializer);
@@ -261,7 +261,7 @@ internal sealed class Binder
 
         _scope = new BoundScope(_scope);
         var identifier = syntax.Identifier;
-        var variable = BindVariable(identifier, isReadOnly: true, TypeSymbol.Int);
+        var variable = BindVariableDeclaration(identifier, isReadOnly: true, TypeSymbol.Int);
 
         var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
 
@@ -390,23 +390,20 @@ internal sealed class Binder
             return new BoundErrorExpression();
         }
 
-        if (!_scope.TryLookupVariable(name, out var variable))
-        {
-            _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+        var variable = BindVariableReference(name, syntax.IdentifierToken.Span);
+        if(variable == null)
             return new BoundErrorExpression();
-        }
+
         return new BoundVariableExpression(variable);
     }
     private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
-
-        if (!_scope.TryLookupVariable(name, out var variable))
-        {
-            _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+        
+        var variable = BindVariableReference(name, syntax.IdentifierToken.Span);
+        if (variable == null)
             return boundExpression;
-        }
 
         if (variable.IsReadOnly)
         {
@@ -465,13 +462,20 @@ internal sealed class Binder
             boundArguments.Add(boundArgument);
         }
 
-        if(!_scope.TryLookupFunction(syntax.Identifier.Text, out var function))
+        var symbol = _scope.TryLookupSymbol(syntax.Identifier.Text);
+        if(symbol == null)
         {
             _diagnostics.ReportUndefinedFunction(syntax.Identifier.Span, syntax.Identifier.Text);
             return new BoundErrorExpression();
         }
-        
-        if(syntax.Arguments.Count != function.Parameters.Length)
+
+        if (symbol is not FunctionSymbol function)
+        {
+            _diagnostics.ReportNotAFunction(syntax.Identifier.Span, syntax.Identifier.Text);
+            return new BoundErrorExpression();
+        }
+
+        if (syntax.Arguments.Count != function.Parameters.Length)
         {
             TextSpan span;
             if (syntax.Arguments.Count > function.Parameters.Length)
@@ -509,7 +513,7 @@ internal sealed class Binder
 
         return new BoundCallExpression(function, boundArguments.ToImmutable());
     }
-    private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
+    private VariableSymbol BindVariableDeclaration(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
     {
         var name = identifier.Text ?? "?";
         var declare = !identifier.IsMissing;
@@ -523,6 +527,21 @@ internal sealed class Binder
         }
 
         return variable;
+    }
+
+    private VariableSymbol BindVariableReference(string name, TextSpan span)
+    {
+        switch (_scope.TryLookupSymbol(name))
+        {
+            case VariableSymbol variable:
+                return variable;
+            case null:
+                _diagnostics.ReportUndefinedVariable(span, name);
+                return null;
+            default:
+                _diagnostics.ReportNotAVariable(span, name);
+                return null;
+        }
     }
 
     private BoundExpression BindConversion(ExpressionSyntax syntax, TypeSymbol type, bool allowExplicit = false)

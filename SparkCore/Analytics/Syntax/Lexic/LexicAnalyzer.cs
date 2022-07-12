@@ -2,7 +2,7 @@
 using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Lexic;
 

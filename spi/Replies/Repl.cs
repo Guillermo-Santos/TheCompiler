@@ -2,9 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text;
-using Console = System.Console;
 
-namespace Compiler.spi.Replies;
+namespace spi.Replies;
 internal abstract class Repl
 {
 
@@ -203,7 +202,7 @@ internal abstract class Repl
                     break;
             }
         }
-        if (key.KeyChar >= ' ')
+        if (key.Key != ConsoleKey.Backspace && key.KeyChar >= ' ')
             HandleTyping(document, view, key.KeyChar.ToString());
     }
 

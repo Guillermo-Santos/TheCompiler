@@ -1,12 +1,12 @@
-﻿using Compiler.spi.Replies;
+﻿using spi.Replies;
 
-namespace Compiler.spi;
+namespace spi;
 
 internal static class Program
 {
     private static void Main()
     {
-        var repl = new CompilerRepl();
+        var repl = new SparkRepl();
         repl.Run();
     }
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax;
-using SparkCore.Analytics.Text;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Diagnostics;
 
@@ -60,9 +60,19 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(span, message);
     }
 
-    public void ReportUndefinedName(TextSpan span, string name)
+    public void ReportUndefinedVariable(TextSpan span, string name)
     {
         var message = $"Variable '{name}' doesn't exist.";
+        Report(span, message);
+    }
+    public void ReportNotAVariable(TextSpan span, string name)
+    {
+        var message = $"'{name}' is not a variable.";
+        Report(span, message);
+    }
+    public void ReportNotAFunction(TextSpan span, string name)
+    {
+        var message = $"'{name}' is not a function.";
         Report(span, message);
     }
     public void ReportUndefinedFunction(TextSpan span, string name)
@@ -147,7 +157,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
     }
     public void ReportMissingReturnExpression(TextSpan span, TypeSymbol returnType)
     {
-        var message = $"An expression of type '{returnType}' expected.";
+        var message = $"An expression of type '{returnType}' is expected.";
         Report(span, message);
     }
 }

@@ -1,4 +1,4 @@
-﻿using SparkCore.Analytics.Text;
+﻿using SparkCore.IO.Text;
 
 namespace SparkCore.Tests.Analytics.Text
 {
