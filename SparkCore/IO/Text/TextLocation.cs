@@ -1,0 +1,24 @@
+﻿namespace SparkCore.IO.Text;
+
+public struct TextLocation
+{
+    public TextLocation(SourceText text, TextSpan span)
+    {
+        Text = text;
+        Span = span;
+    }
+
+    public SourceText Text
+    {
+        get;
+    }
+    public TextSpan Span
+    {
+        get;
+    }
+    public string FileName => Text.FileName;
+    public int StartLine => Text.GetLineIndex(Span.Start);
+    public int StartCharacter => Text.Lines[StartLine].Start;
+    public int EndLine => Text.GetLineIndex(Span.End);
+    public int EndCharacter => Text.Lines[EndLine].End;
+}

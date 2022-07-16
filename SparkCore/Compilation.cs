@@ -3,40 +3,37 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
 using SparkCore.Analytics;
 using SparkCore.Analytics.Binding;
 using SparkCore.Analytics.Binding.Tree;
-using SparkCore.Analytics.Binding.Tree.Statements;
-using SparkCore.Analytics.Diagnostics;
-using SparkCore.Analytics.Lowering;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.IO.Diagnostics;
+using ReflectionBindingFlags = System.Reflection.BindingFlags;
 
 namespace SparkCore;
 
 public class Compilation
 {
     private BoundGlobalScope _globalScope;
-    public Compilation(SyntaxTree syntaxTree)
-        : this(null, syntaxTree)
+    public Compilation(params SyntaxTree[] syntaxTrees)
+        : this(null, syntaxTrees)
     {
     }
-    private Compilation(Compilation previous, SyntaxTree syntaxTree)
+    private Compilation(Compilation previous, params SyntaxTree[] syntaxTrees)
     {
         Previous = previous;
-        SyntaxTree = syntaxTree;
+        SyntaxTrees = syntaxTrees.ToImmutableArray();
     }
 
     public Compilation Previous
     {
         get;
     }
-    public SyntaxTree SyntaxTree
-    {
-        get;
-    }
+    public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
+    public ImmutableArray<FunctionSymbol> Functions => GlobalScope.Functions;
+    public ImmutableArray<VariableSymbol> Variables => GlobalScope.Variables;
 
     internal BoundGlobalScope GlobalScope
     {
@@ -44,10 +41,46 @@ public class Compilation
         {
             if (_globalScope == null)
             {
-                var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTree.Root);
+                var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTrees);
                 Interlocked.CompareExchange(ref _globalScope, globalScope, null);
             }
             return _globalScope;
+        }
+    }
+
+    public IEnumerable<Symbol> GetSymbols()
+    {
+        var submission = this;
+        var seenSymbolNames = new HashSet<string>();
+        while (submission != null)
+        {
+            const ReflectionBindingFlags bindingFlags = ReflectionBindingFlags.Static |
+                                                        ReflectionBindingFlags.Public |
+                                                        ReflectionBindingFlags.NonPublic;
+
+            var builtinFunction = typeof(BuiltinFunctions)
+                                    .GetFields(bindingFlags)
+                                    .Where(bf => bf.FieldType == typeof(FunctionSymbol))
+                                    .Select(bf => (FunctionSymbol)bf.GetValue(obj: null))
+                                    .ToList();
+
+            foreach(var builtin in builtinFunction)
+            {
+                if(seenSymbolNames.Add(builtin.Name))
+                    yield return builtin;
+            }
+
+            foreach (var function in submission.Functions)
+            {
+                if(seenSymbolNames.Add(function.Name))
+                    yield return function;
+            }
+            foreach (var variable in submission.Variables)
+            {
+                if(seenSymbolNames.Add(variable.Name))
+                    yield return variable;
+            }
+            submission = submission.Previous;
         }
     }
 
@@ -58,7 +91,8 @@ public class Compilation
 
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
-        var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+        var parseDiagnostics = SyntaxTrees.SelectMany(st => st.Diagnostics);
+        var diagnostics = parseDiagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
 
         if (diagnostics.Any())
         {
@@ -85,12 +119,12 @@ public class Compilation
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
 
-    public void EmitTree(TextWriter writter)
+    public void EmitTree(TextWriter writer)
     {
         var program = Binder.BindProgram(GlobalScope);
         if (program.Statement.Statements.Any())
         {
-            program.Statement.WriteTo(writter);
+            program.Statement.WriteTo(writer);
         }
         else
         {
@@ -98,10 +132,20 @@ public class Compilation
             {
                 if (!GlobalScope.Functions.Contains(functionBody.Key))
                     continue;
-                functionBody.Key.WriteTo(writter);
-                functionBody.Value.WriteTo(writter);
+                functionBody.Key.WriteTo(writer);
+                writer.WriteLine();
+                functionBody.Value.WriteTo(writer);
             }
         }
     }
 
+    public void EmitTree(FunctionSymbol function, TextWriter writer)
+    {
+        var program = Binder.BindProgram(GlobalScope);
+        function.WriteTo(writer);
+        writer.WriteLine();
+        if (!program.Functions.TryGetValue(function, out var body))
+            return;
+        body.WriteTo(writer);
+    }
 }

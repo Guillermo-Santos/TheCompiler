@@ -4,7 +4,8 @@ namespace SparkCore.Analytics.Syntax.Tree;
 
 public sealed class SyntaxToken : SyntaxNode
 {
-    public SyntaxToken(SyntaxKind type, int position, string text, object value)
+    public SyntaxToken(SyntaxTree syntaxTree, SyntaxKind type, int position, string text, object value)
+        :base(syntaxTree)
     {
         Kind = type;
         Position = position;

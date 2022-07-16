@@ -2,7 +2,7 @@
 
 public sealed class CallExpressionSyntax : ExpressionSyntax
 {
-    public CallExpressionSyntax(SyntaxToken identifier, SyntaxToken openParentesis, SeparatedSyntaxList<ExpressionSyntax> arguments, SyntaxToken closeParentesis)
+    public CallExpressionSyntax(SyntaxTree syntaxTree, SyntaxToken identifier, SyntaxToken openParentesis, SeparatedSyntaxList<ExpressionSyntax> arguments, SyntaxToken closeParentesis) : base(syntaxTree)
     {
         Identifier = identifier;
         OpenParentesis = openParentesis;

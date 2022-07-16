@@ -473,7 +473,7 @@ public class EvaluationTests
             Assert.Equal(expectedMessage, actualMessage);
 
             var expectedSpan = annotatedText.Spans[i];
-            var actualSpan = diagnostics[i].Span;
+            var actualSpan = diagnostics[i].Location.Span;
             Assert.Equal(expectedSpan, actualSpan);
         }
 

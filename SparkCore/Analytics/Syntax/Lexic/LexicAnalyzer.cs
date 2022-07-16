@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using SparkCore.Analytics.Diagnostics;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.IO.Diagnostics;
 using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Lexic;
@@ -9,18 +9,19 @@ namespace SparkCore.Analytics.Syntax.Lexic;
 //TODO: Agregar ; como token y colocarlo como terminador para las expresiones.
 internal sealed class LexicAnalyzer
 {
-    private readonly SourceText _text;
     private readonly DiagnosticBag _diagnostics = new();
-
+    private readonly SyntaxTree _syntaxTree;
+    private readonly SourceText _text;
     private int _position;
 
     private int _start;
     private SyntaxKind _kind;
     private object _value;
 
-    public LexicAnalyzer(SourceText text)
+    public LexicAnalyzer(SyntaxTree syntaxTree)
     {
-        _text = text;
+        _syntaxTree = syntaxTree;
+        _text = syntaxTree.Text;
     }
     public DiagnosticBag Diagnostics => _diagnostics;
     private char Current => Peek(0);
@@ -197,7 +198,9 @@ internal sealed class LexicAnalyzer
                 }
                 else
                 {
-                    _diagnostics.ReportBadCharacter(_position, Current);
+                    var span = new TextSpan(_position, 1);
+                    var location = new TextLocation(_text, span);
+                    _diagnostics.ReportBadCharacter(location, Current);
                     _position++;
                 }
                 break;
@@ -207,7 +210,7 @@ internal sealed class LexicAnalyzer
         var text = SyntaxFacts.GetText(_kind);
         if (text == null)
             text = _text.ToString(_start, length);
-        return new SyntaxToken(_kind, _start, text, _value);
+        return new SyntaxToken(_syntaxTree, _kind, _start, text, _value);
     }
 
     private void ReadString()
@@ -224,7 +227,8 @@ internal sealed class LexicAnalyzer
                 case '\r':
                 case '\n':
                     var span = new TextSpan(_start, 1);
-                    _diagnostics.ReportUnterminedString(span);
+                    var location = new TextLocation(_text, span);
+                    _diagnostics.ReportUnterminedString(location);
                     done = true;
                     break;
                 case '"':
@@ -265,7 +269,9 @@ internal sealed class LexicAnalyzer
         var text = _text.ToString(_start, length);
         if (!int.TryParse(text, out var value))
         {
-            _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, TypeSymbol.Int);
+            var span = new TextSpan(_start, length);
+            var location = new TextLocation(_text, span);
+            _diagnostics.ReportInvalidNumber(location, text, TypeSymbol.Int);
         }
         _value = value;
         _kind = SyntaxKind.NumberToken;

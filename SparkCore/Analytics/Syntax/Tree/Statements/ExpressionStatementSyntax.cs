@@ -4,7 +4,7 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
     public sealed class ExpressionStatementSyntax : StatementSyntax
     {
-        public ExpressionStatementSyntax(ExpressionSyntax expression)
+        public ExpressionStatementSyntax(SyntaxTree syntaxTree, ExpressionSyntax expression) : base(syntaxTree)
         {
             Expression = expression;
         }

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SparkCore.spc (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SparkCore.spc (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

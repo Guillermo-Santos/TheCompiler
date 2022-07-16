@@ -5,7 +5,8 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
 public sealed class VariableDeclarationStatementSyntax : StatementSyntax
 {
-    public VariableDeclarationStatementSyntax(SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
+    public VariableDeclarationStatementSyntax(SyntaxTree syntaxTree, SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
+        : base(syntaxTree)
     {
         Keyword = keyword;
         Identifier = identifier;

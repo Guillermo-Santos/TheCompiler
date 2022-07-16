@@ -313,7 +313,7 @@ internal sealed class ControlFlowGraph
     {
         string Quote(string text)
         {
-            return "\"" + text.TrimEnd().Replace("\\", "\\\\").Replace(Environment.NewLine, "\\l") + "\"";
+            return "\"" + text.TrimEnd().Replace("\"", "\\\"").Replace(Environment.NewLine, "\\l") + "\\l" + "\"";
         }
 
         writer.WriteLine("digraph G {");
