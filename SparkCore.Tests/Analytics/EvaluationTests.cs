@@ -60,7 +60,7 @@ public class EvaluationTests
     [InlineData("false", false)]
     [InlineData("!true", false)]
     [InlineData("!false", true)]
-    [InlineData("var a = 10", 10)]
+    [InlineData("var a = 10 return a", 10)]
     [InlineData("\"test\"", "test")]
     [InlineData("\"te\"\"st\"", "te\"st")]
     [InlineData("\"test\" == \"test\"", true)]
@@ -68,17 +68,17 @@ public class EvaluationTests
     [InlineData("\"test\" == \"asd\"", false)]
     [InlineData("\"test\" != \"asd\"", true)]
     [InlineData("\"test\" + \"asd\"", "testasd")]
-    [InlineData("{var a = 10 (a * a)}", 100)]
-    [InlineData("{ var a = 0 (a = 10) * a}", 100)]
-    [InlineData("{ var a = 0 if a == 0 a = 10 a }", 10)]
-    [InlineData("{ var a = 0 if a == 4 a = 10 a }", 0)]
-    [InlineData("{ var a = 0 if a == 0 a = 10 else a = 5 a}", 10)]
-    [InlineData("{ var a = 0 if a == 4 a = 10 else a = 5 a }", 5)]
-    [InlineData("{ var i = 10 var result = 0 while i > 0 { result = result + 1 i = i - 1} result}", 10)]
-    [InlineData("{ var result = 0 for i = 1 to 100 { result = result + i} result}", 5050)]
-    [InlineData("{ var result = 0 var e = 0 for i = 1 to 10 {result = result + 1 if i==5 e = 10} result = result * e}", 100)]
-    [InlineData("{ var a = 10 for i = 1 to (a = a - 1) {} a}", 9)]
-    [InlineData("{ var a = 0 do{ a = a + 1 }while a < 10 a}", 10)]
+    [InlineData("{var a = 10 return (a * a)}", 100)]
+    [InlineData("{ var a = 0 return (a = 10) * a}", 100)]
+    [InlineData("{ var a = 0 if a == 0 a = 10 return a }", 10)]
+    [InlineData("{ var a = 0 if a == 4 a = 10 return a }", 0)]
+    [InlineData("{ var a = 0 if a == 0 a = 10 else a = 5 return a}", 10)]
+    [InlineData("{ var a = 0 if a == 4 a = 10 else a = 5 return a }", 5)]
+    [InlineData("{ var i = 10 var result = 0 while i > 0 { result = result + 1 i = i - 1} return result}", 10)]
+    [InlineData("{ var result = 0 for i = 1 to 100 { result = result + i} return result}", 5050)]
+    [InlineData("{ var result = 0 var e = 0 for i = 1 to 10 {result = result + 1 if i==5 e = 10} result = result * e return result}", 100)]
+    [InlineData("{ var a = 10 for i = 1 to (a = a - 1) {} return a}", 9)]
+    [InlineData("{ var a = 0 do{ a = a + 1 }while a < 10 return a}", 10)]
     #endregion
     public void SyntaxFact_GetText_RoundTrips(string text, object expectedResult)
     {
@@ -442,7 +442,7 @@ public class EvaluationTests
     private static void AssertValue(string text, object expectedResult)
     {
         var syntaxTree = SyntaxTree.Parse(text);
-        var compilation = new Compilation(syntaxTree);
+        var compilation = Compilation.CreateScript(null, syntaxTree);
         var variables = new Dictionary<VariableSymbol, object>();
         var result = compilation.Evaluate(variables);
 
@@ -455,7 +455,7 @@ public class EvaluationTests
     {
         var annotatedText = AnnotatedText.Parse(text);
         var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
-        var compilation = new Compilation(syntaxTree);
+        var compilation = Compilation.CreateScript(null, syntaxTree);
         var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
 
         var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticsText);

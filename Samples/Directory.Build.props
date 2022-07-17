@@ -1,0 +1,5 @@
+<Project>
+    <PropertyGroup>
+        <DefaultLanguageSourceExtension>.sp</DefaultLanguageSourceExtension>
+    </PropertyGroup>
+</Project>

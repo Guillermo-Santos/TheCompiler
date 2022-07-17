@@ -187,8 +187,11 @@ internal sealed class LexicAnalyzer
             case '\r':
                 ReadWhiteSpaceToken();
                 break;
+            case '_':
+                ReadIdentifierOrKeywordToken();
+                break;
             default:
-                if (char.IsLetter(Current) || char.Equals(Current, '_'))
+                if (char.IsLetter(Current))
                 {
                     ReadIdentifierOrKeywordToken();
                 }

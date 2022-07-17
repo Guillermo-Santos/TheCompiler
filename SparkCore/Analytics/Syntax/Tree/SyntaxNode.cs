@@ -33,7 +33,7 @@ public abstract class SyntaxNode
         }
     }
 
-    public TextLocation Location => new TextLocation(SyntaxTree.Text, Span);
+    public TextLocation Location => new(SyntaxTree.Text, Span);
 
     public SyntaxToken GetLastToken()
     {

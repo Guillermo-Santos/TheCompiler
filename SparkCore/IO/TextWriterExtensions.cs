@@ -81,7 +81,16 @@ public static class TextWriterExtensions
 
     public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics)
     {
-        foreach (var diagnostic in diagnostics.OrderBy(d => d.Location.Text.FileName)
+        foreach(var diagnostic in diagnostics.Where(d => d.Location.Text == null))
+        {
+            writer.SetForeground(ConsoleColor.DarkRed);
+            writer.Write(diagnostic.Message);
+            writer.ResetColor();
+        }
+
+
+        foreach (var diagnostic in diagnostics.Where(d => d.Location.Text != null)
+                                              .OrderBy(d => d.Location.FileName)
                                               .ThenBy(d => d.Location.Span.Start)
                                               .ThenBy(d => d.Location.Span.Length))
         {
@@ -90,7 +99,8 @@ public static class TextWriterExtensions
             var startLine = diagnostic.Location.StartLine + 1;
             var startChar = diagnostic.Location.StartCharacter + 1;
             var endLine = diagnostic.Location.EndLine + 1;
-            var endChar = diagnostic.Location.EndCharacter;
+            var endChar = diagnostic.Location.EndCharacter + 1;
+            
             var Span = diagnostic.Location.Span;
             var lineIndex = text.GetLineIndex(Span.Start);
             var line = text.Lines[lineIndex];

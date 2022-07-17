@@ -13,6 +13,7 @@ internal class Evaluator
 {
     private readonly BoundProgram _program;
     private readonly Dictionary<VariableSymbol, object> _globals;
+    private readonly Dictionary<FunctionSymbol, BoundBlockStatement> _functions = new();
     private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
     private Random _random;
 
@@ -23,10 +24,30 @@ internal class Evaluator
         _program = program;
         _globals = variables;
         _locals.Push(new Dictionary<VariableSymbol, object>());
+
+        var current = program;
+
+        while(current != null)
+        {
+            foreach (var kv in current.Functions)
+            {
+                var function = kv.Key;
+                var body = kv.Value;
+                _functions.Add(function, body);
+            }
+            current = current.Previous;
+        }
     }
     public object Evaluate()
     {
-        return EvaluateStatement(_program.Statement);
+        var function = _program.MainFunction ?? _program.ScriptFunction;
+        
+        if (function == null)
+            return null;
+        
+        var body = _functions[function];
+
+        return EvaluateStatement(body);
     }
 
     private object EvaluateStatement(BoundBlockStatement body)
@@ -237,7 +258,7 @@ internal class Evaluator
 
             _locals.Push(locals);
 
-            var functionBody = _program.Functions[node.Function];
+            var functionBody = _functions[node.Function];
             var result = EvaluateStatement(functionBody);
 
             _locals.Pop();
@@ -248,7 +269,9 @@ internal class Evaluator
     private object EvaluateConversionExpression(BoundConversionExpression node)
     {
         var value = EvaluateExpression(node.Expression);
-        if (node.Type == TypeSymbol.Bool)
+        if (node.Type == TypeSymbol.Any)
+            return value;
+        else if (node.Type == TypeSymbol.Bool)
             return Convert.ToBoolean(value);
         else if (node.Type == TypeSymbol.Int)
             return Convert.ToInt32(value);

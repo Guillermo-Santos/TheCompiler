@@ -33,6 +33,16 @@ internal sealed class Conversion
     {
         if (from == to)
             return Conversion.Identity;
+        
+        if(from != TypeSymbol.Void && to == TypeSymbol.Any)
+        {
+            return Conversion.Implicit;
+        }
+
+        if(from == TypeSymbol.Any && to != TypeSymbol.Void)
+        {
+            return Conversion.Explicit;
+        }
 
         if(from == TypeSymbol.Bool || from == TypeSymbol.Int)
         {

@@ -55,7 +55,7 @@ internal abstract class Repl
     {
         private readonly Action<string> _lineRenderer;
         private readonly ObservableCollection<string> _submissionDocument;
-        private readonly int _cursorTop;
+        private int _cursorTop;
         private int _renderedLineCount;
         private int _currentLine;
         private int _currentCharacter;
@@ -77,15 +77,13 @@ internal abstract class Repl
         private void Render()
         {
             Console.CursorVisible = false;
-            var isFirst = true;
             var lineCount = 0;
             foreach (var line in _submissionDocument)
             {
                 Console.SetCursorPosition(0, _cursorTop + lineCount);
                 Console.ForegroundColor = ConsoleColor.Green;
-                if (isFirst)
+                if (lineCount == 0)
                 {
-                    isFirst = false;
                     Console.Write("» ");
                 }
                 else
@@ -94,7 +92,7 @@ internal abstract class Repl
                 }
                 Console.ResetColor();
                 _lineRenderer(line);
-                Console.WriteLine(new string(' ', Console.WindowWidth - line.Length));
+                Console.WriteLine(new string(' ', Console.WindowWidth - line.Length - 2));
                 lineCount++;
             }
 

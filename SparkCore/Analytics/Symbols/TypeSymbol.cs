@@ -3,6 +3,7 @@
 public sealed class TypeSymbol : Symbol
 {
     public static readonly TypeSymbol Error = new("?");
+    public static readonly TypeSymbol Any = new("any");
     public static readonly TypeSymbol Bool = new("bool");
     public static readonly TypeSymbol Int = new("int");
     // TODO: Agregar logica para poder usar float.

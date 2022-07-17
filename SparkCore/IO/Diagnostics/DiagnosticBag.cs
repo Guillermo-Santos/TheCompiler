@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Mono.Cecil;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax;
 using SparkCore.IO.Text;
@@ -69,11 +71,14 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         var message = $"'{name}' is not a variable.";
         Report(location, message);
     }
+
     public void ReportNotAFunction(TextLocation location, string name)
     {
         var message = $"'{name}' is not a function.";
         Report(location, message);
     }
+
+    
     public void ReportUndefinedFunction(TextLocation location, string name)
     {
         var message = $"Function '{name}' doesn't exist.";
@@ -121,12 +126,6 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(location, message);
     }
 
-    public void ReportWrongArgumentType(TextLocation location, string name, TypeSymbol expectedType, TypeSymbol actualType)
-    {
-        var message = $"Parameter '{name}' requires a value of type {expectedType} but was given a value of type {actualType}.";
-        Report(location, message);
-    }
-
     public void ReportExpressionMustHaveValue(TextLocation location)
     {
         var message = "Expression must have a value, cannot be void.";
@@ -144,11 +143,6 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         var message = "Not all code paths return a value.";
         Report(location, message);
     }
-    public void ReportInvalidReturn(TextLocation location)
-    {
-        var message = "The 'return' keyword can only be used insede of functions.";
-        Report(location, message);
-    }
     public void ReportInvalidReturnExpression(TextLocation location, string functionName)
     {
         var message = $"Since the function '{functionName}' does not return a value, the 'return' keyword cannot be followed by an expression.";
@@ -159,4 +153,65 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         var message = $"An expression of type '{returnType}' is expected.";
         Report(location, message);
     }
+
+    public void ReportInvalidWithValueInGlobalStatement(TextLocation location)
+    {
+        var message = "The 'return' keyword cannot be followed by an expession in global statements.";
+        Report(location, message);
+    }
+    public void ReportInvalidExpressionStatement(TextLocation location)
+    {
+        // TODO: Add increment and decrement operators so the error message can be:
+        // Only assignment, call, increment, and decrement expressions can be used as a statement.
+        var message = "Only assignment and call expressions can be used as a statement.";
+        Report(location, message);
+    }
+    public void ReportOnlyOneFileCanHaveGlobalStatements(TextLocation location)
+    {
+        var message = "At most one file can have global statements.";
+        Report(location, message);
+    }
+
+    public void ReportMainMustHaveCorrectSignature(TextLocation location)
+    {
+        var message = "main must not take arguments and not return anything.";
+        Report(location, message);
+    }
+    public void ReportCannotMixMainAndGlobalStatements(TextLocation location)
+    {
+        var message = "Cannot declare main function when global statements are used.";
+        Report(location, message);
+    }
+    public void ReportInvalidReference(string path)
+    {
+        var message = $"The reference is not a valid .NET assembly: '{path}'";
+        Report(default, message);
+    }
+
+    public void ReportRequiredTypeNotFound(string sparkName, string metadataName)
+    {
+        var message =  sparkName == null 
+                    ? $"The required type '{metadataName}' cannot be resolved among the given references"
+                    : $"The required type '{sparkName}' ('{metadataName}') cannot be resolved among the given references";
+        Report(default, message);
+    }
+    public void ReportRequiredTypeAmbiguous(string sparkName, string metadataName, TypeDefinition[] foundTypes)
+    {
+        var assemblyNames = foundTypes.Select(t => t.Module.Assembly.Name.Name);
+        var assemblyNameList = string.Join(", ", assemblyNames);
+
+
+        var message = sparkName == null 
+                    ? $"The required type '{sparkName}' was found in multiple reference: {assemblyNameList}."
+                    : $"The required type '{sparkName}' ('{metadataName}') was found in multiple reference: {assemblyNameList}.";
+        Report(default, message);
+    }
+
+    public void ReportRequiredMethodNotFound(string typeName, string methodName, string[] parameterTypeNames)
+    {
+        var parameterTypeNameList = string.Join(", ", parameterTypeNames);
+        var message = $"The required method '{typeName}.{methodName}({parameterTypeNameList})' cannot be resolved among the given references";
+        Report(default, message);
+    }
+
 }

@@ -11,28 +11,29 @@ using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
-using System.Linq.Expressions;
 using SparkCore.Analytics.Lowering;
 using SparkCore.IO.Text;
 using SparkCore.IO.Diagnostics;
 
 namespace SparkCore.Analytics.Binding;
-// Waiting to have 'break' and 'continue' statements to do this:
+
 // TODO: Add ';' "SemiColonToken" to the lenguage and all expressions / statements that need it.
 // TODO: Add non obligatory assigned variables (let x = "asdad"  --> let x : string;)
 // TODO: Change for syntax and BoundLowering from 'for <var> = <lower> to <upper> <body>' to 'for(ExpressionStatement ; condition ; increment) <body>'
 internal sealed class Binder
 {
     private readonly DiagnosticBag _diagnostics = new();
+    private readonly bool _isScript;
     private readonly FunctionSymbol _function;
     private readonly Stack<(BoundLabel BreakLabel, BoundLabel ContinueLabel)> _loopStack = new();
     private int _labelCounter;
     private BoundScope _scope;
     public DiagnosticBag Diagnostics => _diagnostics;
 
-    public Binder(BoundScope parent, FunctionSymbol function)
+    public Binder(bool isScript, BoundScope parent, FunctionSymbol function)
     {
         _scope = new BoundScope(parent);
+        _isScript = isScript;
         _function = function;
 
         if(function != null)
@@ -42,10 +43,10 @@ internal sealed class Binder
         }
     }
 
-    public static BoundGlobalScope BindGlobalScope(BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
+    public static BoundGlobalScope BindGlobalScope(bool isScript, BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
     {
         var parentScope = CreateParenScopes(previous);
-        var binder = new Binder(parentScope, function: null);
+        var binder = new Binder(isScript, parentScope, function: null);
 
         var functionDelcarations = syntaxTrees.SelectMany(st => st.Root.Members)
                                               .OfType<FunctionDeclarationSyntax>();
@@ -53,62 +54,138 @@ internal sealed class Binder
         foreach (var function in functionDelcarations)
             binder.BindFunctionDeclaration(function);
 
-        var statements = ImmutableArray.CreateBuilder<BoundStatement>();
-
         var globalStatements = syntaxTrees.SelectMany(st => st.Root.Members)
                                           .OfType<GlobalStatementSyntax>();
 
+        var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
         foreach (var globalStatement in globalStatements)
         {
-            var statement = binder.BindStatement(globalStatement.Statement);
+            var statement = binder.BindGlobalStatement(globalStatement.Statement);
             statements.Add(statement);
         }
 
+        // Check global statements
+        var firstGlobalStatementPerSyntaxTree = syntaxTrees.Select(st => st.Root.Members.OfType<GlobalStatementSyntax>().FirstOrDefault())
+                                                           .Where(g => g != null)
+                                                           .ToArray();
+        if(firstGlobalStatementPerSyntaxTree.Length > 1)
+        {
+            foreach(var globalstatement in firstGlobalStatementPerSyntaxTree)
+            {
+                binder.Diagnostics.ReportOnlyOneFileCanHaveGlobalStatements(globalstatement.Location);
+            }
+        }
+
+        // Check for main function
+        
         var functions = binder._scope.GetDeclaredFunctions();
+        FunctionSymbol mainFunction;
+        FunctionSymbol scriptFunction;
+
+        if (isScript)
+        {
+            mainFunction = null;
+            if (globalStatements.Any())
+            {
+                scriptFunction = new FunctionSymbol("$eval", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Any);
+            }
+            else
+            {
+                scriptFunction = null;
+            }
+        }
+        else
+        {
+            mainFunction = functions.SingleOrDefault(f => f.Name == "main");
+            scriptFunction = null;
+
+            if (mainFunction != null)
+            {
+                if (mainFunction.Type != TypeSymbol.Void || mainFunction.Parameters.Any())
+                {
+                    binder.Diagnostics.ReportMainMustHaveCorrectSignature(mainFunction.Declaration.Identifier.Location);
+                }
+            }
+
+            if (globalStatements.Any())
+            {
+                if (mainFunction != null)
+                {
+                    binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(mainFunction.Declaration.Identifier.Location);
+
+                    foreach (var globalStatement in firstGlobalStatementPerSyntaxTree)
+                    {
+                        binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(globalStatement.Location);
+                    }
+                }
+                else
+                {
+                    mainFunction = new FunctionSymbol("main", ImmutableArray<ParameterSymbol>.Empty, TypeSymbol.Void);
+                }
+            }
+
+        }
+
+        var diagnostics = binder.Diagnostics.ToImmutableArray();
+
+
         var variables = binder._scope.GetDeclaredVariales();
-        var diagnostics = binder._diagnostics.ToImmutableArray();
 
         if (previous != null)
         {
             diagnostics = diagnostics.InsertRange(0, previous.Diagnostics);
         }
 
-        return new BoundGlobalScope(previous, diagnostics, functions, variables, statements.ToImmutable());
+        return new BoundGlobalScope(previous, diagnostics, mainFunction, scriptFunction, functions, variables, statements.ToImmutable());
     }
 
-    public static BoundProgram BindProgram(BoundGlobalScope globalScope)
+    public static BoundProgram BindProgram(bool isScript, BoundProgram previous, BoundGlobalScope globalScope)
     {
         var parentScope = CreateParenScopes(globalScope);
 
         var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
-
-
         var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-        var scope = globalScope;
 
-        while(scope != null)
+        foreach (var function in globalScope.Functions)
         {
+            var binder = new Binder(isScript, parentScope, function);
+            var body = binder.BindStatement(function.Declaration.Body);
+            var loweredBody = Lowerer.Lower(body);
+            if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
+                binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
 
-            foreach (var function in scope.Functions)
-            {
-                var binder = new Binder(parentScope, function);
-                var body = binder.BindStatement(function.Declaration.Body);
-                var loweredBody = Lowerer.Lower(body);
-                if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
-                    binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
+            functionBodies.Add(function, loweredBody);
 
-                functionBodies.Add(function, loweredBody);
-
-
-                diagnostics.AddRange(binder.Diagnostics);
-            }
-
-            scope = scope.Previous;
+            diagnostics.AddRange(binder.Diagnostics);
         }
 
-        var statement = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
+        if(globalScope.MainFunction != null && globalScope.Statements.Any())
+        {
+            var body = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
+            functionBodies.Add(globalScope.MainFunction, body);
+        }
+        else if(globalScope.ScriptFunction != null)
+        {
+            var statements = globalScope.Statements;
 
-        return new BoundProgram(diagnostics.ToImmutable(), functionBodies.ToImmutable(), statement);
+            if (statements.Length == 1 && 
+                statements[0] is BoundExpressionStatement es &&
+                es.Expression.Type != TypeSymbol.Void)
+            {
+                statements = statements.SetItem(0, new BoundReturnStatement(es.Expression));
+            }
+            else if (statements.Any() && statements.Last().Kind != BoundNodeKind.ReturnStatement)
+            {
+                var nullValue = new BoundLiteralExpression("");
+                statements = statements.Add(new BoundReturnStatement(nullValue));
+            }
+            var body = Lowerer.Lower(new BoundBlockStatement(statements));
+            functionBodies.Add(globalScope.ScriptFunction, body);
+        }
+
+
+        return new BoundProgram(previous, diagnostics.ToImmutable(), globalScope.MainFunction, globalScope.ScriptFunction, functionBodies.ToImmutable());
     }
 
     private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
@@ -178,7 +255,30 @@ internal sealed class Binder
     }
 
     private BoundStatement BindErrorStatement() => new BoundExpressionStatement(new BoundErrorExpression());
-    private BoundStatement BindStatement(StatementSyntax syntax)
+
+    private BoundStatement BindGlobalStatement(StatementSyntax syntax)
+    {
+        return BindStatement(syntax, isGlobal: true);
+    }
+    private BoundStatement BindStatement(StatementSyntax syntax, bool isGlobal = false)
+    {
+        var result = BindStatementInternal(syntax);
+        if(!_isScript || !isGlobal)
+        {
+            if(result is BoundExpressionStatement es)
+            {
+                var isAllowedExpression = es.Expression.Kind == BoundNodeKind.ErrorExpression ||
+                                          es.Expression.Kind == BoundNodeKind.AssignmentExpression ||
+                                          es.Expression.Kind == BoundNodeKind.CallExpression;
+                if (!isAllowedExpression)
+                    _diagnostics.ReportInvalidExpressionStatement(syntax.Location);
+
+            }
+        }
+
+        return result;
+    }
+    private BoundStatement BindStatementInternal(StatementSyntax syntax)
     {
         switch (syntax.Kind)
         {
@@ -313,7 +413,17 @@ internal sealed class Binder
 
         if(_function == null)
         {
-            _diagnostics.ReportInvalidReturn(syntax.ReturnKeyword.Location);
+            if (_isScript)
+            {
+                // Ignore because we allow both return with and without values.
+                if (expression == null)
+                    expression = new BoundLiteralExpression("");
+            }
+            else
+            {
+                // Main does not support return values.
+                _diagnostics.ReportInvalidWithValueInGlobalStatement(syntax.ReturnKeyword.Location);
+            }
         }
         else
         {
@@ -503,20 +613,15 @@ internal sealed class Binder
             return new BoundErrorExpression();
         }
 
-        var hasErrors = false;
         for(var i = 0; i < syntax.Arguments.Count; i++)
         {
+            var argumentLocation = syntax.Arguments[i].Location;
             var argument = boundArguments[i];
             var parameter = function.Parameters[i];
-            if(argument.Type != parameter.Type)
-            {
-                if(argument.Type != TypeSymbol.Error)
-                    _diagnostics.ReportWrongArgumentType(syntax.Arguments[i].Location, parameter.Name, parameter.Type, argument.Type);
-                hasErrors = true;
-            }
+
+            var convertedArgument = BindConversion(argumentLocation, argument, parameter.Type);
+            boundArguments[i] = convertedArgument;
         }
-        if (hasErrors)
-            return new BoundErrorExpression();
 
         return new BoundCallExpression(function, boundArguments.ToImmutable());
     }
@@ -585,6 +690,8 @@ internal sealed class Binder
     {
         switch (name)
         {
+            case "any": 
+                return TypeSymbol.Any;
             case "bool": 
                 return TypeSymbol.Bool;
             case "int": 

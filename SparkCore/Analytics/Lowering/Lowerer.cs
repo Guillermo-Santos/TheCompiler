@@ -234,6 +234,9 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         return RewriteStatement(result);
     }
+
+
+    // TODO: Nose, creo que esto ultimo no sera necesario luego de tener constant folding, pero bueno.
     protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
     {
 
@@ -306,130 +309,129 @@ internal sealed class Lowerer : BoundTreeRewriter
                 return tempVarExpression;
             }
         }
-        if (expressionToEvaluate is BoundBinaryExpression binary)
+        switch (expressionToEvaluate)
         {
-            //
-            // expression1 <op> expression2
-            //
-            //---->
-            //
-            // let T1 = expression1
-            // let T2 = expression2
-            // var a = T1 + T2
-            //.
-            var left = GetNewChild(binary.Left);
-            var right = GetNewChild(binary.Right);
-            if (left == binary.Left && right == binary.Right)
-            {
-                result = null;
-                return false;
-            }
+            case BoundBinaryExpression binary:
+                {
+                    //
+                    // expression1 <op> expression2
+                    //
+                    //---->
+                    //
+                    // let T1 = expression1
+                    // let T2 = expression2
+                    // var a = T1 + T2
+                    //.
+                    var left = GetNewChild(binary.Left);
+                    var right = GetNewChild(binary.Right);
+                    if (left == binary.Left && right == binary.Right)
+                    {
+                        break;
+                    }
 
-            var initializer = new BoundBinaryExpression(left, binary.Op, right);
-            statements.Add(new BoundExpressionStatement(initializer));
-            result = new BoundBlockStatement(statements.ToImmutable());
-            return true;
+                    var initializer = new BoundBinaryExpression(left, binary.Op, right);
+                    statements.Add(new BoundExpressionStatement(initializer));
+                    result = new BoundBlockStatement(statements.ToImmutable());
+                    return true;
+                }
+            case BoundUnaryExpression unary:
+                {
+                    //
+                    // var a = <op>expression
+                    //
+                    //---->
+                    //
+                    // let T1 = expression
+                    // <op>T1
+                    //
+
+                    var operand = GetNewChild(unary.Operand);
+                    if (operand == unary.Operand)
+                    {
+                        break;
+                    }
+
+                    var initializer = new BoundUnaryExpression(unary.Op, operand);
+                    statements.Add(new BoundExpressionStatement(initializer));
+                    result = new BoundBlockStatement(statements.ToImmutable());
+                    return true;
+                }
+            case BoundAssignmentExpression assigment:
+                {
+                    var expression = GetNewChild(assigment.Expression);
+                    if (expression == assigment.Expression)
+                    {
+                        result = null;
+                        return false;
+                    }
+
+                    var assign = new BoundAssignmentExpression(assigment.Variable, expression);
+                    statements.Add(new BoundExpressionStatement(assign));
+                    result = new BoundBlockStatement(statements.ToImmutable());
+                    return true;
+
+                }
+            case BoundConversionExpression conversion:
+                {
+                    //
+                    // type(expression)
+                    //
+                    //---->
+                    //
+                    // let T1 = expression
+                    // type(T1)
+                    //
+                    var expression = GetNewChild(conversion.Expression);
+
+                    if (expression == conversion.Expression)
+                    {
+                        break;
+                    }
+
+                    var conversionStatement = new BoundConversionExpression(conversion.Type, expression);
+                    statements.Add(new BoundExpressionStatement(conversionStatement));
+                    result = new BoundBlockStatement(statements.ToImmutable());
+                    return true;
+                }
+            case BoundCallExpression call:
+                {
+                    //
+                    // call(expression)
+                    //
+                    //---->
+                    //
+                    // let T1 = expression
+                    // a = call(T1)
+                    //
+
+                    var args = ImmutableArray.CreateBuilder<BoundExpression>();
+                    foreach (var arg in call.Arguments)
+                    {
+                        args.Add(GetNewChild(arg));
+                    }
+                    var arguments = args.ToImmutable();
+
+                    var isEquals = true;
+
+                    for (var i = 0; i < arguments.Length; i++)
+                    {
+                        if (arguments[i] == call.Arguments[i])
+                            continue;
+                        else
+                            isEquals = false;
+                    }
+
+                    if (isEquals)
+                    {
+                        break;
+                    }
+
+                    var initializer = new BoundCallExpression(call.Function, arguments);
+                    statements.Add(new BoundExpressionStatement(initializer));
+                    result = new BoundBlockStatement(statements.ToImmutable());
+                    return true;
+                }
         }
-        else if (expressionToEvaluate is BoundUnaryExpression unary)
-        {
-            //
-            // var a = <op>expression
-            //
-            //---->
-            //
-            // let T1 = expression
-            // <op>T1
-            //
-
-            var operand = GetNewChild(unary.Operand);
-            if (operand == unary.Operand)
-            {
-                result = null;
-                return false;
-            }
-
-            var initializer = new BoundUnaryExpression(unary.Op, operand);
-            statements.Add(new BoundExpressionStatement(initializer));
-            result = new BoundBlockStatement(statements.ToImmutable());
-            return true;
-        }
-        else if (expressionToEvaluate is BoundAssignmentExpression assigment)
-        {
-            var expression = GetNewChild(assigment.Expression);
-            if (expression == assigment.Expression)
-            {
-                result = null;
-                return false;
-            }
-
-            var assign = new BoundAssignmentExpression(assigment.Variable, expression);
-            statements.Add(new BoundExpressionStatement(assign));
-            result = new BoundBlockStatement(statements.ToImmutable());
-            return true;
-
-        }
-        else if (expressionToEvaluate is BoundConversionExpression conversion)
-        {
-            //
-            // type(expression)
-            //
-            //---->
-            //
-            // let T1 = expression
-            // type(T1)
-            //
-            var expression = GetNewChild(conversion.Expression);
-
-            if (expression == conversion.Expression)
-            {
-                result = null;
-                return false;
-            }
-
-            var conversionStatement = new BoundConversionExpression(conversion.Type, expression);
-            statements.Add(new BoundExpressionStatement(conversionStatement));
-            result = new BoundBlockStatement(statements.ToImmutable());
-            return true;
-        }
-        else if (expressionToEvaluate is BoundCallExpression call)
-        {
-
-            //
-            // call(expression)
-            //
-            //---->
-            //
-            // let T1 = expression
-            // a = call(T1)
-            //
-
-            var args = ImmutableArray.CreateBuilder<BoundExpression>();
-            foreach (var arg in call.Arguments)
-            {
-                args.Add(GetNewChild(arg));
-            }
-            var arguments = args.ToImmutable();
-
-            var isEquals = true;
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                if (arguments[i] == call.Arguments[i])
-                    continue;
-                else
-                    isEquals = false;
-            }
-            if (isEquals)
-            {
-                result = null;
-                return false;
-            }
-
-            var initializer = new BoundCallExpression(call.Function, arguments);
-            statements.Add(new BoundExpressionStatement(initializer));
-            result = new BoundBlockStatement(statements.ToImmutable());
-            return true;
-        }
-
         result = null;
         return false;
     }

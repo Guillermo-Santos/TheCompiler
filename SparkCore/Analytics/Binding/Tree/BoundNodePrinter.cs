@@ -308,7 +308,7 @@ internal static class BoundNodePrinter
             }
             else
             {
-                writer.WritePunctuation(SyntaxKind.ColonToken);
+                writer.WritePunctuation(SyntaxKind.CommaToken);
                 writer.WriteSpace();
             }
 
