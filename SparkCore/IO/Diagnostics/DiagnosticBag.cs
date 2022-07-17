@@ -202,7 +202,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
 
         var message = sparkName == null 
-                    ? $"The required type '{sparkName}' was found in multiple reference: {assemblyNameList}."
+                    ? $"The required type '{metadataName}' was found in multiple reference: {assemblyNameList}."
                     : $"The required type '{sparkName}' ('{metadataName}') was found in multiple reference: {assemblyNameList}.";
         Report(default, message);
     }

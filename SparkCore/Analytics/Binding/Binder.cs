@@ -17,6 +17,7 @@ using SparkCore.IO.Diagnostics;
 
 namespace SparkCore.Analytics.Binding;
 
+
 // TODO: Add ';' "SemiColonToken" to the lenguage and all expressions / statements that need it.
 // TODO: Add non obligatory assigned variables (let x = "asdad"  --> let x : string;)
 // TODO: Change for syntax and BoundLowering from 'for <var> = <lower> to <upper> <body>' to 'for(ExpressionStatement ; condition ; increment) <body>'

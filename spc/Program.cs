@@ -3,6 +3,7 @@ using SparkCore.IO;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
 using Mono.Options;
+using Mono.Cecil.Pdb;
 
 namespace spc;
 
@@ -15,7 +16,6 @@ internal static class Program
         var referencePaths = new List<string>();
         var sourcePaths = new List<string>();
         var helpRequested = false;
-
         var options = new OptionSet
         {
             "usage: spc <source-paths> [options]",
