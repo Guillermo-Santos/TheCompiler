@@ -173,11 +173,11 @@ internal sealed class ControlFlowGraph
 
     public sealed class GraphBuilder
     {
-        private Dictionary<BoundStatement, BasicBlock> _blockFromStatement = new();
-        private Dictionary<BoundLabel, BasicBlock> _blockFromLabel = new();
-        private List<BasicBlockBranch> _branches = new();
-        private BasicBlock _start = new(isStart: true);
-        private BasicBlock _end = new(isStart: false);
+        private readonly Dictionary<BoundStatement, BasicBlock> _blockFromStatement = new();
+        private readonly Dictionary<BoundLabel, BasicBlock> _blockFromLabel = new();
+        private readonly List<BasicBlockBranch> _branches = new();
+        private readonly BasicBlock _start = new(isStart: true);
+        private readonly BasicBlock _end = new(isStart: false);
 
         public ControlFlowGraph Build(List<BasicBlock> blocks)
         {

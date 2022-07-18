@@ -1,10 +1,12 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Text;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SparkCore.spc.ViewModels;
 using SparkCore.spc.Views;
 using System;
 using System.Collections.Generic;
@@ -24,17 +26,37 @@ namespace SparkCore.spc;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+    public FileViewModel ViewModel
+    {
+        get;
+    }
     public MainWindow()
     {
         this.InitializeComponent();
+        ViewModel = new FileViewModel("hola", "");
     }
 
-    private void NavigationViewItem_Tapped(object sender, TappedRoutedEventArgs e)
+    private void codeText_TextChanged(object sender, RoutedEventArgs e)
     {
-        var newTab = new FileTab();
-        newTab.IconSource = new SymbolIconSource() { Symbol = Symbol.Document };
-        newTab.Header = "New Document";
-        newTab.Page.Navigate(typeof(FilePage));
-        OpenFilesView.TabItems.Add(newTab);
+        codeText.Document.GetText(TextGetOptions.None, out var text);
+
+        if (text == ViewModel.Text) return;
+        ViewModel.Text = text;
+
+        TokenText.IsReadOnly = false;
+        SyntaxTreeText.IsReadOnly = false;
+        IntermText.IsReadOnly = false;
+        ViewModel.ChangeDisplay((RichEditBox)sender, TokenText, SyntaxTreeText, IntermText);
+        TokenText.IsReadOnly = true;
+        SyntaxTreeText.IsReadOnly = true;
+        IntermText.IsReadOnly = true;
     }
+    //private void NavigationViewItem_Tapped(object sender, TappedRoutedEventArgs e)
+    //{
+    //    var newTab = new FileTab();
+    //    newTab.IconSource = new SymbolIconSource() { Symbol = Symbol.Document };
+    //    newTab.Header = "New Document";
+    //    newTab.Page.Navigate(typeof(FilePage));
+    //    OpenFilesView.TabItems.Add(newTab);
+    //}
 }

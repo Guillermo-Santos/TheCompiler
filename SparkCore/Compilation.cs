@@ -22,7 +22,6 @@ public class Compilation
     {
         IsScript = isScript;
         Previous = previous;
-        SyntaxTrees1 = syntaxTrees;
         SyntaxTrees = syntaxTrees.ToImmutableArray();
     }
 
@@ -40,10 +39,6 @@ public class Compilation
         get;
     }
     public Compilation Previous
-    {
-        get;
-    }
-    public SyntaxTree[] SyntaxTrees1
     {
         get;
     }
@@ -112,7 +107,7 @@ public class Compilation
         var previous = Previous == null ? null : Previous.GetProgram();
         return Binder.BindProgram(IsScript, previous, GlobalScope);
     }
-
+    // TODO: Create function to expose diagnostics of the binder, without the need of the 'Evaluate' or 'Emit' funcions.
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
         var parseDiagnostics = SyntaxTrees.SelectMany(st => st.Diagnostics);
@@ -124,17 +119,18 @@ public class Compilation
         }
         var program = GetProgram();
 
+        // TODO: Sacar la impresion a una funcion. Crear directorio \Temp y logica de limpiado con cada cierre de la app.
         // Control Flow evaluation
-        foreach(var function in program.Functions)
-        {
-            var appPath = Environment.GetCommandLineArgs()[0];
-            var appDirectory = Path.GetDirectoryName(appPath);
-            var cfgPath = Path.Combine(appDirectory, $"{function.Key.Name}.dot");
-            var cfgStatement = function.Value;
-            var cfg = ControlFlowGraph.Create(cfgStatement);
-            using (var streamWriter = new StreamWriter(cfgPath))
-                cfg.WriteTo(streamWriter);
-        }
+        //foreach(var function in program.Functions)
+        //{
+        //    var appPath = Environment.GetCommandLineArgs()[0];
+        //    var appDirectory = Path.GetDirectoryName(appPath);
+        //    var cfgPath = Path.Combine(appDirectory, $"{function.Key.Name}.dot");
+        //    var cfgStatement = function.Value;
+        //    var cfg = ControlFlowGraph.Create(cfgStatement);
+        //    using (var streamWriter = new StreamWriter(cfgPath))
+        //        cfg.WriteTo(streamWriter);
+        //}
         // =========================
 
         if (program.Diagnostics.Any())
@@ -147,13 +143,18 @@ public class Compilation
 
     public void EmitTree(TextWriter writer)
     {
-        if(GlobalScope.MainFunction != null)
+        if (GlobalScope.MainFunction != null)
         {
             EmitTree(GlobalScope.MainFunction, writer);
         }
-        else
+        else if (GlobalScope.ScriptFunction != null)
         {
             EmitTree(GlobalScope.ScriptFunction, writer);
+        }
+
+        foreach (var function in GlobalScope.Functions.Where(f => f != GlobalScope.MainFunction && f != GlobalScope.ScriptFunction))
+        {
+            EmitTree(function, writer);
         }
     }
 

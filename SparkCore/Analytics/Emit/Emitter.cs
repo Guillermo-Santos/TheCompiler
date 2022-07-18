@@ -145,6 +145,7 @@ internal sealed class Emitter
             return null;
         }
 
+        var a = _assemmblyDefinition.ToString();
         _objectEqualsReference = ResolveMethod("System.Object", "Equals", new[] { "System.Object", "System.Object" });
         _consoleReadLineReference = ResolveMethod("System.Console", "ReadLine", Array.Empty<string>());
         _consoleWriteLineReference = ResolveMethod("System.Console", "WriteLine", new[] { "System.Object" });

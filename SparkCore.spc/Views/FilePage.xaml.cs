@@ -31,19 +31,19 @@ public sealed partial class FilePage : Page
     public FilePage()
     {
         this.InitializeComponent();
-        ViewModel = new FileViewModel("hola", "");
+        //ViewModel = new FileViewModel("hola", "");
     }
     public FilePage(string fileName, string text)
     {
         this.InitializeComponent();
-        ViewModel = new FileViewModel(fileName, text);
+        //ViewModel = new FileViewModel(fileName, text);
     }
 
     private void codeText_TextChanged(object sender, RoutedEventArgs e)
     {
         codeText.Document.GetText(TextGetOptions.None, out var text);
         if (text == ViewModel.Text) return;
-        ViewModel.Text = text;
-        ViewModel.OnTextChange((RichEditBox)sender);
+        //ViewModel.Text = text;
+        //ViewModel.ChangeDisplay((RichEditBox)sender);
     }
 }

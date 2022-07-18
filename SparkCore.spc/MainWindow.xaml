@@ -9,6 +9,51 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <RichEditBox Grid.Column="0" x:Name="codeText" IsSpellCheckEnabled="False" TextChanged="codeText_TextChanged"/>
+            <StackPanel Grid.Column="1">
+                <ListView Header="Errores:" ItemsSource="{x:Bind ViewModel.Diagnostics}"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" ColumnSpacing="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition MaxHeight="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Tokens" FontSize="18"/>
+                <RichEditBox x:Name="TokenText" Grid.Row="1" IsSpellCheckEnabled="False" IsReadOnly="True" IsTabStop="False"/>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition MaxHeight="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Syntax tree" FontSize="18"/>
+                <RichEditBox Grid.Row="1" x:Name="SyntaxTreeText" IsSpellCheckEnabled="False" IsReadOnly="True" IsTabStop="False"/>
+            </Grid>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition MaxHeight="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Intermediate Representation" FontSize="18"/>
+                <RichEditBox Grid.Row="1" x:Name="IntermText" IsSpellCheckEnabled="False" IsReadOnly="True" IsTabStop="False"/>
+            </Grid>
+        </Grid>
+        <!--<Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="5"/>
             <RowDefinition/>
@@ -32,6 +77,6 @@
                     </ResourceDictionary>
                 </TabView.Resources>
             </TabView>
-        </Grid>
+        </Grid>-->
     </Grid>
 </Window>

@@ -42,7 +42,7 @@ internal static class Program
 
         if(outputPath == null)
         {
-            outputPath = Path.ChangeExtension(sourcePaths[0], ".exe");
+            outputPath = Path.ChangeExtension(sourcePaths[0], ".il");
         }
         if (moduleName == null)
         {
@@ -77,6 +77,13 @@ internal static class Program
         if (hasErrors) return 1;
 
         var compilation = Compilation.Create(syntaxTrees.ToArray());
+        var result = compilation.Evaluate(new());
+
+        if (result.Diagnostics.Any())
+        {
+            Console.Error.WriteDiagnostics(result.Diagnostics);
+            return 1;
+        }
         var diagnostics = compilation.Emit(moduleName, referencePaths.ToArray(), outputPath);
 
 
