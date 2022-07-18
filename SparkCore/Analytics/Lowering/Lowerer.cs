@@ -35,19 +35,19 @@ internal sealed class Lowerer : BoundTreeRewriter
     /// </summary>
     /// <param name="statement"></param>
     /// <returns></returns>
-    public static BoundBlockStatement Lower(BoundStatement statement)
+    public static BoundBlockStatement Lower(FunctionSymbol function, BoundStatement statement)
     {
         var a = ImmutableArray.CreateBuilder<LocalVariableSymbol>();
         var lowerer = new Lowerer();
         var result = lowerer.RewriteStatement(statement);
-        return Flatten(result);
+        return Flatten(function, result);
     }
     /// <summary>
     /// Flatten a statement tree to a secuence of statements.
     /// </summary>
     /// <param name="statement">the statement tree to flatten.</param>
     /// <returns></returns>
-    private static BoundBlockStatement Flatten(BoundStatement statement)
+    private static BoundBlockStatement Flatten(FunctionSymbol function, BoundStatement statement)
     {
         var builder = ImmutableArray.CreateBuilder<BoundStatement>();
         var stack = new Stack<BoundStatement>();
@@ -67,8 +67,26 @@ internal sealed class Lowerer : BoundTreeRewriter
                 builder.Add(current);
             }
         }
+        if(function.Type == TypeSymbol.Void)
+        {
+            if(builder.Count == 0 || CanFallThrough(builder.Last())) 
+            {
+                builder.Add(new BoundReturnStatement(null));
+            }
+        }
+
         return new BoundBlockStatement(builder.ToImmutable());
     }
+
+    private static bool CanFallThrough(BoundStatement boundStatement)
+    {
+        // TODO: we don't rewrite conditional gotos where the condition is always true.
+        //       we shouldn't handle this here, because we should realy rewrite those
+        //       to unconditional gotos in the first place.
+        return boundStatement.Kind != BoundNodeKind.ReturnStatement &&
+               boundStatement.Kind != BoundNodeKind.GotoStatement;
+    }
+
     protected override BoundStatement RewriteIfStatement(BoundIfStatement node)
     {
         if (node.ElseStatement == null)

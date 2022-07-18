@@ -9,7 +9,7 @@ namespace SparkCore.Analytics.Symbols;
 internal static class BuiltinFunctions
 {
     public static FunctionSymbol Print = new("print",
-                                             ImmutableArray.Create(new ParameterSymbol("text", TypeSymbol.String, 0)), 
+                                             ImmutableArray.Create(new ParameterSymbol("text", TypeSymbol.Any, 0)), 
                                              TypeSymbol.Void);
     public static FunctionSymbol Input = new("input",
                                              ImmutableArray<ParameterSymbol>.Empty, 
