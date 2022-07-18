@@ -1,5 +1,5 @@
-function main (){
-    print("What's your name?")
-    var name = input()
-    print("Hello " + name + "!")
+function main ()
+{
+    let name = readLine("Inserta tu nombre por favor: ")
+    print("Hola " + name + "!")
 }

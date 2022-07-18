@@ -37,6 +37,7 @@ internal sealed class Lowerer : BoundTreeRewriter
     /// <returns></returns>
     public static BoundBlockStatement Lower(BoundStatement statement)
     {
+        var a = ImmutableArray.CreateBuilder<LocalVariableSymbol>();
         var lowerer = new Lowerer();
         var result = lowerer.RewriteStatement(statement);
         return Flatten(result);
@@ -236,11 +237,12 @@ internal sealed class Lowerer : BoundTreeRewriter
     }
 
 
-    // TODO: Agregar el out VariableSymbol temporalVariables to all functions and implement logic for declaration.
+    // Comprobar si esto es realmente necesario.
+    // TODO: #1 Agregar el out VariableSymbol temporalVariables to all functions and implement logic for declaration.
     //protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
     //{
 
-    //    if(!NeedRewriteExpression(node.Initializer, out BoundBlockStatement result))
+    //    if (!NeedRewriteExpression(node.Initializer, out BoundBlockStatement result))
     //    {
     //        return node;
     //    }
@@ -259,7 +261,7 @@ internal sealed class Lowerer : BoundTreeRewriter
     //}
     //protected override BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
     //{
-    //    if(!NeedRewriteExpression(node.Expression, out var result))
+    //    if (!NeedRewriteExpression(node.Expression, out var result))
     //    {
     //        return base.RewriteExpressionStatement(node);
     //    }

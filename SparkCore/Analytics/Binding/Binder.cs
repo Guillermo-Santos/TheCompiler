@@ -153,6 +153,7 @@ internal sealed class Binder
             var binder = new Binder(isScript, parentScope, function);
             var body = binder.BindStatement(function.Declaration.Body);
             var loweredBody = Lowerer.Lower(body);
+
             if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
                 binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
 
@@ -181,10 +182,9 @@ internal sealed class Binder
                 var nullValue = new BoundLiteralExpression("");
                 statements = statements.Add(new BoundReturnStatement(nullValue));
             }
-            var body = Lowerer.Lower(new BoundBlockStatement(statements));
+            var body = Lowerer.Lower(new BoundBlockStatement(globalScope.Statements));
             functionBodies.Add(globalScope.ScriptFunction, body);
         }
-
 
         return new BoundProgram(previous, diagnostics.ToImmutable(), globalScope.MainFunction, globalScope.ScriptFunction, functionBodies.ToImmutable());
     }
@@ -204,7 +204,7 @@ internal sealed class Binder
             }
             else
             {
-                var parameter = new ParameterSymbol(parameterName, parameterType);
+                var parameter = new ParameterSymbol(parameterName, parameterType, parameters.Count);
                 parameters.Add(parameter);
             }
         }

@@ -55,7 +55,6 @@ internal sealed class Emitter
             (TypeSymbol.Void, "System.Void")
         };
 
-
         var assemblyName = new AssemblyNameDefinition(moduleName, new Version(1, 0));
         _assemmblyDefinition = AssemblyDefinition.CreateAssembly(assemblyName, moduleName, ModuleKind.Console);
         _knowTypes = new Dictionary<TypeSymbol, TypeReference>();
@@ -147,7 +146,6 @@ internal sealed class Emitter
         var emitter = new Emitter(moduleName, references);
         return emitter.Emit(program, outputPath);
     }
-    //public ImmutableArray<Diagnostic> GetDiagnostics() => _diagnostics.ToImmutableArray();
     public ImmutableArray<Diagnostic> Emit(BoundProgram program, string outputPath)
     {
         if (_diagnostics.Any())
@@ -175,11 +173,19 @@ internal sealed class Emitter
 
         return _diagnostics.ToImmutableArray();
     }
-
     private void EmitFunctionDeclaration(FunctionSymbol function)
     {
-        var voidType = _knowTypes[TypeSymbol.Void];
-        var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, voidType);
+        var type = _knowTypes[function.Type];
+        var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, type);
+
+        foreach(var parameter in function.Parameters)
+        {
+            var parameterType = _knowTypes[parameter.Type];
+            var parameterAttribute = ParameterAttributes.Lcid;
+            var parameterDefinition = new ParameterDefinition(parameter.Name, parameterAttribute, parameterType);
+            method.Parameters.Add(parameterDefinition);
+        }
+
         _typeDefinition.Methods.Add(method);
         _methods.Add(function, method);
     }
@@ -226,7 +232,6 @@ internal sealed class Emitter
                 throw new Exception($"Unexpected node kind {node.Kind}");
         }
     }
-
     private void EmitVariableDeclaration(ILProcessor ilProcessor, BoundVariableDeclaration node)
     {
         var typeReference = _knowTypes[node.Variable.Type];
@@ -251,7 +256,9 @@ internal sealed class Emitter
     }
     private void EmitReturnStatement(ILProcessor ilProcessor, BoundReturnStatement node)
     {
-
+        if(node.Expression != null)
+            EmitExpression(ilProcessor, node.Expression);
+        ilProcessor.Emit(OpCodes.Ret);
     }
     private void EmitExpressionStatement(ILProcessor ilProcessor, BoundExpressionStatement node)
     {
@@ -317,12 +324,23 @@ internal sealed class Emitter
     }
     private void EmitVariableExpression(ILProcessor ilProcessor, BoundVariableExpression node)
     {
-        var variableDefinition = _locals[node.Variable];
-        ilProcessor.Emit(OpCodes.Ldloc, variableDefinition);
+        if(node.Variable is ParameterSymbol parameter)
+        {
+            ilProcessor.Emit(OpCodes.Ldarg, parameter.Ordinal);
+        }
+        else
+        {
+            var variableDefinition = _locals[node.Variable];
+            ilProcessor.Emit(OpCodes.Ldloc, variableDefinition);
+        }
     }
     private void EmitAssignmentExpression(ILProcessor ilProcessor, BoundAssignmentExpression node)
     {
-
+        var variableDefinition = _locals[node.Variable];
+        EmitExpression(ilProcessor, node.Expression);
+        // TODO: #2 luego de realizado el todo #1, comprobar si eliminar la siguiente linea de codigo tiene algun efecto.
+        ilProcessor.Emit(OpCodes.Dup);
+        ilProcessor.Emit(OpCodes.Stloc, variableDefinition);
     }
     private void EmitUnaryExpression(ILProcessor ilProcessor, BoundUnaryExpression node)
     {

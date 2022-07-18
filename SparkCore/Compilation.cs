@@ -125,15 +125,16 @@ public class Compilation
         var program = GetProgram();
 
         // Control Flow evaluation
-        //var appPath = Environment.GetCommandLineArgs()[0];
-        //var appDirectory = Path.GetDirectoryName(appPath);
-        //var cfgPath = Path.Combine(appDirectory, "cfg.dot");
-        //var cfgStatement = !program.Statement.Statements.Any() && program.Functions.Any()
-        //                      ? program.Functions.Last().Value
-        //                      : program.Statement;
-        //var cfg = ControlFlowGraph.Create(cfgStatement);
-        //using (var streamWriter = new StreamWriter(cfgPath))
-        //    cfg.WriteTo(streamWriter);
+        foreach(var function in program.Functions)
+        {
+            var appPath = Environment.GetCommandLineArgs()[0];
+            var appDirectory = Path.GetDirectoryName(appPath);
+            var cfgPath = Path.Combine(appDirectory, $"{function.Key.Name}.dot");
+            var cfgStatement = function.Value;
+            var cfg = ControlFlowGraph.Create(cfgStatement);
+            using (var streamWriter = new StreamWriter(cfgPath))
+                cfg.WriteTo(streamWriter);
+        }
         // =========================
 
         if (program.Diagnostics.Any())

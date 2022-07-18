@@ -16,10 +16,6 @@ internal sealed class BoundProgram
         Functions = functions;
     }
 
-    public BoundGlobalScope GlobalScope
-    {
-        get;
-    }
     public BoundProgram Previous
     {
         get;
