@@ -19,11 +19,12 @@
             </Grid.ColumnDefinitions>
             <RichEditBox Grid.Column="0" x:Name="codeText" IsSpellCheckEnabled="False" TextChanged="codeText_TextChanged"/>
             <StackPanel Grid.Column="1">
-                <ListView Header="Errores:" ItemsSource="{x:Bind ViewModel.Diagnostics}"/>
+                <ListView Header="Errores:" ItemsSource="{x:Bind ViewModel.Diagnostics}" IsTabStop="False"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1" ColumnSpacing="5">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -51,6 +52,14 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="Intermediate Representation" FontSize="18"/>
                 <RichEditBox Grid.Row="1" x:Name="IntermText" IsSpellCheckEnabled="False" IsReadOnly="True" IsTabStop="False"/>
+            </Grid>
+            <Grid Grid.Column="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition MaxHeight="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Symbols" FontSize="18"/>
+                <ListView Grid.Row="1" x:Name="Symbols" IsTabStop="False" ItemsSource="{x:Bind ViewModel.Symbols}"/>
             </Grid>
         </Grid>
         <!--<Grid.RowDefinitions>

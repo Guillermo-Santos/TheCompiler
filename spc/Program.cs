@@ -95,4 +95,23 @@ internal static class Program
 
         return 0;
     }
+
+    private static IEnumerable<string> GetFilePaths(IEnumerable<string> paths)
+    {
+        var result = new SortedSet<string>();
+        foreach (var path in paths)
+        {
+            if (Directory.Exists(path))
+            {
+                result.UnionWith(Directory.EnumerateFiles(path, "*.sp", SearchOption.AllDirectories));
+            }
+            else
+            {
+                result.Add(path);
+            }
+        }
+
+        return result;
+    }
+
 }

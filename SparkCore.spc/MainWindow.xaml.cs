@@ -46,6 +46,7 @@ public sealed partial class MainWindow : Window
         TokenText.IsReadOnly = false;
         SyntaxTreeText.IsReadOnly = false;
         IntermText.IsReadOnly = false;
+
         ViewModel.ChangeDisplay((RichEditBox)sender, TokenText, SyntaxTreeText, IntermText);
         TokenText.IsReadOnly = true;
         SyntaxTreeText.IsReadOnly = true;

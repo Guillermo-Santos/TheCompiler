@@ -1,5 +1,5 @@
 function main ()
 {
-    let name = readLine("Inserta tu nombre por favor: ")
-    print("Hola " + name + "!")
+    for i = 1 to 100
+        print(random(3))
 }

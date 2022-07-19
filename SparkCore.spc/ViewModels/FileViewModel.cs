@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -22,10 +23,16 @@ public class FileViewModel : BaseViewModel
     private string _fileName;
     private string _text;
     private ObservableCollection<string> diagnostics = new();
+    private ObservableCollection<string> symbols = new();
     public ObservableCollection<string> Diagnostics
     {
         get => diagnostics;
         set => SetProperty(ref diagnostics, value);
+    }
+    public ObservableCollection<string> Symbols
+    {
+        get => symbols;
+        set => SetProperty(ref symbols, value);
     }
     public string FileName
     {
@@ -87,7 +94,7 @@ public class FileViewModel : BaseViewModel
         FillTokens(tokenText);
         var syntaxTree = SyntaxTree.Parse(_text);
         FillSyntaxTree(syntaxTree, syntaxTreeText);
-        FillIntermediate(syntaxTree, intermText);
+        FillIntermediate(syntaxTree, intermText, sender);
     }
     private void FillTokens(RichEditBox tokenText)
     {
@@ -118,14 +125,14 @@ public class FileViewModel : BaseViewModel
     }
     private void FillSyntaxTree(SyntaxTree syntaxTree, RichEditBox syntaxTreeText)
     {
-        StringWriter writer = new();
+        using StringWriter writer = new();
         syntaxTree.Root.WriteTo(writer);
 
         syntaxTreeText.Document.SetText(TextSetOptions.None, writer.ToString());
     }
-    private void FillIntermediate(SyntaxTree syntaxTree, RichEditBox intermText)
+    private void FillIntermediate(SyntaxTree syntaxTree, RichEditBox intermText, RichEditBox sender)
     {
-        StringWriter writer = new();
+        using StringWriter writer = new();
         var text = syntaxTree.Text.ToString();
         if (!string.IsNullOrWhiteSpace(text))
         {
@@ -138,12 +145,43 @@ public class FileViewModel : BaseViewModel
             }
             else
             {
-                StringWriter diag = new();
+                using StringWriter diag = new();
                 diag.WriteDiagnostics(result.Diagnostics);
                 Diagnostics.Add(diag.ToString());
+                ShowDiagnostics(result.Diagnostics, sender);
             }
+
+            FillSymbols(compilation);
 
         }
         intermText.Document.SetText(TextSetOptions.None, writer.ToString());
+    }
+
+    private void FillSymbols(Compilation compilation)
+    {
+        Symbols.Clear();
+        var symbols = compilation.GetSymbols().OrderBy(s => s.Kind).ThenBy(s => s.Name);
+        foreach (var symbol in symbols)
+        {
+            using StringWriter writer = new();
+            symbol.WriteTo(writer);
+            Symbols.Add(writer.ToString());
+        }
+    }
+    private void ShowDiagnostics(ImmutableArray<Diagnostic> diagnostics, RichEditBox sender)
+    {
+        sender.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
+        var position = sender.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
+
+        foreach (var diagnostic in diagnostics)
+        {
+            sender.Document.Selection.StartPosition = diagnostic.Location.Span.Start;
+            sender.Document.Selection.EndPosition = diagnostic.Location.Span.End;
+
+            sender.Document.Selection.CharacterFormat.ForegroundColor = Colors.Red;
+
+        }
+        sender.Document.Selection.SetRange(position.StartPosition, position.EndPosition);
+
     }
 }
