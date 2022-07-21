@@ -154,7 +154,7 @@ internal sealed class Binder
             var body = binder.BindStatement(function.Declaration.Body);
             var loweredBody = Lowerer.Lower(function, body);
 
-            if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody))
+            if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody, out loweredBody))
                 binder._diagnostics.ReportAllPathsMustReturn(function.Declaration.Identifier.Location);
 
             functionBodies.Add(function, loweredBody);

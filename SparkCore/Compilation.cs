@@ -121,7 +121,7 @@ public class Compilation
 
         // TODO: Sacar la impresion a una funcion. Crear directorio \Temp y logica de limpiado con cada cierre de la app.
         // Control Flow evaluation
-        //foreach(var function in program.Functions)
+        //foreach (var function in program.Functions)
         //{
         //    var appPath = Environment.GetCommandLineArgs()[0];
         //    var appDirectory = Path.GetDirectoryName(appPath);

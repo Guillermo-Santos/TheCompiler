@@ -13,25 +13,31 @@ function main ()
         print("")
         print("")
         print("Ronda: " + string(rondaCont) + " de 5.")
-        print("")
+        print("Maquina: " + string(mcont))
+        print("Jugador: " + string(jcont))
         print("Ingresa:")
         print("    1 ---> Piedra")
         print("    2 ---> Papel")
         print("    3 ---> Tijera")
-        var judador = int(input())
+        var jugador = int(input())
         var maquina = random(3) + 1
 
         print("")
         print("")
-        print("Jugador selecciona: " + GetSelect(judador))
+        print("Jugador selecciona: " + GetSelect(jugador))
         print("")
         print("Maquina selecciona: " + GetSelect(maquina))
         print("")
 
-        if(GaneRonda(judador, maquina)){
-            jcont = jcont + 1
+        if(jugador != maquina){        
+            if(GaneRonda(jugador, maquina)){
+                jcont = jcont + 1
+            }else{
+                mcont = mcont + 1
+            }
         }else{
-            mcont = mcont + 1
+            print("Empate, ronda no valida")
+            rondaCont = rondaCont - 1
         }
 
         if(AlguienGano(jcont, mcont)){
@@ -60,13 +66,13 @@ function GaneRonda(j: int, m: int): bool{
         }
     }
     else if(m == 2){
-            print("Jugador gana la ronda!")
-            return true
-        }else{
-            print("Maquina gana la ronda!")
-            return false
-        }
-    return false
+        print("Jugador gana la ronda!")
+        return true
+    }
+    else{
+        print("Maquina gana la ronda!")
+        return false
+    }
 }
 
 function AlguienGano(j: int, m: int): bool{
@@ -77,13 +83,15 @@ function AlguienGano(j: int, m: int): bool{
             print("Ha ganado la maquina")
         }
         return true
+    }else{
+        return false
     }
-    return false
 }
 function GetSelect(select: int): string{
     if(select == 1)
         return "piedra"
     else if (select == 2)
         return "papel"
-    return "tijera"
+    else
+        return "tijera"
 }

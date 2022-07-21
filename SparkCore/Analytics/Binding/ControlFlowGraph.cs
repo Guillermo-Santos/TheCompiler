@@ -12,6 +12,7 @@ using SparkCore.Analytics.Binding.Tree.Statements;
 using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Symbols;
 using System.CodeDom.Compiler;
+using System.Collections.Immutable;
 
 namespace SparkCore.Analytics.Binding;
 internal sealed class ControlFlowGraph
@@ -286,9 +287,10 @@ internal sealed class ControlFlowGraph
                 branch.From.Outgoing.Remove(branch);
                 _branches.Remove(branch);
             }
+
             foreach (var branch in block.Outgoing)
             {
-                branch.To.Outgoing.Remove(branch);
+                branch.To.Incoming.Remove(branch);
                 _branches.Remove(branch);
             }
 
@@ -345,19 +347,31 @@ internal sealed class ControlFlowGraph
 
         writer.WriteLine("}");
     }
-
-    public static ControlFlowGraph Create(BoundBlockStatement body)
+    public static ControlFlowGraph Create(BoundBlockStatement body, out BoundBlockStatement loweredbody)
     {
         var basicBlockBuilder = new BasicBlockBuilder();
         var blocks = basicBlockBuilder.Build(body);
 
         var graphBuilder = new GraphBuilder();
-        return graphBuilder.Build(blocks);
-    }
+        var graph = graphBuilder.Build(blocks);
 
-    public static bool AllPathsReturn(BoundBlockStatement body)
+        var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
+        foreach(var block in graph.Blocks)
+        {
+            foreach(var statement in block.Statements)
+            {
+                statements.Add(statement);
+            }
+        }
+        loweredbody = new BoundBlockStatement(statements.ToImmutable());
+        
+        return graph;
+    }
+    // TODO: Eliminar codigo no alcanzable para solucionar problemas de compilacion 
+    public static bool AllPathsReturn(BoundBlockStatement body, out BoundBlockStatement loweredbody)
     {
-        var graph = Create(body);
+        var graph = Create(body, out loweredbody);
 
         foreach(var branch in graph.End.Incoming)
         {

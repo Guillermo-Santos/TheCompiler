@@ -96,9 +96,9 @@ internal sealed class Lowerer : BoundTreeRewriter
             //--->
             // gotoIfFalse <condition> end
             // <then>
-            // end;
+            // end:
             var endLabel = GenerateLabel();
-            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, false);
+            var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, jumpIfTrue: false);
             var endLabelStatement = new BoundLabelStatement(endLabel);
             var result = new BoundBlockStatement(ImmutableArray.Create(
                 gotoFalse,
@@ -123,7 +123,7 @@ internal sealed class Lowerer : BoundTreeRewriter
             var elseLabel = GenerateLabel();
             var endLabel = GenerateLabel();
 
-            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, false);
+            var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, jumpIfTrue: false);
             var gotoEndStatement = new BoundGotoStatement(endLabel);
             var elseLabelStatement = new BoundLabelStatement(elseLabel);
             var endLabelStatement = new BoundLabelStatement(endLabel);
@@ -253,204 +253,204 @@ internal sealed class Lowerer : BoundTreeRewriter
         return RewriteStatement(result);
     }
 
-    // Comprobar si esto es realmente necesario.
-    // TODO: #1 Agregar el out VariableSymbol temporalVariables to all functions and implement logic for declaration.
-    protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
-    {
+    //Comprobar si esto es realmente necesario.
+    //TODO: #1 Agregar el out VariableSymbol temporalVariables to all functions and implement logic for declaration.
+    //protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
+    //{
 
-        if (!NeedRewriteExpression(node.Initializer, out BoundBlockStatement result))
-        {
-            return node;
-        }
+    //    if (!NeedRewriteExpression(node.Initializer, out BoundBlockStatement result))
+    //    {
+    //        return node;
+    //    }
 
-        var expressionStatement = result.Statements.Last();
-        var initializer = ((BoundExpressionStatement)expressionStatement).Expression;
+    //    var expressionStatement = result.Statements.Last();
+    //    var initializer = ((BoundExpressionStatement)expressionStatement).Expression;
 
-        // statements equals the lowering of the expression without the expression statement used in the initializer.
-        var statements = result.Statements.Remove(expressionStatement);
-        // then we take this initializer and create a variable declaration for the original variable and the new initializer.
-        var variableDeclaration = new BoundVariableDeclaration(node.Variable, initializer);
-        // and add it to the statements
-        statements = statements.Add(variableDeclaration);
+    //    // statements equals the lowering of the expression without the expression statement used in the initializer.
+    //    var statements = result.Statements.Remove(expressionStatement);
+    //    // then we take this initializer and create a variable declaration for the original variable and the new initializer.
+    //    var variableDeclaration = new BoundVariableDeclaration(node.Variable, initializer);
+    //    // and add it to the statements
+    //    statements = statements.Add(variableDeclaration);
 
-        return RewriteStatement(new BoundBlockStatement(statements));
-    }
-    protected override BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
-    {
-        if (!NeedRewriteExpression(node.Expression, out var result))
-        {
-            return base.RewriteExpressionStatement(node);
-        }
+    //    return RewriteStatement(new BoundBlockStatement(statements));
+    //}
+    //protected override BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
+    //{
+    //    if (!NeedRewriteExpression(node.Expression, out var result))
+    //    {
+    //        return base.RewriteExpressionStatement(node);
+    //    }
 
-        return RewriteStatement(result);
-    }
-    protected override BoundStatement RewriteReturnStatement(BoundReturnStatement node)
-    {
-        if (!NeedRewriteExpression(node.Expression, out BoundBlockStatement result))
-        {
-            return node;
-        }
+    //    return RewriteStatement(result);
+    //}
+    //protected override BoundStatement RewriteReturnStatement(BoundReturnStatement node)
+    //{
+    //    if (!NeedRewriteExpression(node.Expression, out BoundBlockStatement result))
+    //    {
+    //        return node;
+    //    }
 
-        var expressionStatement = result.Statements.Last();
-        var initializer = ((BoundExpressionStatement)expressionStatement).Expression;
+    //    var expressionStatement = result.Statements.Last();
+    //    var initializer = ((BoundExpressionStatement)expressionStatement).Expression;
 
-        // statements equals the lowering of the expression without the expression statement used to in the initializer.
-        var statements = result.Statements.Remove(expressionStatement);
-        // we create a temporal variable with the initializer.
-        var temp = GenerateTemporalVariable(initializer.Type);
-        var tempDeclaration = new BoundVariableDeclaration(temp, initializer);
-        // We add the temporal variable declaration to the statements.
-        statements = statements.Add(tempDeclaration);
-        var returnStatement = new BoundReturnStatement(new BoundVariableExpression(temp));
-        statements = statements.Add(returnStatement);
+    //    // statements equals the lowering of the expression without the expression statement used to in the initializer.
+    //    var statements = result.Statements.Remove(expressionStatement);
+    //    // we create a temporal variable with the initializer.
+    //    var temp = GenerateTemporalVariable(initializer.Type);
+    //    var tempDeclaration = new BoundVariableDeclaration(temp, initializer);
+    //    // We add the temporal variable declaration to the statements.
+    //    statements = statements.Add(tempDeclaration);
+    //    var returnStatement = new BoundReturnStatement(new BoundVariableExpression(temp));
+    //    statements = statements.Add(returnStatement);
 
-        return RewriteStatement(new BoundBlockStatement(statements));
-    }
-    private bool NeedRewriteExpression(BoundExpression expressionToEvaluate, out BoundBlockStatement result)
-    {
-        var statements = ImmutableArray.CreateBuilder<BoundStatement>();
-        BoundExpression GetNewChild(BoundExpression old)
-        {
-            // If is a variable expression or a literal expression,
-            if (old is BoundVariableExpression || old is BoundLiteralExpression)
-            {
-                // We parse it as it is.
-                return old;
-            }
-            else
-            {
-                // else, we create a temporal variable with the expression.
-                var temp = GenerateTemporalVariable(old.Type);
-                var tempDeclaration = new BoundVariableDeclaration(temp, old);
-                var tempVarExpression = new BoundVariableExpression(temp);
-                statements.Add(tempDeclaration);
-                return tempVarExpression;
-            }
-        }
-        switch (expressionToEvaluate)
-        {
-            case BoundBinaryExpression binary:
-                {
-                    //
-                    // expression1 <op> expression2
-                    //
-                    //---->
-                    //
-                    // let T1 = expression1
-                    // let T2 = expression2
-                    // var a = T1 + T2
-                    //.
-                    var left = GetNewChild(binary.Left);
-                    var right = GetNewChild(binary.Right);
-                    if (left == binary.Left && right == binary.Right)
-                    {
-                        break;
-                    }
+    //    return RewriteStatement(new BoundBlockStatement(statements));
+    //}
+    //private bool NeedRewriteExpression(BoundExpression expressionToEvaluate, out BoundBlockStatement result)
+    //{
+    //    var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+    //    BoundExpression GetNewChild(BoundExpression old)
+    //    {
+    //        // If is a variable expression or a literal expression,
+    //        if (old is BoundVariableExpression || old is BoundLiteralExpression)
+    //        {
+    //            // We parse it as it is.
+    //            return old;
+    //        }
+    //        else
+    //        {
+    //            // else, we create a temporal variable with the expression.
+    //            var temp = GenerateTemporalVariable(old.Type);
+    //            var tempDeclaration = new BoundVariableDeclaration(temp, old);
+    //            var tempVarExpression = new BoundVariableExpression(temp);
+    //            statements.Add(tempDeclaration);
+    //            return tempVarExpression;
+    //        }
+    //    }
+    //    switch (expressionToEvaluate)
+    //    {
+    //        case BoundBinaryExpression binary:
+    //            {
+    //                //
+    //                // expression1 <op> expression2
+    //                //
+    //                //---->
+    //                //
+    //                // let T1 = expression1
+    //                // let T2 = expression2
+    //                // var a = T1 + T2
+    //                //.
+    //                var left = GetNewChild(binary.Left);
+    //                var right = GetNewChild(binary.Right);
+    //                if (left == binary.Left && right == binary.Right)
+    //                {
+    //                    break;
+    //                }
 
-                    var initializer = new BoundBinaryExpression(left, binary.Op, right);
-                    statements.Add(new BoundExpressionStatement(initializer));
-                    result = new BoundBlockStatement(statements.ToImmutable());
-                    return true;
-                }
-            case BoundUnaryExpression unary:
-                {
-                    //
-                    // var a = <op>expression
-                    //
-                    //---->
-                    //
-                    // let T1 = expression
-                    // <op>T1
-                    //
+    //                var initializer = new BoundBinaryExpression(left, binary.Op, right);
+    //                statements.Add(new BoundExpressionStatement(initializer));
+    //                result = new BoundBlockStatement(statements.ToImmutable());
+    //                return true;
+    //            }
+    //        case BoundUnaryExpression unary:
+    //            {
+    //                //
+    //                // var a = <op>expression
+    //                //
+    //                //---->
+    //                //
+    //                // let T1 = expression
+    //                // <op>T1
+    //                //
 
-                    var operand = GetNewChild(unary.Operand);
-                    if (operand == unary.Operand)
-                    {
-                        break;
-                    }
+    //                var operand = GetNewChild(unary.Operand);
+    //                if (operand == unary.Operand)
+    //                {
+    //                    break;
+    //                }
 
-                    var initializer = new BoundUnaryExpression(unary.Op, operand);
-                    statements.Add(new BoundExpressionStatement(initializer));
-                    result = new BoundBlockStatement(statements.ToImmutable());
-                    return true;
-                }
-            case BoundAssignmentExpression assigment:
-                {
-                    var expression = GetNewChild(assigment.Expression);
-                    if (expression == assigment.Expression)
-                    {
-                        result = null;
-                        return false;
-                    }
+    //                var initializer = new BoundUnaryExpression(unary.Op, operand);
+    //                statements.Add(new BoundExpressionStatement(initializer));
+    //                result = new BoundBlockStatement(statements.ToImmutable());
+    //                return true;
+    //            }
+    //        case BoundAssignmentExpression assigment:
+    //            {
+    //                var expression = GetNewChild(assigment.Expression);
+    //                if (expression == assigment.Expression)
+    //                {
+    //                    result = null;
+    //                    return false;
+    //                }
 
-                    var assign = new BoundAssignmentExpression(assigment.Variable, expression);
-                    statements.Add(new BoundExpressionStatement(assign));
-                    result = new BoundBlockStatement(statements.ToImmutable());
-                    return true;
+    //                var assign = new BoundAssignmentExpression(assigment.Variable, expression);
+    //                statements.Add(new BoundExpressionStatement(assign));
+    //                result = new BoundBlockStatement(statements.ToImmutable());
+    //                return true;
 
-                }
-            case BoundConversionExpression conversion:
-                {
-                    //
-                    // type(expression)
-                    //
-                    //---->
-                    //
-                    // let T1 = expression
-                    // type(T1)
-                    //
-                    var expression = GetNewChild(conversion.Expression);
+    //            }
+    //        case BoundConversionExpression conversion:
+    //            {
+    //                //
+    //                // type(expression)
+    //                //
+    //                //---->
+    //                //
+    //                // let T1 = expression
+    //                // type(T1)
+    //                //
+    //                var expression = GetNewChild(conversion.Expression);
 
-                    if (expression == conversion.Expression)
-                    {
-                        break;
-                    }
+    //                if (expression == conversion.Expression)
+    //                {
+    //                    break;
+    //                }
 
-                    var conversionStatement = new BoundConversionExpression(conversion.Type, expression);
-                    statements.Add(new BoundExpressionStatement(conversionStatement));
-                    result = new BoundBlockStatement(statements.ToImmutable());
-                    return true;
-                }
-            case BoundCallExpression call:
-                {
-                    //
-                    // call(expression)
-                    //
-                    //---->
-                    //
-                    // let T1 = expression
-                    // a = call(T1)
-                    //
+    //                var conversionStatement = new BoundConversionExpression(conversion.Type, expression);
+    //                statements.Add(new BoundExpressionStatement(conversionStatement));
+    //                result = new BoundBlockStatement(statements.ToImmutable());
+    //                return true;
+    //            }
+    //        case BoundCallExpression call:
+    //            {
+    //                //
+    //                // call(expression)
+    //                //
+    //                //---->
+    //                //
+    //                // let T1 = expression
+    //                // a = call(T1)
+    //                //
 
-                    var args = ImmutableArray.CreateBuilder<BoundExpression>();
-                    foreach (var arg in call.Arguments)
-                    {
-                        args.Add(GetNewChild(arg));
-                    }
-                    var arguments = args.ToImmutable();
+    //                var args = ImmutableArray.CreateBuilder<BoundExpression>();
+    //                foreach (var arg in call.Arguments)
+    //                {
+    //                    args.Add(GetNewChild(arg));
+    //                }
+    //                var arguments = args.ToImmutable();
 
-                    var isEquals = true;
+    //                var isEquals = true;
 
-                    for (var i = 0; i < arguments.Length; i++)
-                    {
-                        if (arguments[i] == call.Arguments[i])
-                            continue;
-                        else
-                            isEquals = false;
-                    }
+    //                for (var i = 0; i < arguments.Length; i++)
+    //                {
+    //                    if (arguments[i] == call.Arguments[i])
+    //                        continue;
+    //                    else
+    //                        isEquals = false;
+    //                }
 
-                    if (isEquals)
-                    {
-                        break;
-                    }
+    //                if (isEquals)
+    //                {
+    //                    break;
+    //                }
 
-                    var initializer = new BoundCallExpression(call.Function, arguments);
-                    statements.Add(new BoundExpressionStatement(initializer));
-                    result = new BoundBlockStatement(statements.ToImmutable());
-                    return true;
-                }
-        }
-        result = null;
-        return false;
-    }
+    //                var initializer = new BoundCallExpression(call.Function, arguments);
+    //                statements.Add(new BoundExpressionStatement(initializer));
+    //                result = new BoundBlockStatement(statements.ToImmutable());
+    //                return true;
+    //            }
+    //    }
+    //    result = null;
+    //    return false;
+    //}
 }

@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
@@ -54,7 +53,6 @@ public class FileViewModel : BaseViewModel
         Text = text;
     }
 
-
     public void ChangeDisplay(RichEditBox sender, RichEditBox tokenText, RichEditBox syntaxTreeText, RichEditBox intermText)
     {
 
@@ -90,6 +88,7 @@ public class FileViewModel : BaseViewModel
 
             sender.Document.Selection.SetRange(position.StartPosition, position.EndPosition);
         }
+
         Diagnostics.Clear();
         FillTokens(tokenText);
         var syntaxTree = SyntaxTree.Parse(_text);
