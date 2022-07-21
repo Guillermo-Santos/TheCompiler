@@ -1,9 +1,8 @@
-﻿using SparkCore.Analytics.Syntax.Tree.Expressions;
-using SparkCore.Analytics.Syntax.Tree.Statements;
+﻿using SparkCore.Analytics.Syntax.Tree.Statements;
 
 namespace SparkCore.Analytics.Syntax.Tree.Nodes;
 
-public sealed class FunctionDeclarationSyntax : MemberSyntax
+public sealed partial class FunctionDeclarationSyntax : MemberSyntax
 {
 
     public FunctionDeclarationSyntax(

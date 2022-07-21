@@ -2,7 +2,7 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Nodes;
 
-public sealed class CompilationUnitSyntax : SyntaxNode
+public sealed partial class CompilationUnitSyntax : SyntaxNode
 {
     public CompilationUnitSyntax(SyntaxTree syntaxTree, ImmutableArray<MemberSyntax> members, SyntaxToken endOfFileToken) : base(syntaxTree)
     {
@@ -18,5 +18,4 @@ public sealed class CompilationUnitSyntax : SyntaxNode
     {
         get;
     }
-
 }

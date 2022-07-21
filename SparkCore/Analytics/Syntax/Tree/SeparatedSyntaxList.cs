@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace SparkCore.Analytics.Syntax.Tree.Expressions;
+namespace SparkCore.Analytics.Syntax.Tree;
 
 
 public abstract class SeparatedSyntaxList

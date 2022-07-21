@@ -156,6 +156,17 @@ internal sealed class Emitter
         _randomReference = ResolveType(null, "System.Random");
         _randomCtorReference = ResolveMethod("System.Random", ".ctor", Array.Empty<string>());
         _randomNextReference = ResolveMethod("System.Random", "Next", new[] { "System.Int32" });
+
+        var objectType = _knowTypes[TypeSymbol.Any];
+        if(objectType != null)
+        {
+            _typeDefinition = new TypeDefinition("", "Program", TypeAttributes.Abstract | TypeAttributes.Sealed, objectType);
+            _assemmblyDefinition.MainModule.Types.Add(_typeDefinition);
+        }
+        else
+        {
+            _typeDefinition = null;
+        }
     }
      
     public static ImmutableArray<Diagnostic> Emit(BoundProgram program, string moduleName, string[] references, string outputPath)
@@ -170,11 +181,6 @@ internal sealed class Emitter
     {
         if (_diagnostics.Any())
             return _diagnostics.ToImmutableArray();
-
-        var objectType = _knowTypes[TypeSymbol.Any];
-        _typeDefinition = new TypeDefinition("", "Program", TypeAttributes.Abstract | TypeAttributes.Sealed | TypeAttributes.Public, objectType);
-        _assemmblyDefinition.MainModule.Types.Add(_typeDefinition);
-
 
         foreach(var functionWithBody in program.Functions)
         {
@@ -195,13 +201,13 @@ internal sealed class Emitter
     }
     private void EmitFunctionDeclaration(FunctionSymbol function)
     {
-        var type = _knowTypes[function.Type];
-        var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, type);
+        var functionType = _knowTypes[function.Type];
+        var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, functionType);
 
         foreach(var parameter in function.Parameters)
         {
             var parameterType = _knowTypes[parameter.Type];
-            var parameterAttribute = ParameterAttributes.Lcid;
+            var parameterAttribute = ParameterAttributes.None;
             var parameterDefinition = new ParameterDefinition(parameter.Name, parameterAttribute, parameterType);
             method.Parameters.Add(parameterDefinition);
         }
@@ -232,7 +238,8 @@ internal sealed class Emitter
             instructionToFixup.Operand = targetInstruction;
         }
 
-        method.Body.OptimizeMacros();
+        method.Body.Optimize();
+        //method.Body.OptimizeMacros();
     }
     private void EmitStatement(ILProcessor ilProcessor, BoundStatement node)
     {
@@ -369,7 +376,6 @@ internal sealed class Emitter
     {
         var variableDefinition = _locals[node.Variable];
         EmitExpression(ilProcessor, node.Expression);
-        // TODO: #2 luego de realizado el todo #1, comprobar si eliminar la siguiente linea de codigo tiene algun efecto.
         ilProcessor.Emit(OpCodes.Dup);
         ilProcessor.Emit(OpCodes.Stloc, variableDefinition);
     }

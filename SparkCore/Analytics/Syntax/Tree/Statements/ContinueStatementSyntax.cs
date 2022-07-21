@@ -1,6 +1,6 @@
 ﻿namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class ContinueStatementSyntax : StatementSyntax
+public sealed partial class ContinueStatementSyntax : StatementSyntax
 {
     public ContinueStatementSyntax(SyntaxTree syntaxTree, SyntaxToken keyword) : base(syntaxTree)
     {

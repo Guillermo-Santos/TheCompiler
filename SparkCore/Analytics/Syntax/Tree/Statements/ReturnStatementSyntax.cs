@@ -2,7 +2,7 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class ReturnStatementSyntax : StatementSyntax
+public sealed partial class ReturnStatementSyntax : StatementSyntax
 {
     public ReturnStatementSyntax(SyntaxTree syntaxTree, SyntaxToken returnKeyword, ExpressionSyntax expression)
         : base(syntaxTree)

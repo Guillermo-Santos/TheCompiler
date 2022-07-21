@@ -1,4 +1,6 @@
-﻿using SparkCore.IO.Text;
+﻿using System;
+using System.Collections.Generic;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Tree;
 
@@ -32,4 +34,9 @@ public sealed class SyntaxToken : SyntaxNode
     public override TextSpan Span => new(Position, Text?.Length ?? 0);
 
     public bool IsMissing => Text == null;
+
+    public override IEnumerable<SyntaxNode> GetChildren()
+    {
+        return Array.Empty<SyntaxNode>();
+    }
 }

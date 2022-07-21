@@ -3,7 +3,7 @@ using SparkCore.Analytics.Syntax.Tree.Nodes;
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class VariableDeclarationStatementSyntax : StatementSyntax
+public sealed partial class VariableDeclarationStatementSyntax : StatementSyntax
 {
     public VariableDeclarationStatementSyntax(SyntaxTree syntaxTree, SyntaxToken keyword, SyntaxToken identifier, TypeClauseSyntax typeClause, SyntaxToken equalsToken, ExpressionSyntax initializer)
         : base(syntaxTree)

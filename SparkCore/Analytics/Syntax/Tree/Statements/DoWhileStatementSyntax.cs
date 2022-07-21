@@ -2,7 +2,7 @@
 
 namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
-public sealed class DoWhileStatementSyntax : StatementSyntax
+public sealed partial class DoWhileStatementSyntax : StatementSyntax
 {
     public DoWhileStatementSyntax(SyntaxTree syntaxTree, SyntaxToken doKeyword, StatementSyntax body, SyntaxToken whileKeyword, ExpressionSyntax condition) : base(syntaxTree)
     {
