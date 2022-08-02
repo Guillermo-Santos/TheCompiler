@@ -64,18 +64,11 @@ public class Compilation
     {
         var submission = this;
         var seenSymbolNames = new HashSet<string>();
+
+        var builtinFunction = BuiltinFunctions.GetAll();
+
         while (submission != null)
         {
-            const ReflectionBindingFlags bindingFlags = ReflectionBindingFlags.Static |
-                                                        ReflectionBindingFlags.Public |
-                                                        ReflectionBindingFlags.NonPublic;
-
-            var builtinFunction = typeof(BuiltinFunctions)
-                                    .GetFields(bindingFlags)
-                                    .Where(bf => bf.FieldType == typeof(FunctionSymbol))
-                                    .Select(bf => (FunctionSymbol)bf.GetValue(obj: null))
-                                    .ToList();
-
             foreach (var function in submission.Functions)
             {
                 if(seenSymbolNames.Add(function.Name))

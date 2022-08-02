@@ -67,6 +67,9 @@ internal class Evaluator
             var s = body.Statements[index];
             switch (s.Kind)
             {
+                case BoundNodeKind.NopStatement:
+                    index++;
+                    break;
                 case BoundNodeKind.VariableDeclaration:
                     EvaluateVariableDeclaration((BoundVariableDeclaration)s);
                     index++;

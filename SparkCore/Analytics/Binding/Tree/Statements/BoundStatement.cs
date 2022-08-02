@@ -1,7 +1,6 @@
-﻿namespace SparkCore.Analytics.Binding.Tree.Statements
-{
-    internal abstract class BoundStatement : BoundNode
-    {
+﻿namespace SparkCore.Analytics.Binding.Tree.Statements;
 
-    }
+internal abstract class BoundStatement : BoundNode
+{
+
 }

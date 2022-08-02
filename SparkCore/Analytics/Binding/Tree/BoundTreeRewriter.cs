@@ -13,6 +13,8 @@ internal abstract class BoundTreeRewriter
         {
             case BoundNodeKind.BlockStatement:
                 return RewriteBlockStatement((BoundBlockStatement)node);
+            case BoundNodeKind.NopStatement:
+                return RewriteBoundNopStatement((BoundNopStatement)node);
             case BoundNodeKind.ExpressionStatement:
                 return RewriteExpressionStatement((BoundExpressionStatement)node);
             case BoundNodeKind.LabelStatement:
@@ -38,6 +40,7 @@ internal abstract class BoundTreeRewriter
         }
     }
 
+  
     protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)
     {
         ImmutableArray<BoundStatement>.Builder builder = null;
@@ -64,6 +67,10 @@ internal abstract class BoundTreeRewriter
             return node;
 
         return new BoundBlockStatement(builder.MoveToImmutable());
+    }
+    protected virtual BoundStatement RewriteBoundNopStatement(BoundNopStatement node)
+    {
+        return node;
     }
     protected virtual BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
     {

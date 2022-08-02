@@ -328,7 +328,7 @@ internal sealed class Binder
         var type = BindTypeClause(syntax.TypeClause);
         var initializer = BindExpression(syntax.Initializer);
         var variableType = type ?? initializer.Type;
-        var variable = BindVariableDeclaration(syntax.Identifier, isReadOnly, variableType);
+        var variable = BindVariableDeclaration(syntax.Identifier, isReadOnly, variableType, initializer.ConstantValue);
         var convertedInitializer = BindConversion(syntax.Initializer.Location, initializer, variableType);
 
         return new BoundVariableDeclaration(variable, convertedInitializer);
@@ -626,13 +626,13 @@ internal sealed class Binder
 
         return new BoundCallExpression(function, boundArguments.ToImmutable());
     }
-    private VariableSymbol BindVariableDeclaration(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
+    private VariableSymbol BindVariableDeclaration(SyntaxToken identifier, bool isReadOnly, TypeSymbol type, BoundConstant constant = null)
     {
         var name = identifier.Text ?? "?";
         var declare = !identifier.IsMissing;
         var variable = _function == null
-                         ? (VariableSymbol) new GlobalVariableSymbol(name, isReadOnly, type)
-                         : new LocalVariableSymbol(name, isReadOnly, type);
+                         ? (VariableSymbol) new GlobalVariableSymbol(name, isReadOnly, type, constant)
+                         : new LocalVariableSymbol(name, isReadOnly, type, constant);
 
         if (declare && !_scope.TryDeclareVariable(variable))
         {

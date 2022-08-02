@@ -141,6 +141,7 @@ internal sealed class ControlFlowGraph
                         _statements.Add(statement);
                         StartBlock();
                         break;
+                    case BoundNodeKind.NopStatement:
                     case BoundNodeKind.VariableDeclaration:
                     case BoundNodeKind.ExpressionStatement:
                         _statements.Add(statement);
@@ -233,6 +234,7 @@ internal sealed class ControlFlowGraph
                         case BoundNodeKind.ReturnStatement:
                             Connect(current, _end);
                             break;
+                        case BoundNodeKind.NopStatement:
                         case BoundNodeKind.VariableDeclaration:
                         case BoundNodeKind.LabelStatement:
                         case BoundNodeKind.ExpressionStatement:

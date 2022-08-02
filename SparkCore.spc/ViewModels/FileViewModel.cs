@@ -181,6 +181,5 @@ public class FileViewModel : BaseViewModel
 
         }
         sender.Document.Selection.SetRange(position.StartPosition, position.EndPosition);
-
     }
 }

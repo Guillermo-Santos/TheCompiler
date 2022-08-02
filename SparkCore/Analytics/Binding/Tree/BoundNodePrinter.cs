@@ -29,6 +29,9 @@ internal static class BoundNodePrinter
             case BoundNodeKind.BlockStatement:
                 WriteBlockStatement((BoundBlockStatement)node, writer);
                 break;
+            case BoundNodeKind.NopStatement:
+                WriteNopStatement((BoundNopStatement)node, writer);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 WriteExpressionStatement((BoundExpressionStatement)node, writer);
                 break;
@@ -130,9 +133,16 @@ internal static class BoundNodePrinter
         writer.WriteLine();
         writer.Indent++;
         foreach(var s in node.Statements)
+        {
             s.WriteTo(writer);
+        }
         writer.Indent--;
         writer.WritePunctuation(SyntaxKind.CloseBraceToken);
+        writer.WriteLine();
+    }
+    private static void WriteNopStatement(BoundNopStatement node, IndentedTextWriter writer)
+    {
+        writer.WriteKeyword("nop");
         writer.WriteLine();
     }
     private static void WriteVariableDeclaration(BoundVariableDeclaration node, IndentedTextWriter writer)

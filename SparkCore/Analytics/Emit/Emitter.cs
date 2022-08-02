@@ -36,8 +36,8 @@ internal sealed class Emitter
     private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
     private readonly Dictionary<BoundLabel,int> _labels = new();
     private readonly List<(int InstructionIndex, BoundLabel Target)> _fixuds = new();
-    
-    private TypeDefinition _typeDefinition;
+ 
+    private readonly TypeDefinition _typeDefinition;
     private FieldDefinition _randomFieldDefinition;
 
     private Emitter(string moduleName, string[] references)
@@ -245,6 +245,9 @@ internal sealed class Emitter
     {
         switch (node.Kind)
         {
+            case BoundNodeKind.NopStatement:
+                EmitNopStatement(ilProcessor, (BoundNopStatement)node);
+                break;
             case BoundNodeKind.VariableDeclaration:
                 EmitVariableDeclaration(ilProcessor, (BoundVariableDeclaration)node);
                 break;
@@ -267,6 +270,12 @@ internal sealed class Emitter
                 throw new Exception($"Unexpected node kind {node.Kind}");
         }
     }
+
+    private void EmitNopStatement(ILProcessor ilProcessor, BoundNopStatement node)
+    {
+        ilProcessor.Emit(OpCodes.Nop);
+    }
+
     private void EmitVariableDeclaration(ILProcessor ilProcessor, BoundVariableDeclaration node)
     {
         var typeReference = _knowTypes[node.Variable.Type];
