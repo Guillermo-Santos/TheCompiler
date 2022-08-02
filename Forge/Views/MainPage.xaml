@@ -12,13 +12,20 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!--
         <TextBlock
             Grid.Row="0"
             x:Uid="Main_Title"
             Style="{StaticResource PageTitleStyle}" />
+        -->
 
-        <Grid Grid.Row="1">
-            
+        <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TabView TabItemsSource="{x:Bind ViewModel.Files}" 
+                     AddTabButtonClick="TabView_AddTabButtonClick" 
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch">
+                <Frame x:Name="TabContent"/>
+            </TabView>
         </Grid>
         
     </Grid>

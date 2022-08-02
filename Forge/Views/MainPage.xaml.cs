@@ -16,4 +16,9 @@ public sealed partial class MainPage : Page
         ViewModel = App.GetService<MainViewModel>();
         InitializeComponent();
     }
+
+    private void TabView_AddTabButtonClick(TabView sender, object args)
+    {
+        ViewModel.Files.Add(new SparkCore.IO.Text.SourceText(@"print(""Hellow world"")", "New Document"));
+    }
 }

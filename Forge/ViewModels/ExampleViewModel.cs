@@ -2,7 +2,7 @@
 
 namespace Forge.ViewModels;
 
-public class ExampleViewModel : ObservableRecipient
+public class ExampleViewModel : BaseViewModel
 {
     public ExampleViewModel()
     {

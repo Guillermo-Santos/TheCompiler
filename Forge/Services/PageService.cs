@@ -15,7 +15,7 @@ public class PageService : IPageService
     public PageService()
     {
         Configure<MainViewModel, MainPage>();
-        Configure<ExampleViewModel, ExamplePage>();
+        Configure<FileViewModel, ExamplePage>();
         Configure<SettingsViewModel, SettingsPage>();
     }
 
