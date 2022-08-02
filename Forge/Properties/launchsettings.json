@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "Forge (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "Forge (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}
