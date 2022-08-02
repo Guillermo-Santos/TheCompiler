@@ -5,14 +5,14 @@ using Microsoft.UI.Xaml.Controls;
 namespace Forge.Views;
 
 // TODO: Change ExamplePage to 'FilePage' and make logic to control tabs of files.
-public sealed partial class ExamplePage : Page
+public sealed partial class FilePage : Page
 {
     public FileViewModel ViewModel
     {
         get;
     }
 
-    public ExamplePage()
+    public FilePage()
     {
         ViewModel = App.GetService<FileViewModel>();
         InitializeComponent();

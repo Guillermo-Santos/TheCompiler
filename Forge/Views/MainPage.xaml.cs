@@ -19,6 +19,16 @@ public sealed partial class MainPage : Page
 
     private void TabView_AddTabButtonClick(TabView sender, object args)
     {
-        ViewModel.Files.Add(new SparkCore.IO.Text.SourceText(@"print(""Hellow world"")", "New Document"));
+
+        var newTab = new TabViewItem();
+        newTab.IconSource = new SymbolIconSource() { Symbol = Symbol.Document };
+        newTab.Header = "New Document";
+
+        // The Content of a TabViewItem is often a frame which hosts a page.
+        Frame frame = new Frame();
+        frame.Content = new FilePage();
+        newTab.Content = frame;
+
+        sender.TabItems.Add(newTab);
     }
 }
