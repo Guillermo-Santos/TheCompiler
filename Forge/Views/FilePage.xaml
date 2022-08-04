@@ -7,6 +7,9 @@
     mc:Ignorable="d">
 
     <Grid>
-        <RichEditBox x:Name="code" TextChanged="code_TextChanged" TextAlignment="Left" IsColorFontEnabled="True" IsSpellCheckEnabled="False"/>
+        <RichEditBox x:Name="code" 
+                     TextChanged="code_TextChanged" 
+                     DisabledFormattingAccelerators="All" 
+                     IsSpellCheckEnabled="False"/>
     </Grid>
 </Page>

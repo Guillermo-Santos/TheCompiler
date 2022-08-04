@@ -15,6 +15,7 @@ using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO;
 using SparkCore.IO.Diagnostics;
+using SparkCore.IO.Text;
 using Windows.UI;
 
 namespace Forge.ViewModels;
@@ -22,13 +23,9 @@ public class FileViewModel : BaseViewModel
 {
     private string _fileName;
     private string _text;
-    private ObservableCollection<string> diagnostics = new();
+    private List<Diagnostic> diagnostics = new();
     private ObservableCollection<string> symbols = new();
-    public ObservableCollection<string> Diagnostics
-    {
-        get => diagnostics;
-        set => SetProperty(ref diagnostics, value);
-    }
+
     public ObservableCollection<string> Symbols
     {
         get => symbols;
@@ -56,131 +53,121 @@ public class FileViewModel : BaseViewModel
         Text = text;
     }
 
-    public void ChangeDisplay(RichEditBox sender)//, RichEditBox tokenText, RichEditBox syntaxTreeText, RichEditBox intermText)
+    public void DoTextHightLighting(RichEditBox sender, string plainText, ITextRange position)//, RichEditBox tokenText, RichEditBox syntaxTreeText, RichEditBox intermText)
     {
-        sender.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
-        var position = sender.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
+        var document = sender.Document;
+        var oLines = Text.Split("\r");
+        var nLines = plainText.Split("\r").Where(dl => !(string.IsNullOrEmpty(dl) || string.IsNullOrWhiteSpace(dl)));
 
-        foreach (var line in _text.Split(Environment.NewLine))
-        {
-            var tokens = SyntaxTree.ParseTokens(line);
-            foreach (var token in tokens)
-            {
-                sender.Document.Selection.StartPosition = token.Span.Start;
-                sender.Document.Selection.EndPosition = token.Span.End;
-                switch (token.Kind)
-                {
-                    case SyntaxKind.IdentifierToken:
-                        sender.Document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 156, 220, 254);
-                        break;
-                    case SyntaxKind.NumberToken:
-                        sender.Document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 181, 206, 168);
-                        break;
-                    case SyntaxKind.StringToken:
-                        sender.Document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 214, 157, 133);
-                        break;
-                    default:
-                        if (token.Kind.ToString().EndsWith("Keyword"))
-                            sender.Document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 86, 156, 214);
-                        else
-                            sender.Document.Selection.CharacterFormat.ForegroundColor = Colors.DarkGray;
-                        break;
-                }
-            }
+        var l = nLines.Except(oLines).ToList();
 
-            sender.Document.Selection.SetRange(position.StartPosition, position.EndPosition);
-        }
+        var sourceText = SourceText.From(plainText);
+        var lines = sourceText.Lines.Select(a => a).Where(a => l.Contains(a.ToString())).ToImmutableArray();
 
+        var tokens = SyntaxTree.ParseTokens(sourceText);
+        PaintTokens(document, tokens, lines);
+
+        document.Selection.SetRange(position.StartPosition, position.EndPosition);
+        Text = plainText;
+
+        //sender.Document.SetText(TextSetOptions.FormatRtf,document.ToString());
         //Diagnostics.Clear();
         //FillTokens(tokenText);
-        //var syntaxTree = SyntaxTree.Parse(_text);
         //FillSyntaxTree(syntaxTree, syntaxTreeText);
         //FillIntermediate(syntaxTree, intermText, sender);
     }
-    private void FillTokens(RichEditBox tokenText)
+
+    public void CheckErrors(RichEditBox sender, string plainText, ITextRange position)
     {
-        var tokensList = SyntaxTree.ParseTokens(_text);
-        var text = "";
-        for (var i = 0; i < tokensList.Length - 1; i++)
+        IsBusy = true;
+        var document = sender.Document;
+        var sourceText = SourceText.From(plainText);
+        var syntaxTree = SyntaxTree.Parse(plainText);
+        var compilation = Compilation.Create(syntaxTree);
+        var result = compilation.Evaluate(new());
+
+        if (result.Diagnostics.Any())
         {
-            var token = tokensList[i];
+            using StringWriter diag = new();
+            diag.WriteDiagnostics(result.Diagnostics);
+            ShowDiagnostics(result.Diagnostics, sender);
+            diagnostics = result.Diagnostics.ToList();
+        }
+        else if (diagnostics.Any())
+        {
+            foreach (var diagnostic in diagnostics)
+            {
+                var rlines = sourceText.Lines.Where(l => l.Span.OverlapsWith(diagnostic.Location.Span)).ToImmutableArray();
+                PaintTokens(document, rlines);
+            }
+            diagnostics.Clear();
+        }
+        document.Selection.SetRange(position.StartPosition, position.EndPosition);
+
+        IsBusy = false;
+    }
+
+    private static void PaintTokens(RichEditTextDocument document, ImmutableArray<TextLine> lines)
+    {
+        var tokens = ImmutableArray.CreateBuilder<SyntaxToken>();
+        foreach (var line in lines)
+        {
+            tokens.AddRange(SyntaxTree.ParseTokens(line.Text));
+        }
+        PaintTokens(document, tokens.ToImmutable(), lines);
+    }
+    private static void PaintTokens(RichEditTextDocument document, ImmutableArray<SyntaxToken> tokens, ImmutableArray<TextLine> lines)
+    {
+        foreach (var token in tokens)
+        {
+            var line = lines.Where(x => x.Span.OverlapsWith(token.Span)).FirstOrDefault();
+            if (line == null)
+                continue;
+
+            var tokenStart = Math.Max(token.Span.Start, line.Span.Start);
+            var tokenEnd = Math.Min(token.Span.End, line.Span.End);
+            var tokenSpan = TextSpan.FromBounds(tokenStart, tokenEnd);
+            // StartPosition = firstLineCharacter + firstTokenCharacter
+            document.Selection.StartPosition = tokenSpan.Start;
+            // StartPosition = firstLineCharacter + LastTokenCharacter
+            document.Selection.EndPosition = tokenSpan.End;
             switch (token.Kind)
             {
                 case SyntaxKind.IdentifierToken:
-                    text += token.Kind + " " + token.Text + "\n";
+                    document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 156, 220, 254);
                     break;
                 case SyntaxKind.NumberToken:
-                    text += token.Kind + " " + token.Text + "\n";
+                    document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 181, 206, 168);
                     break;
                 case SyntaxKind.StringToken:
-                    text += token.Kind + " " + token.Text + "\n";
+                    document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 214, 157, 133);
                     break;
-                case SyntaxKind.WhiteSpaceToken:
+                case SyntaxKind.SingleLineCommentTrivia:
+                case SyntaxKind.MultiLineCommentTrivia:
+                    document.Selection.CharacterFormat.ForegroundColor = Colors.DarkGreen;
                     break;
                 default:
-                    text += token.Kind + " " + SyntaxFacts.GetText(token.Kind) + "\n";
+                    if (token.Kind.ToString().EndsWith("Keyword"))
+                        document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 86, 156, 214);
+                    else
+                        document.Selection.CharacterFormat.ForegroundColor = Colors.DarkGray;
                     break;
             }
-        }
-        tokenText.Document.SetText(TextSetOptions.None, text);
-    }
-    private void FillSyntaxTree(SyntaxTree syntaxTree, RichEditBox syntaxTreeText)
-    {
-        using StringWriter writer = new();
-        syntaxTree.Root.WriteTo(writer);
-
-        syntaxTreeText.Document.SetText(TextSetOptions.None, writer.ToString());
-    }
-    private void FillIntermediate(SyntaxTree syntaxTree, RichEditBox intermText, RichEditBox sender)
-    {
-        using StringWriter writer = new();
-        var text = syntaxTree.Text.ToString();
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            var compilation = Compilation.Create(syntaxTree);
-
-            var result = compilation.Evaluate(new());
-            if (!result.Diagnostics.Any())
-            {
-                compilation.EmitTree(writer);
-            }
-            else
-            {
-                using StringWriter diag = new();
-                diag.WriteDiagnostics(result.Diagnostics);
-                Diagnostics.Add(diag.ToString());
-                ShowDiagnostics(result.Diagnostics, sender);
-            }
-
-            FillSymbols(compilation);
-
-        }
-        intermText.Document.SetText(TextSetOptions.None, writer.ToString());
-    }
-
-    private void FillSymbols(Compilation compilation)
-    {
-        Symbols.Clear();
-        var symbols = compilation.GetSymbols().OrderBy(s => s.Kind).ThenBy(s => s.Name);
-        foreach (var symbol in symbols)
-        {
-            using StringWriter writer = new();
-            symbol.WriteTo(writer);
-            Symbols.Add(writer.ToString());
+            if (document.Selection.CharacterFormat.Underline != UnderlineType.None)
+                document.Selection.CharacterFormat.Underline = UnderlineType.None;
         }
     }
+
     private void ShowDiagnostics(ImmutableArray<Diagnostic> diagnostics, RichEditBox sender)
     {
         sender.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
         var position = sender.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
-
         foreach (var diagnostic in diagnostics)
         {
             sender.Document.Selection.StartPosition = diagnostic.Location.Span.Start;
             sender.Document.Selection.EndPosition = diagnostic.Location.Span.End;
-
             sender.Document.Selection.CharacterFormat.ForegroundColor = Colors.Red;
-
+            sender.Document.Selection.CharacterFormat.Underline = UnderlineType.DoubleWave;
         }
         sender.Document.Selection.SetRange(position.StartPosition, position.EndPosition);
     }
