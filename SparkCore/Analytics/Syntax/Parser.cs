@@ -26,7 +26,7 @@ internal sealed class Parser
         do
         {
             token = lexer.Lex();
-            if (token.Kind != SyntaxKind.WhiteSpaceToken && token.Kind != SyntaxKind.BadToken)
+            if (!token.Kind.IsTrivia())
             {
                 tokens.Add(token);
             }

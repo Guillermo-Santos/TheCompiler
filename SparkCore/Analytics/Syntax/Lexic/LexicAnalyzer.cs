@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO.Diagnostics;
@@ -37,7 +38,7 @@ internal sealed class LexicAnalyzer
     public SyntaxToken Lex()
     {
         _start = _position;
-        _kind = SyntaxKind.BadToken;
+        _kind = SyntaxKind.BadTokenTrivia;
         _value = null;
 
 
@@ -59,8 +60,19 @@ internal sealed class LexicAnalyzer
                 _position++;
                 break;
             case '/':
-                _kind = SyntaxKind.SlashToken;
-                _position++;
+                if (Lookahead == '/')
+                {
+                    ReadSingleLineComment();
+                }
+                else if(Lookahead == '*')
+                {
+                    ReadMultiLineComment();
+                }
+                else
+                {
+                    _kind = SyntaxKind.SlashToken;
+                    _position++;
+                }
                 break;
             case '(':
                 _kind = SyntaxKind.OpenParentesisToken;
@@ -215,6 +227,60 @@ internal sealed class LexicAnalyzer
             text = _text.ToString(_start, length);
         return new SyntaxToken(_syntaxTree, _kind, _start, text, _value);
     }
+    private void ReadSingleLineComment()
+    {
+        // Skip '//'
+        _position += 2;
+        var done = false;
+        while (!done)
+        {
+            switch (Current)
+            {
+                case '\r':
+                case '\n':
+                case '\0':
+                    done = true;
+                    break;
+                default:
+                    _position++;
+                    break;
+            }
+        }
+        var sb = new StringBuilder();
+
+        _kind = SyntaxKind.SingleLineCommentTrivia;
+        _value = sb.ToString();
+    }
+    private void ReadMultiLineComment()
+    {
+        // Skip '/*'
+        _position += 2;
+        var done = false;
+        while (!done)
+        {
+            switch (Current)
+            {
+                case '\0':
+                    var span = new TextSpan(_start, 1);
+                    var location = new TextLocation(_text, span);
+                    _diagnostics.ReportUnterminedMultiLineComment(location);
+                    done = true;
+                    break;
+                case '*':
+                    if (Lookahead == '/')
+                    {
+                        _position++;
+                        done = true;
+                    }
+                    _position++;
+                    break;
+                default:
+                    _position++;
+                    break;
+            }
+        }
+        _kind = SyntaxKind.MultiLineCommentTrivia;
+    }
 
     private void ReadString()
     {
@@ -222,6 +288,7 @@ internal sealed class LexicAnalyzer
         _position++;
         var sb = new StringBuilder();
         var done = false;
+        
         while (!done)
         {
             switch (Current)
@@ -260,7 +327,7 @@ internal sealed class LexicAnalyzer
     {
         while (char.IsWhiteSpace(Current))
             _position++;
-        _kind = SyntaxKind.WhiteSpaceToken;
+        _kind = SyntaxKind.WhiteSpaceTrivia;
     }
 
     private void ReadNumberToken()

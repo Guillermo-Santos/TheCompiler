@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 namespace SparkCore.Analytics.Syntax.Tree.Statements
 {
+    partial class ContinueStatementSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return Keyword;
+        }
+    }
     partial class VariableDeclarationStatementSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
@@ -14,6 +21,14 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             yield return Initializer;
         }
     }
+    partial class ReturnStatementSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return ReturnKeyword;
+            yield return Expression;
+        }
+    }
     partial class IfStatementSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
@@ -22,29 +37,6 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             yield return Condition;
             yield return ThenStatement;
             yield return ElseClause;
-        }
-    }
-    partial class WhileStatementSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return Keyword;
-            yield return Condition;
-            yield return Body;
-        }
-    }
-    partial class ContinueStatementSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return Keyword;
-        }
-    }
-    partial class BreakStatementSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return Keyword;
         }
     }
     partial class BlockStatementSyntax
@@ -59,12 +51,11 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             yield return CloseBraceToken;
         }
     }
-    partial class ReturnStatementSyntax
+    partial class BreakStatementSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return ReturnKeyword;
-            yield return Expression;
+            yield return Keyword;
         }
     }
     partial class DoWhileStatementSyntax
@@ -75,6 +66,15 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
             yield return Body;
             yield return WhileKeyword;
             yield return Condition;
+        }
+    }
+    partial class WhileStatementSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return Keyword;
+            yield return Condition;
+            yield return Body;
         }
     }
     partial class ForStatementSyntax
@@ -101,13 +101,6 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements
 
 namespace SparkCore.Analytics.Syntax.Tree.Expressions
 {
-    partial class NameExpressionSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return IdentifierToken;
-        }
-    }
     partial class LiteralExpressionSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
@@ -124,12 +117,13 @@ namespace SparkCore.Analytics.Syntax.Tree.Expressions
             yield return Expression;
         }
     }
-    partial class UnaryExpressionSyntax
+    partial class BinaryExpressionSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
         {
+            yield return Left;
             yield return OperatorToken;
-            yield return Operand;
+            yield return Right;
         }
     }
     partial class ParenthesizedExpressionSyntax
@@ -139,6 +133,13 @@ namespace SparkCore.Analytics.Syntax.Tree.Expressions
             yield return OpenParenthesisToken;
             yield return Expression;
             yield return CloseParenthesisToken;
+        }
+    }
+    partial class NameExpressionSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return IdentifierToken;
         }
     }
     partial class CallExpressionSyntax
@@ -154,13 +155,12 @@ namespace SparkCore.Analytics.Syntax.Tree.Expressions
             yield return CloseParentesis;
         }
     }
-    partial class BinaryExpressionSyntax
+    partial class UnaryExpressionSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
         {
-            yield return Left;
             yield return OperatorToken;
-            yield return Right;
+            yield return Operand;
         }
     }
 }
@@ -173,6 +173,14 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes
         {
             yield return ColonToken;
             yield return Identifier;
+        }
+    }
+    partial class ParameterSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return Identifier;
+            yield return Type;
         }
     }
     partial class FunctionDeclarationSyntax
@@ -191,6 +199,14 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes
             yield return Body;
         }
     }
+    partial class ElseClauseSyntax
+    {
+        public override IEnumerable<SyntaxNode> GetChildren()
+        {
+            yield return ElseKeyword;
+            yield return ElseStatement;
+        }
+    }
     partial class CompilationUnitSyntax
     {
         public override IEnumerable<SyntaxNode> GetChildren()
@@ -207,22 +223,6 @@ namespace SparkCore.Analytics.Syntax.Tree.Nodes
         public override IEnumerable<SyntaxNode> GetChildren()
         {
             yield return Statement;
-        }
-    }
-    partial class ElseClauseSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return ElseKeyword;
-            yield return ElseStatement;
-        }
-    }
-    partial class ParameterSyntax
-    {
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return Identifier;
-            yield return Type;
         }
     }
 }

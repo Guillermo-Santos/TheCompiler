@@ -81,7 +81,9 @@ internal sealed class BoundBinaryOperator
         foreach (var op in _operators)
         {
             if (op.SyntaxKind == SyntaxType && op.LeftType == lefttype && op.RightType == righttype)
+            {
                 return op;
+            }
         }
         return null;
     }

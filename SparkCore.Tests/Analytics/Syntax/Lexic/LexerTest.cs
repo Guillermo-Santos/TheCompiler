@@ -34,15 +34,16 @@ public class LexerTest
         //Obtener todos los tokens tipo palabra reservada o token (diferenciacion de expressiones).
         var tokentypes = Enum.GetValues(typeof(SyntaxKind))
                               .Cast<SyntaxKind>()
+                              .Where(t => t != SyntaxKind.SingleLineCommentTrivia &&
+                                          t != SyntaxKind.MultiLineCommentTrivia)
                               .Where(t => t.ToString().EndsWith("Keyword") ||
-                                          t.ToString().EndsWith("Token"))
-                              .ToList();
+                                          t.ToString().EndsWith("Token"));
         //Probamos los tokens.
         var testedTokenTypes = GetTokens().Concat(GetSeparators()).Select(t => t.type);
         //Ordenamos la lista de tokens.
         var untestedTokenTypes = new SortedSet<SyntaxKind>(tokentypes);
         //Removemos los tipos de tokens no testeables.
-        untestedTokenTypes.Remove(SyntaxKind.BadToken);
+        untestedTokenTypes.Remove(SyntaxKind.BadTokenTrivia);
         untestedTokenTypes.Remove(SyntaxKind.EndOfFileToken);
         //Eliminamos los tokens probados de la lista de tokens.
         untestedTokenTypes.ExceptWith(testedTokenTypes);
@@ -157,6 +158,7 @@ public class LexerTest
             (SyntaxKind.IdentifierToken, "abc"),
             (SyntaxKind.StringToken, "\"Test\""),
             (SyntaxKind.StringToken, "\"Te\"\"st\""),
+            (SyntaxKind.StringToken, "\"Te\"\"st\""),
         };
         return fixedTokens.Concat(dynamicTokens);
     }
@@ -168,11 +170,12 @@ public class LexerTest
     {
         return new[]
         {
-            (SyntaxKind.WhiteSpaceToken," "),
-            (SyntaxKind.WhiteSpaceToken,"  "),
-            (SyntaxKind.WhiteSpaceToken,"\r"),
-            (SyntaxKind.WhiteSpaceToken,"\n"),
-            (SyntaxKind.WhiteSpaceToken,"\r\n"),
+            (SyntaxKind.WhiteSpaceTrivia," "),
+            (SyntaxKind.WhiteSpaceTrivia,"  "),
+            (SyntaxKind.WhiteSpaceTrivia,"\r"),
+            (SyntaxKind.WhiteSpaceTrivia,"\n"),
+            (SyntaxKind.WhiteSpaceTrivia,"\r\n"),
+            (SyntaxKind.MultiLineCommentTrivia, "/**/"),
         };
     }
     /// <summary>
@@ -227,6 +230,14 @@ public class LexerTest
             return true;
         if (t1Type == SyntaxKind.PibeToken && t2Type == SyntaxKind.PibePibeToken)
             return true;
+        if (t1Type == SyntaxKind.SlashToken && t2Type == SyntaxKind.SlashToken)
+            return true;
+        if (t1Type == SyntaxKind.SlashToken && t2Type == SyntaxKind.StarToken)
+            return true;
+        if (t1Type == SyntaxKind.SlashToken && t2Type == SyntaxKind.SingleLineCommentTrivia)
+            return true;
+        if (t1Type == SyntaxKind.SlashToken && t2Type == SyntaxKind.MultiLineCommentTrivia)
+            return true;
         return false;
     }
     /// <summary>
@@ -257,7 +268,10 @@ public class LexerTest
                 if (RequiresSeparator(t1.type, t2.type))
                 {
                     foreach (var s in GetSeparators())
-                        yield return (t1.type, t1.text, s.type, s.text, t2.type, t2.text);
+                    {
+                        if(!RequiresSeparator(t1.type, s.type) && !RequiresSeparator(s.type, t2.type))
+                            yield return (t1.type, t1.text, s.type, s.text, t2.type, t2.text);
+                    }
                 }
             }
         }

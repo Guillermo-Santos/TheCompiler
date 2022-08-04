@@ -42,7 +42,11 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         var message = $"Undeterminated string literal.";
         Report(location, message);
     }
-
+    public void ReportUnterminedMultiLineComment(TextLocation location)
+    {
+        var message = $"Undeterminated multi-line comment.";
+        Report(location, message);
+    }
     public void ReportUnexpectedToken(TextLocation location, SyntaxKind CurrentType, SyntaxKind ExpectedType)
     {
         var message = $"Unexpected token <{CurrentType}>, expected <{ExpectedType}>.";

@@ -210,5 +210,27 @@ public static class SyntaxFacts
                 return null;
         }
     }
+    public static bool IsTrivia(this SyntaxKind kind)
+    {
+        switch (kind)
+        {
+            case SyntaxKind.BadTokenTrivia:
+            case SyntaxKind.WhiteSpaceTrivia:
+            case SyntaxKind.SingleLineCommentTrivia:
+            case SyntaxKind.MultiLineCommentTrivia:
+                return true;
+            default:
+                return false;
+        }
+    }
+    public static bool IsKeyWord(this SyntaxKind kind)
+    {
+        return kind.ToString().EndsWith("Keyword");
+    }
+    public static bool IsToken(this SyntaxKind kind)
+    {
+        return !kind.IsTrivia() &&
+               (kind.IsKeyWord() || kind.ToString().EndsWith("Token"));
+    }
 }
 
