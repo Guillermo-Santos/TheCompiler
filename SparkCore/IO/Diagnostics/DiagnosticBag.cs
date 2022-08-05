@@ -14,9 +14,9 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
     private readonly List<Diagnostic> _diagnostics = new();
     public IEnumerator<Diagnostic> GetEnumerator() => _diagnostics.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public void AddRange(DiagnosticBag diagnostics)
+    public void AddRange(IEnumerable<Diagnostic> diagnostics)
     {
-        _diagnostics.AddRange(diagnostics._diagnostics);
+        _diagnostics.AddRange(diagnostics);
     }
 
     private void Report(TextLocation location, string message)

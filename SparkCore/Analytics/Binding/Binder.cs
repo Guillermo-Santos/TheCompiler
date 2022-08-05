@@ -31,7 +31,7 @@ internal sealed class Binder
     private BoundScope _scope;
     public DiagnosticBag Diagnostics => _diagnostics;
 
-    public Binder(bool isScript, BoundScope parent, FunctionSymbol function)
+    private Binder(bool isScript, BoundScope parent, FunctionSymbol function)
     {
         _scope = new BoundScope(parent);
         _isScript = isScript;
@@ -48,6 +48,11 @@ internal sealed class Binder
     {
         var parentScope = CreateParenScopes(previous);
         var binder = new Binder(isScript, parentScope, function: null);
+
+        binder.Diagnostics.AddRange(syntaxTrees.SelectMany(st => st.Diagnostics));
+        if (binder.Diagnostics.Any())
+            return new BoundGlobalScope(previous, binder.Diagnostics.ToImmutableArray(), null, null, ImmutableArray<FunctionSymbol>.Empty, ImmutableArray<VariableSymbol>.Empty, ImmutableArray<BoundStatement>.Empty);
+
 
         var functionDelcarations = syntaxTrees.SelectMany(st => st.Root.Members)
                                               .OfType<FunctionDeclarationSyntax>();
@@ -144,6 +149,9 @@ internal sealed class Binder
     public static BoundProgram BindProgram(bool isScript, BoundProgram previous, BoundGlobalScope globalScope)
     {
         var parentScope = CreateParenScopes(globalScope);
+
+        if (globalScope.Diagnostics.Any())
+            return new BoundProgram(previous, globalScope.Diagnostics, null, null, ImmutableDictionary<FunctionSymbol, BoundBlockStatement>.Empty);
 
         var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
         var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();

@@ -20,11 +20,14 @@ internal sealed class Emitter
 {
     private readonly DiagnosticBag _diagnostics = new();
 
-    private readonly Dictionary<TypeSymbol, TypeReference> _knowTypes;
+    private readonly Dictionary<TypeSymbol, TypeReference> _knownTypes;
     private readonly MethodReference _objectEqualsReference;
     private readonly MethodReference _consoleWriteLineReference;
     private readonly MethodReference _consoleReadLineReference;
-    private readonly MethodReference _stringConcatReference;
+    private readonly MethodReference _stringConcat2Reference;
+    private readonly MethodReference _stringConcat3Reference;
+    private readonly MethodReference _stringConcat4Reference;
+    private readonly MethodReference _stringConcatArrayReference;
     private readonly MethodReference _convertToBooleanReference;
     private readonly MethodReference _convertToInt32Reference;
     private readonly MethodReference _convertToStringReference;
@@ -69,12 +72,12 @@ internal sealed class Emitter
 
         var assemblyName = new AssemblyNameDefinition(moduleName, new Version(1, 0));
         _assemmblyDefinition = AssemblyDefinition.CreateAssembly(assemblyName, moduleName, ModuleKind.Console);
-        _knowTypes = new Dictionary<TypeSymbol, TypeReference>();
+        _knownTypes = new Dictionary<TypeSymbol, TypeReference>();
 
         foreach (var (typeSymbol, metadataName) in builtInTypes)
         {
             var typeReference = ResolveType(typeSymbol.Name, metadataName);
-            _knowTypes.Add(typeSymbol, typeReference);
+            _knownTypes.Add(typeSymbol, typeReference);
         }
 
         TypeReference ResolveType(string sparkName, string metadataName)
@@ -149,7 +152,10 @@ internal sealed class Emitter
         _objectEqualsReference = ResolveMethod("System.Object", "Equals", new[] { "System.Object", "System.Object" });
         _consoleReadLineReference = ResolveMethod("System.Console", "ReadLine", Array.Empty<string>());
         _consoleWriteLineReference = ResolveMethod("System.Console", "WriteLine", new[] { "System.Object" });
-        _stringConcatReference = ResolveMethod("System.String", "Concat", new[] { "System.String", "System.String" });
+        _stringConcat2Reference = ResolveMethod("System.String", "Concat", new[] { "System.String", "System.String" });
+        _stringConcat3Reference = ResolveMethod("System.String", "Concat", new[] { "System.String", "System.String", "System.String" });
+        _stringConcat4Reference = ResolveMethod("System.String", "Concat", new[] { "System.String", "System.String", "System.String", "System.String" });
+        _stringConcatArrayReference = ResolveMethod("System.String", "Concat", new[] { "System.String[]" });
         _convertToBooleanReference = ResolveMethod("System.Convert", "ToBoolean", new[] { "System.Object" });
         _convertToInt32Reference = ResolveMethod("System.Convert", "ToInt32", new[] { "System.Object" });
         _convertToStringReference = ResolveMethod("System.Convert", "ToString", new[] { "System.Object" });
@@ -157,7 +163,7 @@ internal sealed class Emitter
         _randomCtorReference = ResolveMethod("System.Random", ".ctor", Array.Empty<string>());
         _randomNextReference = ResolveMethod("System.Random", "Next", new[] { "System.Int32" });
 
-        var objectType = _knowTypes[TypeSymbol.Any];
+        var objectType = _knownTypes[TypeSymbol.Any];
         if(objectType != null)
         {
             _typeDefinition = new TypeDefinition("", "Program", TypeAttributes.Abstract | TypeAttributes.Sealed, objectType);
@@ -201,12 +207,12 @@ internal sealed class Emitter
     }
     private void EmitFunctionDeclaration(FunctionSymbol function)
     {
-        var functionType = _knowTypes[function.Type];
+        var functionType = _knownTypes[function.Type];
         var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, functionType);
 
         foreach(var parameter in function.Parameters)
         {
-            var parameterType = _knowTypes[parameter.Type];
+            var parameterType = _knownTypes[parameter.Type];
             var parameterAttribute = ParameterAttributes.None;
             var parameterDefinition = new ParameterDefinition(parameter.Name, parameterAttribute, parameterType);
             method.Parameters.Add(parameterDefinition);
@@ -278,7 +284,7 @@ internal sealed class Emitter
 
     private void EmitVariableDeclaration(ILProcessor ilProcessor, BoundVariableDeclaration node)
     {
-        var typeReference = _knowTypes[node.Variable.Type];
+        var typeReference = _knownTypes[node.Variable.Type];
         var variableDefinition = new VariableDefinition(typeReference);
         _locals.Add(node.Variable, variableDefinition);
         ilProcessor.Body.Variables.Add(variableDefinition);
@@ -419,18 +425,19 @@ internal sealed class Emitter
     private void EmitBinaryExpression(ILProcessor ilProcessor, BoundBinaryExpression node)
     {
 
-        EmitExpression(ilProcessor, node.Left);
-        EmitExpression(ilProcessor, node.Right);
         
         // +(string, string)
         if (node.Op.Kind == BoundBinaryOperatorKind.Addition)
         {
             if (node.Left.Type == TypeSymbol.String && node.Right.Type == TypeSymbol.String)
             {
-                ilProcessor.Emit(OpCodes.Call, _stringConcatReference);
+                EmitStringConcatExpression(ilProcessor, node);
                 return;
             }
         }
+
+        EmitExpression(ilProcessor, node.Left);
+        EmitExpression(ilProcessor, node.Right);
 
         // ==(any, any)
         // ==(string, string)
@@ -515,6 +522,119 @@ internal sealed class Emitter
 
 
     }
+
+    private void EmitStringConcatExpression(ILProcessor ilProcessor, BoundBinaryExpression node)
+    {
+        // Flatten the expression tree to a sequence of nodes to concatenate, then fold consecutive constants in that sequence.
+        // This approach enables constant folding of non-sibling nodes, which cannot be done in the ConstantFolding class as it would require changing the tree.
+        // Example: folding b and c in ((a + b) + c) if they are constant.
+
+        var nodes = FoldConstants(Flatten(node)).ToList();
+
+        switch (nodes.Count)
+        {
+            case 0:
+                ilProcessor.Emit(OpCodes.Ldstr, string.Empty);
+                break;
+
+            case 1:
+                EmitExpression(ilProcessor, nodes[0]);
+                break;
+
+            case 2:
+                EmitExpression(ilProcessor, nodes[0]);
+                EmitExpression(ilProcessor, nodes[1]);
+                ilProcessor.Emit(OpCodes.Call, _stringConcat2Reference);
+                break;
+
+            case 3:
+                EmitExpression(ilProcessor, nodes[0]);
+                EmitExpression(ilProcessor, nodes[1]);
+                EmitExpression(ilProcessor, nodes[2]);
+                ilProcessor.Emit(OpCodes.Call, _stringConcat3Reference);
+                break;
+
+            case 4:
+                EmitExpression(ilProcessor, nodes[0]);
+                EmitExpression(ilProcessor, nodes[1]);
+                EmitExpression(ilProcessor, nodes[2]);
+                EmitExpression(ilProcessor, nodes[3]);
+                ilProcessor.Emit(OpCodes.Call, _stringConcat4Reference);
+                break;
+
+            default:
+                ilProcessor.Emit(OpCodes.Ldc_I4, nodes.Count);
+                ilProcessor.Emit(OpCodes.Newarr, _knownTypes[TypeSymbol.String]);
+
+                for (var i = 0; i < nodes.Count; i++)
+                {
+                    ilProcessor.Emit(OpCodes.Dup);
+                    ilProcessor.Emit(OpCodes.Ldc_I4, i);
+                    EmitExpression(ilProcessor, nodes[i]);
+                    ilProcessor.Emit(OpCodes.Stelem_Ref);
+                }
+
+                ilProcessor.Emit(OpCodes.Call, _stringConcatArrayReference);
+                break;
+        }
+
+        // (a + b) + (c + d) --> [a, b, c, d]
+        static IEnumerable<BoundExpression> Flatten(BoundExpression node)
+        {
+            if (node is BoundBinaryExpression binaryExpression &&
+                binaryExpression.Op.Kind == BoundBinaryOperatorKind.Addition &&
+                binaryExpression.Left.Type == TypeSymbol.String &&
+                binaryExpression.Right.Type == TypeSymbol.String)
+            {
+                foreach (var result in Flatten(binaryExpression.Left))
+                    yield return result;
+
+                foreach (var result in Flatten(binaryExpression.Right))
+                    yield return result;
+            }
+            else
+            {
+                if (node.Type != TypeSymbol.String)
+                    throw new Exception($"Unexpected node type in string concatenation: {node.Type}");
+
+                yield return node;
+            }
+        }
+
+        // [a, "foo", "bar", b, ""] --> [a, "foobar", b]
+        static IEnumerable<BoundExpression> FoldConstants(IEnumerable<BoundExpression> nodes)
+        {
+            StringBuilder sb = null;
+
+            foreach (var node in nodes)
+            {
+                if (node.ConstantValue != null)
+                {
+                    var stringValue = (string)node.ConstantValue.Value;
+
+                    if (string.IsNullOrEmpty(stringValue))
+                        continue;
+
+                    sb ??= new StringBuilder();
+                    sb.Append(stringValue);
+                }
+                else
+                {
+                    if (sb?.Length > 0)
+                    {
+                        yield return new BoundLiteralExpression(sb.ToString());
+                        sb.Clear();
+                    }
+
+                    yield return node;
+                }
+            }
+
+            if (sb?.Length > 0)
+                yield return new BoundLiteralExpression(sb.ToString());
+        }
+    }
+
     private void EmitCallExpression(ILProcessor ilProcessor, BoundCallExpression node)
     {
 
@@ -566,7 +686,7 @@ internal sealed class Emitter
                                                      MethodAttributes.Private | 
                                                      MethodAttributes.SpecialName | 
                                                      MethodAttributes.RTSpecialName,
-                                                     _knowTypes[TypeSymbol.Void]);
+                                                     _knownTypes[TypeSymbol.Void]);
         _typeDefinition.Methods.Insert(0, staticConstructor);
 
         var ilProcessor = staticConstructor.Body.GetILProcessor();
@@ -582,7 +702,7 @@ internal sealed class Emitter
                           node.Expression.Type == TypeSymbol.Int;
         if (needsBoxing)
         {
-            ilProcessor.Emit(OpCodes.Box, _knowTypes[node.Expression.Type]);
+            ilProcessor.Emit(OpCodes.Box, _knownTypes[node.Expression.Type]);
         }
 
         if(node.Type == TypeSymbol.Any)

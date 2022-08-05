@@ -103,13 +103,9 @@ public class Compilation
     // TODO: Create function to expose diagnostics of the binder, without the need of the 'Evaluate' or 'Emit' funcions.
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
-        var parseDiagnostics = SyntaxTrees.SelectMany(st => st.Diagnostics);
-        var diagnostics = parseDiagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+        if (GlobalScope.Diagnostics.Any())
+            return new EvaluationResult(GlobalScope.Diagnostics, null);
 
-        if (diagnostics.Any())
-        {
-            return new EvaluationResult(diagnostics, null);
-        }
         var program = GetProgram();
 
         // TODO: Sacar la impresion a una funcion. Crear directorio \Temp y logica de limpiado con cada cierre de la app.

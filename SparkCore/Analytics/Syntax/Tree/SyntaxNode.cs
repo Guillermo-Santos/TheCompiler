@@ -10,7 +10,6 @@ namespace SparkCore.Analytics.Syntax.Tree;
 
 public abstract class SyntaxNode
 {
-
     protected SyntaxNode(SyntaxTree syntaxTree)
     {
         SyntaxTree = syntaxTree;

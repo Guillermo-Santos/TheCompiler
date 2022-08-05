@@ -51,7 +51,6 @@ public sealed class SourceText
     {
         get;
     }
-
     public int GetLineIndex(int position)
     {
         var lower = 0;
