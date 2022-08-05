@@ -42,11 +42,8 @@
                 </TabView>
             </Grid>
             <Grid Grid.Row="1" BorderThickness="1" BorderBrush="DimGray">
-                <ListView Header="Errores">
-                    
-                </ListView>
+                <ListView Header="Errores"/>
             </Grid>
         </Grid>
-        
     </Grid>
 </Page>
