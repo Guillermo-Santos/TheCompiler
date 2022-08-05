@@ -9,7 +9,9 @@
     <Grid>
         <RichEditBox x:Name="code" 
                      TextChanged="code_TextChanged" 
+                     TextAlignment="Left"
                      DisabledFormattingAccelerators="All" 
-                     IsSpellCheckEnabled="False"/>
+                     IsSpellCheckEnabled="False"
+                     />
     </Grid>
 </Page>

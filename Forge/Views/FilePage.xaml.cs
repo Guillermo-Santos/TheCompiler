@@ -1,16 +1,52 @@
-﻿using Forge.ViewModels;
+﻿using Forge.Services;
+using Forge.ViewModels;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-
+using System.Windows;
+using Windows.UI.Xaml;
 namespace Forge.Views;
 
-// TODO: Change ExamplePage to 'FilePage' and make logic to control tabs of files.
 public sealed partial class FilePage : Page
 {
-    // TODO: add a DispatcherTimer to control diagnostics.
+    // TODO: move timers and eventhandling to ViewModel and make error checker generic to files.
     private readonly DispatcherTimer _syntaxHightLighterTimer;
     private readonly DispatcherTimer _errorCheckerTimer;
+
+    public string Text
+    {
+        get => (string)GetValue(TextProperty);
+        set => SetValue(TextProperty, (string)value);
+    }
+
+    public DependencyProperty TextProperty = DependencyProperty.Register(
+                                                nameof(Text),
+                                                typeof(string),
+                                                typeof(FilePage),
+                                                new PropertyMetadata(default(string), new PropertyChangedCallback(OnTextChanged))
+                                                );
+    public string FileName
+    {
+        get => (string)GetValue(FileNameProperty);
+        set => SetValue(FileNameProperty, (string)value);
+    }
+
+    public DependencyProperty FileNameProperty = DependencyProperty.Register(
+                                                nameof(FileName),
+                                                typeof(string),
+                                                typeof(FilePage),
+                                                new PropertyMetadata(default(string))
+                                                );
+    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        FilePage? filePageControl = d as FilePage; //null checks omitted
+        filePageControl.code.Document.GetText(TextGetOptions.None, out var text);
+        if(text != filePageControl.Text)
+        {
+            filePageControl?.code.Document.SetText(TextSetOptions.None, filePageControl.Text);
+        }
+        SparkFileService.Instance.SetText(filePageControl.FileName, filePageControl.Text);
+    }
     public FileViewModel ViewModel
     {
         get;
@@ -36,7 +72,7 @@ public sealed partial class FilePage : Page
     {
         _syntaxHightLighterTimer.Stop(); 
         code.Document.GetText(TextGetOptions.None, out var plainText);
-        if (!IsNewInput(plainText))
+        if (ViewModel.IsBusy && !IsNewInput(plainText))
         {
             return;
         }
@@ -44,16 +80,14 @@ public sealed partial class FilePage : Page
         code.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
         var position = code.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
         ViewModel.DoTextHightLighting(code, plainText, position);
+        Text = plainText;
+        _errorCheckerTimer.Stop();
+        _errorCheckerTimer.Start();
     }
     private void CheckErros(object? sender, object e)
     {
-        _errorCheckerTimer.Stop(); 
+        _errorCheckerTimer.Stop();
         code.Document.GetText(TextGetOptions.None, out var plainText);
-        if (ViewModel.IsBusy)
-        {
-            return;
-        }
-
         code.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
         var position = code.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
         ViewModel.CheckErrors(code, plainText, position);
@@ -66,11 +100,5 @@ public sealed partial class FilePage : Page
     {
         _syntaxHightLighterTimer.Stop();
         _syntaxHightLighterTimer.Start();
-        if (!ViewModel.IsBusy)
-        {
-            _errorCheckerTimer.Stop();
-            _errorCheckerTimer.Start();
-        }
-        //ViewModel.ChangeDisplay(code);
     }
 }

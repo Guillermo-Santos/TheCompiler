@@ -17,6 +17,7 @@ using SparkCore.IO;
 using SparkCore.IO.Diagnostics;
 using SparkCore.IO.Text;
 using Windows.UI;
+using Windows.UI.WebUI;
 
 namespace Forge.ViewModels;
 public class FileViewModel : BaseViewModel
@@ -24,8 +25,13 @@ public class FileViewModel : BaseViewModel
     private string _fileName;
     private string _text;
     private List<Diagnostic> diagnostics = new();
-    private ObservableCollection<string> symbols = new();
 
+    private ObservableCollection<string> symbols = new();
+    public List<Diagnostic> Diagnostics
+    {
+        get => diagnostics;
+        set => SetProperty(ref diagnostics, value);
+    }
     public ObservableCollection<string> Symbols
     {
         get => symbols;
@@ -69,42 +75,62 @@ public class FileViewModel : BaseViewModel
 
         document.Selection.SetRange(position.StartPosition, position.EndPosition);
         Text = plainText;
-
-        //sender.Document.SetText(TextSetOptions.FormatRtf,document.ToString());
-        //Diagnostics.Clear();
-        //FillTokens(tokenText);
-        //FillSyntaxTree(syntaxTree, syntaxTreeText);
-        //FillIntermediate(syntaxTree, intermText, sender);
+        needErrorCheck = true;
     }
-
+    private bool needErrorCheck = false;
     public void CheckErrors(RichEditBox sender, string plainText, ITextRange position)
     {
+        if (!needErrorCheck)
+            return;
         IsBusy = true;
         var document = sender.Document;
         var sourceText = SourceText.From(plainText);
         var syntaxTree = SyntaxTree.Parse(plainText);
         var compilation = Compilation.Create(syntaxTree);
         var result = compilation.Evaluate(new());
-
-        if (result.Diagnostics.Any())
+        var oldDiagnostics = Diagnostics;
+        var newDiagnostics = result.Diagnostics;
+        ImmutableArray<string> GetLines(int startLine, int endLine)
         {
-            using StringWriter diag = new();
-            diag.WriteDiagnostics(result.Diagnostics);
-            ShowDiagnostics(result.Diagnostics, sender);
-            diagnostics = result.Diagnostics.ToList();
-        }
-        else if (diagnostics.Any())
-        {
-            foreach (var diagnostic in diagnostics)
+            var lines = ImmutableArray.CreateBuilder<string>();
+            for (var i = startLine; i <= endLine; i++)
             {
-                var rlines = sourceText.Lines.Where(l => l.Span.OverlapsWith(diagnostic.Location.Span)).ToImmutableArray();
-                PaintTokens(document, rlines);
+                if (i > sourceText.Lines.Count() - 1)
+                    break;
+                lines.Add(sourceText.Lines[i].ToString());
             }
-            diagnostics.Clear();
+            return lines.ToImmutable();
         }
-        document.Selection.SetRange(position.StartPosition, position.EndPosition);
+        ImmutableArray<TextLine> GetTextLines(int startLine, int endLine)
+        {
+            var lines = ImmutableArray.CreateBuilder<TextLine>();
+            for (var i = startLine; i <= endLine; i++)
+            {
+                if (i > sourceText.Lines.Count() - 1)
+                    break;
+                lines.Add(sourceText.Lines[i]);
+            }
+            return lines.ToImmutable();
+        }
+        List<TextLine> tlines = new();
+        foreach (var diagnostic in Diagnostics)
+        {
+            var startLine = diagnostic.Location.StartLine;
+            var endLine = diagnostic.Location.EndLine;
+            var rlines = GetLines(startLine, endLine);
+            var diag = result.Diagnostics.Where(rd => GetLines(rd.Location.StartLine, rd.Location.EndLine).Equals(rlines));
+            if (!diag.Any())
+                tlines.AddRange(GetTextLines(startLine, endLine));
+        }
+        var tokens = SyntaxTree.ParseTokens(sourceText);
+        PaintTokens(document,tokens, tlines.ToImmutableArray());
+        Diagnostics.Clear();
+        ShowDiagnostics(result.Diagnostics, sender);
+        Diagnostics = result.Diagnostics.ToList();
 
-        IsBusy = false;
+
+        document.Selection.SetRange(position.StartPosition, position.EndPosition);
+        needErrorCheck = false;
     }
 
     private static void PaintTokens(RichEditTextDocument document, ImmutableArray<TextLine> lines)
@@ -112,7 +138,7 @@ public class FileViewModel : BaseViewModel
         var tokens = ImmutableArray.CreateBuilder<SyntaxToken>();
         foreach (var line in lines)
         {
-            tokens.AddRange(SyntaxTree.ParseTokens(line.Text));
+            tokens.AddRange(SyntaxTree.ParseTokens(lines[0].Text));
         }
         PaintTokens(document, tokens.ToImmutable(), lines);
     }

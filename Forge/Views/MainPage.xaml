@@ -3,7 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:text="using:SparkCore.IO.Text"
+    xmlns:local="using:Forge.Views" 
+    xmlns:models="using:Forge.Models"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
@@ -20,13 +23,21 @@
         -->
 
         <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TabView 
-                     AddTabButtonClick="TabView_AddTabButtonClick" 
+            <TabView AddTabButtonClick="TabView_AddTabButtonClick" 
+                     CloseButtonOverlayMode="OnPointerOver"
+                     TabCloseRequested="TabView_TabCloseRequested"
                      HorizontalAlignment="Stretch"
-                     VerticalAlignment="Stretch">
-                    <!-- TODO: Agregar esto
-                        TabItemsSource="{x:Bind ViewModel.Files}"
-                    -->
+                     VerticalAlignment="Stretch"
+                     TabItemsSource="{x:Bind ViewModel.Files}">
+                <TabView.TabItemTemplate>
+                    <DataTemplate x:DataType="models:Document">
+                        <TabViewItem Header="{x:Bind FileName}">
+                            <TabViewItem.Content>
+                                <local:FilePage FileName="{x:Bind FileName}" Text="{x:Bind Text}"/>
+                            </TabViewItem.Content>
+                        </TabViewItem>
+                    </DataTemplate>
+                </TabView.TabItemTemplate>
             </TabView>
         </Grid>
         
