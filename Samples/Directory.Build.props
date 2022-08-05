@@ -1,5 +1,5 @@
 <Project>
     <PropertyGroup>
-        <DefaultLanguageSourceExtension>.sp</DefaultLanguageSourceExtension>
+        <DefaultLanguageSourceExtension>.spks</DefaultLanguageSourceExtension>
     </PropertyGroup>
 </Project>

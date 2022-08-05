@@ -45,7 +45,6 @@ function main ()
         }
     }
 }
-
 function GaneRonda(j: int, m: int): bool{
     if(j == 1){
         if(m == 3){
