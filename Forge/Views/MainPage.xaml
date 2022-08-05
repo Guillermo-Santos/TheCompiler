@@ -9,36 +9,43 @@
     xmlns:models="using:Forge.Models"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <!--
-        <TextBlock
-            Grid.Row="0"
-            x:Uid="Main_Title"
-            Style="{StaticResource PageTitleStyle}" />
-        -->
-
-        <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TabView AddTabButtonClick="TabView_AddTabButtonClick" 
+    <Grid x:Name="ContentArea" ColumnSpacing="3">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150*" MaxWidth="250" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" BorderThickness="1" BorderBrush="DimGray">
+            <TextBlock Text="Proyecto"/>
+            <TreeView/>
+        </Grid>
+        <Grid Grid.Column="1" RowSpacing="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80*" MaxHeight="200"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" BorderThickness="1" Padding="5">
+                <TabView AddTabButtonClick="TabView_AddTabButtonClick" 
                      CloseButtonOverlayMode="OnPointerOver"
                      TabCloseRequested="TabView_TabCloseRequested"
                      HorizontalAlignment="Stretch"
                      VerticalAlignment="Stretch"
                      TabItemsSource="{x:Bind ViewModel.Files}">
-                <TabView.TabItemTemplate>
-                    <DataTemplate x:DataType="models:Document">
-                        <TabViewItem Header="{x:Bind FileName}">
-                            <TabViewItem.Content>
-                                <local:FilePage FileName="{x:Bind FileName}" Text="{x:Bind Text}"/>
-                            </TabViewItem.Content>
-                        </TabViewItem>
-                    </DataTemplate>
-                </TabView.TabItemTemplate>
-            </TabView>
+                    <TabView.TabItemTemplate>
+                        <DataTemplate x:DataType="models:Document">
+                            <TabViewItem Header="{x:Bind FileName}">
+                                <TabViewItem.Content>
+                                    <local:FilePage FileName="{x:Bind FileName}" Text="{x:Bind Text}"/>
+                                </TabViewItem.Content>
+                            </TabViewItem>
+                        </DataTemplate>
+                    </TabView.TabItemTemplate>
+                </TabView>
+            </Grid>
+            <Grid Grid.Row="1" BorderThickness="1" BorderBrush="DimGray">
+                <ListView Header="Errores">
+                    
+                </ListView>
+            </Grid>
         </Grid>
         
     </Grid>

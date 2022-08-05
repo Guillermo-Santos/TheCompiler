@@ -1,7 +1,5 @@
 ﻿using System.Text;
-
 using Forge.Core.Contracts.Services;
-
 using Newtonsoft.Json;
 
 namespace Forge.Core.Services;
