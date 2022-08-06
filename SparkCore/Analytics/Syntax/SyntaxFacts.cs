@@ -214,7 +214,8 @@ public static class SyntaxFacts
     {
         switch (kind)
         {
-            case SyntaxKind.BadTokenTrivia:
+            case SyntaxKind.SkippedTextTrivia:
+            case SyntaxKind.LineBreakTrivia:
             case SyntaxKind.WhiteSpaceTrivia:
             case SyntaxKind.SingleLineCommentTrivia:
             case SyntaxKind.MultiLineCommentTrivia:
@@ -231,6 +232,39 @@ public static class SyntaxFacts
     {
         return !kind.IsTrivia() &&
                (kind.IsKeyWord() || kind.ToString().EndsWith("Token"));
+    }
+    public static bool IsOperator(this SyntaxKind kind)
+    {
+        return kind switch
+        {
+            SyntaxKind.PlusToken 
+            or SyntaxKind.MinusToken 
+            or SyntaxKind.StarToken 
+            or SyntaxKind.SlashToken 
+            or SyntaxKind.OpenParentesisToken 
+            or SyntaxKind.CloseParentesisToken 
+            or SyntaxKind.CommaToken 
+            or SyntaxKind.ColonToken 
+            or SyntaxKind.OpenBraceToken 
+            or SyntaxKind.CloseBraceToken 
+            or SyntaxKind.IdentifierToken 
+            or SyntaxKind.BangToken 
+            or SyntaxKind.EqualsToken 
+            or SyntaxKind.TildeToken 
+            or SyntaxKind.HatToken 
+            or SyntaxKind.AmpersandToken 
+            or SyntaxKind.AmpersandAmpersandToken 
+            or SyntaxKind.PibeToken 
+            or SyntaxKind.PibePibeToken 
+            or SyntaxKind.BangEqualsToken 
+            or SyntaxKind.EqualsEqualsToken 
+            or SyntaxKind.LessToken 
+            or SyntaxKind.LessOrEqualsToken 
+            or SyntaxKind.GreaterToken 
+            or SyntaxKind.GreaterOrEqualsToken 
+              => true,
+            _ => false,
+        };
     }
 }
 

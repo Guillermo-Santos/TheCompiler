@@ -21,13 +21,37 @@ internal sealed class Parser
     public Parser(SyntaxTree syntaxTree)
     {
         var tokens = new List<SyntaxToken>();
+        var badTokens = new List<SyntaxToken>();
         var lexer = new LexicAnalyzer(syntaxTree);
         SyntaxToken token;
         do
         {
             token = lexer.Lex();
-            if (!token.Kind.IsTrivia())
+            if(token.Kind == SyntaxKind.BadToken)
             {
+                badTokens.Add(token);
+            }
+            else
+            {
+                if (badTokens.Count > 0)
+                {
+                    var leadingTrivia = token.LeadingTrivia.ToBuilder();
+                    var index = 0;
+
+                    foreach(var badToken in badTokens)
+                    {
+                        foreach(var lt in badToken.LeadingTrivia)
+                            leadingTrivia.Insert(index++, lt);
+
+                        var trivia = new SyntaxTrivia(syntaxTree, SyntaxKind.SkippedTextTrivia, badToken.Position, badToken.Text);
+                        leadingTrivia.Insert(index++, trivia);
+
+                        foreach (var tt in badToken.TrailingTrivia)
+                            leadingTrivia.Insert(index++, tt);
+                    }
+                    badTokens.Clear();
+                    token = new(token.SyntaxTree, token.Kind, token.Position, token.Text, token.Value, leadingTrivia.ToImmutable(), token.TrailingTrivia);
+                }
                 tokens.Add(token);
             }
         } while (token.Kind != SyntaxKind.EndOfFileToken);
@@ -61,7 +85,7 @@ internal sealed class Parser
         if (Current.Kind == type)
             return NextToken();
         _diagnostics.ReportUnexpectedToken(Current.Location, Current.Kind, type);
-        return new SyntaxToken(_syntaxTree, type, Current.Position, null, null);
+        return new SyntaxToken(_syntaxTree, type, Current.Position, null, null, ImmutableArray<SyntaxTrivia>.Empty, ImmutableArray<SyntaxTrivia>.Empty);
     }
 
     public CompilationUnitSyntax ParseCompilationUnit()
