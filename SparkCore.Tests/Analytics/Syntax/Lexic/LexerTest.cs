@@ -43,7 +43,7 @@ public class LexerTest
         //Ordenamos la lista de tokens.
         var untestedTokenTypes = new SortedSet<SyntaxKind>(tokentypes);
         //Removemos los tipos de tokens no testeables.
-        untestedTokenTypes.Remove(SyntaxKind.BadTokenTrivia);
+        untestedTokenTypes.Remove(SyntaxKind.BadToken);
         untestedTokenTypes.Remove(SyntaxKind.EndOfFileToken);
         //Eliminamos los tokens probados de la lista de tokens.
         untestedTokenTypes.ExceptWith(testedTokenTypes);
@@ -64,6 +64,22 @@ public class LexerTest
         var token = Assert.Single(tokens);
         Assert.Equal(type, token.Kind);
         Assert.Equal(text, token.Text);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="text"></param>
+    [Theory]
+    [MemberData(nameof(GetSeparatorsData))]
+    public void Lexer_Lexes_Separator(SyntaxKind type, string text)
+    {
+        var tokens = SyntaxTree.ParseTokens(text, includeEndOfFile: true);
+
+        var token = Assert.Single(tokens);
+        var trivia = Assert.Single(token.LeadingTrivia);
+        Assert.Equal(type, trivia.Kind);
+        Assert.Equal(text, trivia.Text);
     }
     /// <summary>
     /// 
@@ -101,13 +117,16 @@ public class LexerTest
         var text = t1Text + separatorText + t2Text;
         var tokens = SyntaxTree.ParseTokens(text).ToArray();
 
-        Assert.Equal(3, tokens.Length);
+        Assert.Equal(2, tokens.Length);
         Assert.Equal(t1Type, tokens[0].Kind);
         Assert.Equal(t1Text, tokens[0].Text);
-        Assert.Equal(separatorType, tokens[1].Kind);
-        Assert.Equal(separatorText, tokens[1].Text);
-        Assert.Equal(t2Type, tokens[2].Kind);
-        Assert.Equal(t2Text, tokens[2].Text);
+
+        var separator = Assert.Single(tokens[0].TrailingTrivia);
+        Assert.Equal(separatorType, separator.Kind);
+        Assert.Equal(separatorText, separator.Text);
+
+        Assert.Equal(t2Type, tokens[1].Kind);
+        Assert.Equal(t2Text, tokens[1].Text);
     }
     /// <summary>
     /// 
@@ -115,7 +134,16 @@ public class LexerTest
     /// <returns></returns>
     public static IEnumerable<object[]> GetTokensData()
     {
-        foreach (var t in GetTokens().Concat(GetSeparators()))
+        foreach (var t in GetTokens())
+            yield return new object[] { t.type, t.text };
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public static IEnumerable<object[]> GetSeparatorsData()
+    {
+        foreach (var t in GetSeparators())
             yield return new object[] { t.type, t.text };
     }
     /// <summary>
@@ -172,9 +200,9 @@ public class LexerTest
         {
             (SyntaxKind.WhiteSpaceTrivia," "),
             (SyntaxKind.WhiteSpaceTrivia,"  "),
-            (SyntaxKind.WhiteSpaceTrivia,"\r"),
-            (SyntaxKind.WhiteSpaceTrivia,"\n"),
-            (SyntaxKind.WhiteSpaceTrivia,"\r\n"),
+            (SyntaxKind.LineBreakTrivia,"\r"),
+            (SyntaxKind.LineBreakTrivia,"\n"),
+            (SyntaxKind.LineBreakTrivia,"\r\n"),
             (SyntaxKind.MultiLineCommentTrivia, "/**/"),
         };
     }

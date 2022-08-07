@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:text="using:SparkCore.IO.Text"
+    xmlns:diag="using:SparkCore.IO.Diagnostics"
     xmlns:local="using:Forge.Views" 
     xmlns:models="using:Forge.Models"
     mc:Ignorable="d">
@@ -24,12 +25,14 @@
                 <RowDefinition Height="80*" MaxHeight="200"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" BorderThickness="1" Padding="5">
-                <TabView AddTabButtonClick="TabView_AddTabButtonClick" 
-                     CloseButtonOverlayMode="OnPointerOver"
-                     TabCloseRequested="TabView_TabCloseRequested"
-                     HorizontalAlignment="Stretch"
-                     VerticalAlignment="Stretch"
-                     TabItemsSource="{x:Bind ViewModel.Files}">
+                <TabView x:Name="codeTabs"
+                         AddTabButtonClick="TabView_AddTabButtonClick" 
+                         CloseButtonOverlayMode="OnPointerOver"
+                         TabCloseRequested="TabView_TabCloseRequested"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         TabItemsSource="{x:Bind ViewModel.Files}"
+                         SelectedItem="{x:Bind ViewModel.SelectedDocument, Mode=TwoWay}">
                     <TabView.TabItemTemplate>
                         <DataTemplate x:DataType="models:Document">
                             <TabViewItem Header="{x:Bind FileName}">
@@ -41,12 +44,34 @@
                     </TabView.TabItemTemplate>
                 </TabView>
             </Grid>
-            <Grid Grid.Row="1" BorderThickness="1" BorderBrush="DimGray">
-                <ListView Header="Errores">
-                    
-                </ListView>
+            <Grid Grid.Row="1" 
+                  BorderThickness="1" 
+                  BorderBrush="DimGray" 
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch">
+                <TabView x:Name="BottonTabView"
+                         HorizontalAlignment="Stretch" 
+                         VerticalAlignment="Stretch"
+                         IsAddTabButtonVisible="False"
+                         AllowFocusWhenDisabled="False">
+                    <TabViewItem Header="Errores"
+                                 IsClosable="False">
+                        <TabViewItem.Content>
+                            <ListBox x:Name="errors" 
+                                     ItemsSource="{x:Bind ViewModel.Diagnostics, Mode=OneWay}"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                     DoubleTapped="errors_DoubleTapped"
+                                     >
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="diag:Diagnostic">
+                                        <TextBlock Text="{x:Bind FullMessage}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabViewItem.Content>
+                    </TabViewItem>
+                </TabView>
             </Grid>
         </Grid>
-        
     </Grid>
 </Page>

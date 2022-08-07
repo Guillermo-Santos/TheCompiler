@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Forge.Models;
+using SparkCore.IO.Diagnostics;
 
 namespace Forge.Services;
 public sealed class SparkFileService : ObservableObject
@@ -17,7 +18,7 @@ public sealed class SparkFileService : ObservableObject
     {
     }
 
-    public static SparkFileService Instance => _instance ?? (_instance = new SparkFileService());
+    public static SparkFileService Instance => _instance ??= (_instance = new SparkFileService());
 
     public ObservableCollection<Document> Files
     {
@@ -53,9 +54,17 @@ public sealed class SparkFileService : ObservableObject
             OpenDocuments.Add(document);
         }
     }
+    public Document OpenFile(Diagnostic diagnostic)
+    {
+        var sourceText = diagnostic.Location.Text;
+        var document = Files.First(doc => doc.FileName.Equals(sourceText.FileName) && doc.Text.Equals(sourceText.ToString()));
+        OpenFile(document);
+        return document;
+    }
     public void CloseFile(int index) => CloseFile(Files[index]);
     public void CloseFile(Document document)
     {
         OpenDocuments.Remove(document);
     }
+
 }

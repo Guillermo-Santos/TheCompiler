@@ -6,7 +6,7 @@ public sealed class SourceText
 {
 
     private readonly string _text;
-    public SourceText(string text, string fileName)
+    private SourceText(string text, string fileName)
     {
         _text = text;
         FileName = fileName;

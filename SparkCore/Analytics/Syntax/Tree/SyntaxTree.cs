@@ -57,21 +57,21 @@ public sealed class SyntaxTree
     {
         return new SyntaxTree(text, Parse);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(string text)
+    public static ImmutableArray<SyntaxToken> ParseTokens(string text, bool includeEndOfFile = false)
     {
         var sourceText = SourceText.From(text);
-        return ParseTokens(sourceText);
+        return ParseTokens(sourceText, includeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics)
+    public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics, bool inCludeEndOfFile = false)
     {
         var sourceText = SourceText.From(text);
-        return ParseTokens(sourceText, out diagnostics);
+        return ParseTokens(sourceText, out diagnostics, inCludeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text)
+    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, bool inCludeEndOfFile = false)
     {
-        return ParseTokens(text, out _);
+        return ParseTokens(text, out _, inCludeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics)
+    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics, bool inCludeEndOfFile = false)
     {
         var tokens = new List<SyntaxToken>();
 
@@ -86,9 +86,13 @@ public sealed class SyntaxTree
                 if (token.Kind == SyntaxKind.EndOfFileToken)
                 {
                     root = new CompilationUnitSyntax(st, ImmutableArray<MemberSyntax>.Empty, token);
-                    break;
                 }
-                tokens.Add(token);
+                
+                if(token.Kind != SyntaxKind.EndOfFileToken || inCludeEndOfFile)
+                    tokens.Add(token);
+
+                if (token.Kind == SyntaxKind.EndOfFileToken)
+                    break;
             }
             d = l.Diagnostics.ToImmutableArray();
         }

@@ -1,10 +1,8 @@
-﻿using System.Collections.Immutable;
-using SparkCore;
+﻿using SparkCore;
 using SparkCore.Analytics.Symbols;
-using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.IO;
-using SparkCore.IO.Text;
 
 namespace spi.Replies;
 
@@ -22,76 +20,54 @@ internal sealed class SparkRepl : Repl
         LoadSubmissions();
     }
 
-    private sealed class RenderState
-    {
-        public RenderState(SourceText text, ImmutableArray<SyntaxToken> tokens)
-        {
-            Text = text;
-            Tokens = tokens;
-        }
-
-        public SourceText Text
-        {
-            get;
-        }
-        public ImmutableArray<SyntaxToken> Tokens
-        {
-            get;
-        }
-    }
-
     protected override object RenderLine(IReadOnlyList<string> lines, int lineIndex, object state)
     {
-        RenderState renderState;
+        SyntaxTree syntaxTree;
 
         if(state == null)
         {
             var text = string.Join(Environment.NewLine, lines);
-            var sourceText = SourceText.From(text);
-            var tokens = SyntaxTree.ParseTokens(sourceText);
-            renderState = new RenderState(sourceText, tokens);
+            syntaxTree = SyntaxTree.Parse(text);
         }
         else
         {
-            renderState = (RenderState) state;
+            syntaxTree = (SyntaxTree) state;
         }
 
-        var lineSpan = renderState.Text.Lines[lineIndex].Span;
+        var lineSpan = syntaxTree.Text.Lines[lineIndex].Span;
+        var classifiedSpans = Classifier.Classify(syntaxTree, lineSpan);
 
-        foreach (var token in renderState.Tokens)
+        foreach (var classifiedSpan in classifiedSpans)
         {
-            if (!lineSpan.OverlapsWith(token.Span))
-                continue;
+            var classifiedText = syntaxTree.Text.ToString(classifiedSpan.Span);
 
-            var tokenStart = Math.Max(token.Span.Start, lineSpan.Start);
-            var tokenEnd = Math.Min(token.Span.End, lineSpan.End);
-            var tokenSpan = TextSpan.FromBounds(tokenStart, tokenEnd);
-            var tokenText = renderState.Text.ToString(tokenSpan);
-
-            switch (token.Kind)
+            switch (classifiedSpan.Classification)
             {
-                case SyntaxKind.IdentifierToken:
+                case Classification.Keyword:
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    break;
+                case Classification.Identifier:
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     break;
-                case SyntaxKind.NumberToken:
+                case Classification.Number:
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                     break;
-                case SyntaxKind.StringToken:
+                case Classification.String:
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     break;
-                case SyntaxKind.SingleLineCommentTrivia:
-                case SyntaxKind.MultiLineCommentTrivia:
+                case Classification.Comment:
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     break;
+                case Classification.Operator:
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    break;
+                case Classification.Text:
                 default:
-                    if (token.Kind.IsKeyWord())
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                    else
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.ForegroundColor = ConsoleColor.White;
                     break;
             }
 
-            Console.Write(tokenText);
+            Console.Write(classifiedText);
             Console.ResetColor();
         }
         return state;

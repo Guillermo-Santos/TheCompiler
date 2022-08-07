@@ -56,6 +56,8 @@ public sealed partial class FilePage : Page
     {
         ViewModel = App.GetService<FileViewModel>();
         InitializeComponent();
+
+        ViewModel.CodeEditBox = code;
         // Disable undo option of the richteditbox as i do not know how to work with it yet.
         code.Document.UndoLimit = 0;
         // Setting up the syntas Hightlighter timer.
@@ -64,15 +66,15 @@ public sealed partial class FilePage : Page
         _syntaxHightLighterTimer.Tick += ChangeText;
         // Setting up the error checker timer.
         _errorCheckerTimer = new();
-        _errorCheckerTimer.Interval = new(0, 0, 1);
+        _errorCheckerTimer.Interval = new(0, 0, 0, 1, 500);
         _errorCheckerTimer.Tick += CheckErros;
     }
 
     private void ChangeText(object? sender, object e)
     {
-        _syntaxHightLighterTimer.Stop(); 
+        _syntaxHightLighterTimer.Stop();
         code.Document.GetText(TextGetOptions.None, out var plainText);
-        if (ViewModel.IsBusy && !IsNewInput(plainText))
+        if (!IsNewInput(plainText))
         {
             return;
         }
@@ -87,16 +89,17 @@ public sealed partial class FilePage : Page
     private void CheckErros(object? sender, object e)
     {
         _errorCheckerTimer.Stop();
-        code.Document.GetText(TextGetOptions.None, out var plainText);
+        ViewModel.FileName = FileName;
         code.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
         var position = code.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
-        ViewModel.CheckErrors(code, plainText, position);
+        ViewModel.CheckErrors(code, position);
     }
     private bool IsNewInput(string text)
     {
         return !(text == ViewModel.Text);
     }
-    private void code_TextChanged(object sender, RoutedEventArgs e)
+
+    private void code_TextChanging(RichEditBox sender, RichEditBoxTextChangingEventArgs args)
     {
         _syntaxHightLighterTimer.Stop();
         _syntaxHightLighterTimer.Start();

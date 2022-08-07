@@ -43,7 +43,7 @@ public class Compilation
         get;
     }
     public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
-    public FunctionSymbol MainFunctions => GlobalScope.MainFunction;
+    public FunctionSymbol MainFunction => GlobalScope.MainFunction;
     public ImmutableArray<FunctionSymbol> Functions => GlobalScope.Functions;
     public ImmutableArray<VariableSymbol> Variables => GlobalScope.Variables;
 
@@ -100,7 +100,6 @@ public class Compilation
         var previous = Previous == null ? null : Previous.GetProgram();
         return Binder.BindProgram(IsScript, previous, GlobalScope);
     }
-    // TODO: Create function to expose diagnostics of the binder, without the need of the 'Evaluate' or 'Emit' funcions.
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
         if (GlobalScope.Diagnostics.Any())
@@ -128,6 +127,20 @@ public class Compilation
         var evaluator = new Evaluator(program, variables);
         var value = evaluator.Evaluate();
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
+    }
+    /// <summary>
+    /// Run an empty evaluation that just run the analyzers.
+    /// </summary>
+    /// <returns>
+    /// An empty <see cref="EvaluationResult"/> which contains the <see cref="Diagnostic"/>/s of the program.
+    /// </returns>
+    public EvaluationResult Evaluate()
+    {
+        if (GlobalScope.Diagnostics.Any())
+            return new EvaluationResult(GlobalScope.Diagnostics, null);
+
+        var program = GetProgram();
+        return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
     }
 
     public void EmitTree(TextWriter writer)

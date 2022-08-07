@@ -18,5 +18,6 @@ public sealed class Diagnostic
     {
         get;
     }
+    public string FullMessage => $"{Location.FileName}({Location.StartLine + 1}, {Location.StartCharacter + 1},{Location.EndLine + 1}, {Location.EndCharacter + 1}): {Message}";
     public override string ToString() => Message;
 }
