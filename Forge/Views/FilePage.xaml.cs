@@ -3,8 +3,6 @@ using Forge.ViewModels;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Windows;
-using Windows.UI.Xaml;
 namespace Forge.Views;
 
 public sealed partial class FilePage : Page
@@ -41,7 +39,7 @@ public sealed partial class FilePage : Page
     {
         FilePage? filePageControl = d as FilePage; //null checks omitted
         filePageControl.code.Document.GetText(TextGetOptions.None, out var text);
-        if(text != filePageControl.Text)
+        if (text != filePageControl.Text)
         {
             filePageControl?.code.Document.SetText(TextSetOptions.None, filePageControl.Text);
         }

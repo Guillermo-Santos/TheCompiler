@@ -40,7 +40,7 @@ internal abstract class BoundTreeRewriter
         }
     }
 
-  
+
     protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)
     {
         ImmutableArray<BoundStatement>.Builder builder = null;
@@ -134,7 +134,7 @@ internal abstract class BoundTreeRewriter
         if (body == node.Body && condition == node.Condition)
             return node;
 
-        return new BoundDoWhileStatement(body,condition, node.BreakLabel, node.ContinueLabel);
+        return new BoundDoWhileStatement(body, condition, node.BreakLabel, node.ContinueLabel);
     }
     protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
     {

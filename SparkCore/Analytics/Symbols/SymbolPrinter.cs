@@ -49,8 +49,8 @@ internal static class SymbolPrinter
         }
 
         writer.WritePunctuation(SyntaxKind.CloseParentesisToken);
-        
-        if(symbol.Type != TypeSymbol.Void)
+
+        if (symbol.Type != TypeSymbol.Void)
         {
             writer.WritePunctuation(SyntaxKind.ColonToken);
             writer.WriteSpace();

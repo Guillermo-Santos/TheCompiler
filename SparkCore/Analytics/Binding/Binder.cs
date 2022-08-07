@@ -5,15 +5,15 @@ using System.Linq;
 using SparkCore.Analytics.Binding.Tree;
 using SparkCore.Analytics.Binding.Tree.Expressions;
 using SparkCore.Analytics.Binding.Tree.Statements;
-using SparkCore.Analytics.Syntax;
+using SparkCore.Analytics.Lowering;
 using SparkCore.Analytics.Symbols;
+using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.Analytics.Syntax.Tree.Statements;
-using SparkCore.Analytics.Lowering;
-using SparkCore.IO.Text;
 using SparkCore.IO.Diagnostics;
+using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Binding;
 
@@ -37,7 +37,7 @@ internal sealed class Binder
         _isScript = isScript;
         _function = function;
 
-        if(function != null)
+        if (function != null)
         {
             foreach (var p in function.Parameters)
                 _scope.TryDeclareVariable(p);
@@ -75,16 +75,16 @@ internal sealed class Binder
         var firstGlobalStatementPerSyntaxTree = syntaxTrees.Select(st => st.Root.Members.OfType<GlobalStatementSyntax>().FirstOrDefault())
                                                            .Where(g => g != null)
                                                            .ToArray();
-        if(firstGlobalStatementPerSyntaxTree.Length > 1)
+        if (firstGlobalStatementPerSyntaxTree.Length > 1)
         {
-            foreach(var globalstatement in firstGlobalStatementPerSyntaxTree)
+            foreach (var globalstatement in firstGlobalStatementPerSyntaxTree)
             {
                 binder.Diagnostics.ReportOnlyOneFileCanHaveGlobalStatements(globalstatement.Location);
             }
         }
 
         // Check for main function
-        
+
         var functions = binder._scope.GetDeclaredFunctions();
         FunctionSymbol mainFunction;
         FunctionSymbol scriptFunction;
@@ -170,16 +170,16 @@ internal sealed class Binder
             diagnostics.AddRange(binder.Diagnostics);
         }
 
-        if(globalScope.MainFunction != null && globalScope.Statements.Any())
+        if (globalScope.MainFunction != null && globalScope.Statements.Any())
         {
             var body = Lowerer.Lower(globalScope.MainFunction, new BoundBlockStatement(globalScope.Statements));
             functionBodies.Add(globalScope.MainFunction, body);
         }
-        else if(globalScope.ScriptFunction != null)
+        else if (globalScope.ScriptFunction != null)
         {
             var statements = globalScope.Statements;
 
-            if (statements.Length == 1 && 
+            if (statements.Length == 1 &&
                 statements[0] is BoundExpressionStatement es &&
                 es.Expression.Type != TypeSymbol.Void)
             {
@@ -202,7 +202,7 @@ internal sealed class Binder
         var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
         var seenParameterNames = new HashSet<string>();
 
-        foreach(var parameterSyntax in syntax.Parameters)
+        foreach (var parameterSyntax in syntax.Parameters)
         {
             var parameterName = parameterSyntax.Identifier.Text;
             var parameterType = BindTypeClause(parameterSyntax.Type);
@@ -257,7 +257,7 @@ internal sealed class Binder
     {
         var result = new BoundScope(null);
 
-        foreach(var f in BuiltinFunctions.GetAll())
+        foreach (var f in BuiltinFunctions.GetAll())
             result.TryDeclareFunction(f);
 
         return result;
@@ -272,9 +272,9 @@ internal sealed class Binder
     private BoundStatement BindStatement(StatementSyntax syntax, bool isGlobal = false)
     {
         var result = BindStatementInternal(syntax);
-        if(!_isScript || !isGlobal)
+        if (!_isScript || !isGlobal)
         {
-            if(result is BoundExpressionStatement es)
+            if (result is BoundExpressionStatement es)
             {
                 var isAllowedExpression = es.Expression.Kind == BoundNodeKind.ErrorExpression ||
                                           es.Expression.Kind == BoundNodeKind.AssignmentExpression ||
@@ -346,7 +346,7 @@ internal sealed class Binder
         if (syntax == null)
             return null;
         var type = LookUpType(syntax.Identifier.Text);
-        if(type == null)
+        if (type == null)
             _diagnostics.ReportUndefinedType(syntax.Identifier.Location, syntax.Identifier.Text);
         return type;
     }
@@ -398,7 +398,7 @@ internal sealed class Binder
     }
     private BoundStatement BindBreakStatement(BreakStatementSyntax syntax)
     {
-        if(_loopStack.Count == 0)
+        if (_loopStack.Count == 0)
         {
             _diagnostics.ReportInvalidBreackOrContinue(syntax.Keyword.Location, syntax.Keyword.Text);
             return BindErrorStatement();
@@ -420,7 +420,7 @@ internal sealed class Binder
     {
         var expression = syntax.Expression == null ? null : BindExpression(syntax.Expression);
 
-        if(_function == null)
+        if (_function == null)
         {
             if (_isScript)
             {
@@ -466,7 +466,7 @@ internal sealed class Binder
     private BoundExpression BindExpression(ExpressionSyntax syntax, bool canBeVoid = false)
     {
         var result = BindExpressionInternal(syntax);
-        if(!canBeVoid && result.Type == TypeSymbol.Void)
+        if (!canBeVoid && result.Type == TypeSymbol.Void)
         {
             _diagnostics.ReportExpressionMustHaveValue(syntax.Location);
             return new BoundErrorExpression();
@@ -516,7 +516,7 @@ internal sealed class Binder
         }
 
         var variable = BindVariableReference(syntax.IdentifierToken);
-        if(variable == null)
+        if (variable == null)
             return new BoundErrorExpression();
 
         return new BoundVariableExpression(variable);
@@ -525,7 +525,7 @@ internal sealed class Binder
     {
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
-        
+
         var variable = BindVariableReference(syntax.IdentifierToken);
         if (variable == null)
             return boundExpression;
@@ -561,7 +561,7 @@ internal sealed class Binder
         var boundLeft = BindExpression(syntax.Left);
         var boundRight = BindExpression(syntax.Right);
 
-        if(boundLeft.Type == TypeSymbol.Error || boundRight.Type == TypeSymbol.Error)
+        if (boundLeft.Type == TypeSymbol.Error || boundRight.Type == TypeSymbol.Error)
         {
             return new BoundErrorExpression();
         }
@@ -582,14 +582,14 @@ internal sealed class Binder
 
         var boundArguments = ImmutableArray.CreateBuilder<BoundExpression>();
 
-        foreach(var argument in syntax.Arguments)
+        foreach (var argument in syntax.Arguments)
         {
             var boundArgument = BindExpression(argument);
             boundArguments.Add(boundArgument);
         }
 
         var symbol = _scope.TryLookupSymbol(syntax.Identifier.Text);
-        if(symbol == null)
+        if (symbol == null)
         {
             _diagnostics.ReportUndefinedFunction(syntax.Identifier.Location, syntax.Identifier.Text);
             return new BoundErrorExpression();
@@ -623,7 +623,7 @@ internal sealed class Binder
             return new BoundErrorExpression();
         }
 
-        for(var i = 0; i < syntax.Arguments.Count; i++)
+        for (var i = 0; i < syntax.Arguments.Count; i++)
         {
             var argumentLocation = syntax.Arguments[i].Location;
             var argument = boundArguments[i];
@@ -640,7 +640,7 @@ internal sealed class Binder
         var name = identifier.Text ?? "?";
         var declare = !identifier.IsMissing;
         var variable = _function == null
-                         ? (VariableSymbol) new GlobalVariableSymbol(name, isReadOnly, type, constant)
+                         ? (VariableSymbol)new GlobalVariableSymbol(name, isReadOnly, type, constant)
                          : new LocalVariableSymbol(name, isReadOnly, type, constant);
 
         if (declare && !_scope.TryDeclareVariable(variable))
@@ -685,7 +685,7 @@ internal sealed class Binder
             return new BoundErrorExpression();
         }
 
-        if(!allowExplicit && conversion.IsExplicit)
+        if (!allowExplicit && conversion.IsExplicit)
         {
             _diagnostics.ReportCannotImplicitlyConvert(diagnosticLocation, expression.Type, type);
         }
@@ -700,13 +700,13 @@ internal sealed class Binder
     {
         switch (name)
         {
-            case "any": 
+            case "any":
                 return TypeSymbol.Any;
-            case "bool": 
+            case "bool":
                 return TypeSymbol.Bool;
-            case "int": 
+            case "int":
                 return TypeSymbol.Int;
-            case "string": 
+            case "string":
                 return TypeSymbol.String;
             default:
                 return null;

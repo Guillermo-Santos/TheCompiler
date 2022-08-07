@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -37,9 +36,9 @@ internal sealed class Emitter
     private readonly AssemblyDefinition _assemmblyDefinition;
     private readonly Dictionary<FunctionSymbol, MethodDefinition> _methods = new();
     private readonly Dictionary<VariableSymbol, VariableDefinition> _locals = new();
-    private readonly Dictionary<BoundLabel,int> _labels = new();
+    private readonly Dictionary<BoundLabel, int> _labels = new();
     private readonly List<(int InstructionIndex, BoundLabel Target)> _fixuds = new();
- 
+
     private readonly TypeDefinition _typeDefinition;
     private FieldDefinition _randomFieldDefinition;
 
@@ -164,7 +163,7 @@ internal sealed class Emitter
         _randomNextReference = ResolveMethod("System.Random", "Next", new[] { "System.Int32" });
 
         var objectType = _knownTypes[TypeSymbol.Any];
-        if(objectType != null)
+        if (objectType != null)
         {
             _typeDefinition = new TypeDefinition("", "Program", TypeAttributes.Abstract | TypeAttributes.Sealed, objectType);
             _assemmblyDefinition.MainModule.Types.Add(_typeDefinition);
@@ -174,7 +173,7 @@ internal sealed class Emitter
             _typeDefinition = null;
         }
     }
-     
+
     public static ImmutableArray<Diagnostic> Emit(BoundProgram program, string moduleName, string[] references, string outputPath)
     {
         if (program.Diagnostics.Any())
@@ -188,7 +187,7 @@ internal sealed class Emitter
         if (_diagnostics.Any())
             return _diagnostics.ToImmutableArray();
 
-        foreach(var functionWithBody in program.Functions)
+        foreach (var functionWithBody in program.Functions)
         {
             EmitFunctionDeclaration(functionWithBody.Key);
         }
@@ -210,7 +209,7 @@ internal sealed class Emitter
         var functionType = _knownTypes[function.Type];
         var method = new MethodDefinition(function.Name, MethodAttributes.Static | MethodAttributes.Private, functionType);
 
-        foreach(var parameter in function.Parameters)
+        foreach (var parameter in function.Parameters)
         {
             var parameterType = _knownTypes[parameter.Type];
             var parameterAttribute = ParameterAttributes.None;
@@ -230,12 +229,12 @@ internal sealed class Emitter
 
         var ilProcessor = method.Body.GetILProcessor();
 
-        foreach(var statement in body.Statements)
+        foreach (var statement in body.Statements)
         {
             EmitStatement(ilProcessor, statement);
         }
 
-        foreach(var fixup in _fixuds)
+        foreach (var fixup in _fixuds)
         {
             var targetLabel = fixup.Target;
             var targetInstructionIndex = _labels[targetLabel];
@@ -261,13 +260,13 @@ internal sealed class Emitter
                 EmitLabelStatement(ilProcessor, (BoundLabelStatement)node);
                 break;
             case BoundNodeKind.GotoStatement:
-                EmitGotoStatement(ilProcessor,(BoundGotoStatement)node);
+                EmitGotoStatement(ilProcessor, (BoundGotoStatement)node);
                 break;
             case BoundNodeKind.ConditionalGotoStatement:
-                EmitConditionalGotoStatement(ilProcessor,(BoundConditionalGotoStatement)node);
+                EmitConditionalGotoStatement(ilProcessor, (BoundConditionalGotoStatement)node);
                 break;
             case BoundNodeKind.ReturnStatement:
-                EmitReturnStatement(ilProcessor,(BoundReturnStatement)node);
+                EmitReturnStatement(ilProcessor, (BoundReturnStatement)node);
                 break;
             case BoundNodeKind.ExpressionStatement:
                 EmitExpressionStatement(ilProcessor, (BoundExpressionStatement)node);
@@ -311,7 +310,7 @@ internal sealed class Emitter
     }
     private void EmitReturnStatement(ILProcessor ilProcessor, BoundReturnStatement node)
     {
-        if(node.Expression != null)
+        if (node.Expression != null)
             EmitExpression(ilProcessor, node.Expression);
         ilProcessor.Emit(OpCodes.Ret);
     }
@@ -356,7 +355,7 @@ internal sealed class Emitter
     }
     private void EmitConstantExpression(ILProcessor ilProcessor, BoundExpression node)
     {
-        if(node.Type == TypeSymbol.Bool)
+        if (node.Type == TypeSymbol.Bool)
         {
             var value = (bool)node.ConstantValue.Value;
             var instruction = value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0;
@@ -379,7 +378,7 @@ internal sealed class Emitter
     }
     private void EmitVariableExpression(ILProcessor ilProcessor, BoundVariableExpression node)
     {
-        if(node.Variable is ParameterSymbol parameter)
+        if (node.Variable is ParameterSymbol parameter)
         {
             ilProcessor.Emit(OpCodes.Ldarg, parameter.Ordinal);
         }
@@ -400,20 +399,20 @@ internal sealed class Emitter
     {
         EmitExpression(ilProcessor, node.Operand);
 
-        if(node.Op.Kind == BoundUnaryOperatorKind.Identity)
+        if (node.Op.Kind == BoundUnaryOperatorKind.Identity)
         {
             // Nothing to do
         }
-        else if(node.Op.Kind == BoundUnaryOperatorKind.LogicalNegation)
+        else if (node.Op.Kind == BoundUnaryOperatorKind.LogicalNegation)
         {
             ilProcessor.Emit(OpCodes.Ldc_I4_0);
             ilProcessor.Emit(OpCodes.Ceq);
         }
-        else if(node.Op.Kind == BoundUnaryOperatorKind.Negation)
+        else if (node.Op.Kind == BoundUnaryOperatorKind.Negation)
         {
             ilProcessor.Emit(OpCodes.Neg);
         }
-        else if(node.Op.Kind == BoundUnaryOperatorKind.OnesComplement)
+        else if (node.Op.Kind == BoundUnaryOperatorKind.OnesComplement)
         {
             ilProcessor.Emit(OpCodes.Not);
         }
@@ -425,7 +424,7 @@ internal sealed class Emitter
     private void EmitBinaryExpression(ILProcessor ilProcessor, BoundBinaryExpression node)
     {
 
-        
+
         // +(string, string)
         if (node.Op.Kind == BoundBinaryOperatorKind.Addition)
         {
@@ -682,9 +681,9 @@ internal sealed class Emitter
         _typeDefinition.Fields.Add(_randomFieldDefinition);
 
         var staticConstructor = new MethodDefinition(".cctor",
-                                                     MethodAttributes.Static | 
-                                                     MethodAttributes.Private | 
-                                                     MethodAttributes.SpecialName | 
+                                                     MethodAttributes.Static |
+                                                     MethodAttributes.Private |
+                                                     MethodAttributes.SpecialName |
                                                      MethodAttributes.RTSpecialName,
                                                      _knownTypes[TypeSymbol.Void]);
         _typeDefinition.Methods.Insert(0, staticConstructor);
@@ -705,19 +704,19 @@ internal sealed class Emitter
             ilProcessor.Emit(OpCodes.Box, _knownTypes[node.Expression.Type]);
         }
 
-        if(node.Type == TypeSymbol.Any)
+        if (node.Type == TypeSymbol.Any)
         {
             //Nothing to do.
         }
-        else if(node.Type == TypeSymbol.Bool)
+        else if (node.Type == TypeSymbol.Bool)
         {
             ilProcessor.Emit(OpCodes.Call, _convertToBooleanReference);
         }
-        else if(node.Type == TypeSymbol.Int)
+        else if (node.Type == TypeSymbol.Int)
         {
             ilProcessor.Emit(OpCodes.Call, _convertToInt32Reference);
         }
-        else if(node.Type == TypeSymbol.String)
+        else if (node.Type == TypeSymbol.String)
         {
             ilProcessor.Emit(OpCodes.Call, _convertToStringReference);
         }

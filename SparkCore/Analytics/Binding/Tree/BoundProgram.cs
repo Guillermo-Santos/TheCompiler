@@ -7,7 +7,7 @@ namespace SparkCore.Analytics.Binding.Tree;
 
 internal sealed class BoundProgram
 {
-    public BoundProgram(BoundProgram previous,ImmutableArray<Diagnostic> diagnostics, FunctionSymbol mainFunction, FunctionSymbol scriptFunction, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functions)
+    public BoundProgram(BoundProgram previous, ImmutableArray<Diagnostic> diagnostics, FunctionSymbol mainFunction, FunctionSymbol scriptFunction, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functions)
     {
         Previous = previous;
         Diagnostics = diagnostics;

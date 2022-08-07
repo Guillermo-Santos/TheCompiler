@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SparkCore.IO.Text;
+﻿namespace SparkCore.IO.Text;
 public struct TextSpan
 {
     public TextSpan(int start, int length)
@@ -19,8 +17,8 @@ public struct TextSpan
     }
     public bool OverlapsWith(TextSpan span)
     {
-        return Start < span.End && 
-               End >   span.Start;
+        return Start < span.End &&
+               End > span.Start;
     }
     public override string ToString() => $"{Start}..{End}";
 }

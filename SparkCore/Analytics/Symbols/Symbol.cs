@@ -23,7 +23,7 @@ namespace SparkCore.Analytics.Symbols
         }
         public override string ToString()
         {
-            using(var writer = new StringWriter())
+            using (var writer = new StringWriter())
             {
                 WriteTo(writer);
                 return writer.ToString();

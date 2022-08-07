@@ -1,7 +1,6 @@
 ﻿using SparkCore;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.Analytics.Syntax.Tree.Nodes;
 using SparkCore.IO;
 
 namespace spi.Replies;
@@ -24,14 +23,14 @@ internal sealed class SparkRepl : Repl
     {
         SyntaxTree syntaxTree;
 
-        if(state == null)
+        if (state == null)
         {
             var text = string.Join(Environment.NewLine, lines);
             syntaxTree = SyntaxTree.Parse(text);
         }
         else
         {
-            syntaxTree = (SyntaxTree) state;
+            syntaxTree = (SyntaxTree)state;
         }
 
         var lineSpan = syntaxTree.Text.Lines[lineIndex].Span;
@@ -130,7 +129,7 @@ internal sealed class SparkRepl : Repl
     {
         var compilation = _previous ?? emptyCompilation;
         var function = compilation.GetSymbols().OfType<FunctionSymbol>().SingleOrDefault(f => f.Name == functionName);
-        if(function == null)
+        if (function == null)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"error: function '{functionName}' doesn't exists");
@@ -213,7 +212,7 @@ internal sealed class SparkRepl : Repl
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine($"Loaded {files.Length} submission(s)");
         Console.ResetColor();
-        
+
         _loadingSubmission = true;
 
         foreach (var file in files)
@@ -227,7 +226,7 @@ internal sealed class SparkRepl : Repl
     private static void ClearSubmissions()
     {
         var dir = GetSubmissionsDirectory();
-        if(Directory.Exists(dir))
+        if (Directory.Exists(dir))
             Directory.Delete(dir, recursive: true);
     }
     private void SaveSubmission(string text)

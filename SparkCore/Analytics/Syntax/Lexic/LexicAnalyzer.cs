@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
@@ -110,7 +109,7 @@ internal sealed class LexicAnalyzer
                     break;
             }
             var length = _position - _start;
-            if(length > 0)
+            if (length > 0)
             {
                 var text = _text.ToString(_start, length);
                 var trivia = new SyntaxTrivia(_syntaxTree, _kind, _start, text);
@@ -233,7 +232,7 @@ internal sealed class LexicAnalyzer
                 break;
             case '/':
                 _kind = SyntaxKind.SlashToken;
-                _position++;  
+                _position++;
                 break;
             case '(':
                 _kind = SyntaxKind.OpenParentesisToken;
@@ -378,7 +377,7 @@ internal sealed class LexicAnalyzer
         _position++;
         var sb = new StringBuilder();
         var done = false;
-        
+
         while (!done)
         {
             switch (Current)

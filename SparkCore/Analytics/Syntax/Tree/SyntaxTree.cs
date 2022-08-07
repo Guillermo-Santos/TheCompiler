@@ -10,8 +10,8 @@ namespace SparkCore.Analytics.Syntax.Tree;
 
 public sealed class SyntaxTree
 {
-    private delegate void ParseHandler(SyntaxTree syntaxTree, 
-                                       out CompilationUnitSyntax root, 
+    private delegate void ParseHandler(SyntaxTree syntaxTree,
+                                       out CompilationUnitSyntax root,
                                        out ImmutableArray<Diagnostic> diagnostics);
     private SyntaxTree(SourceText text, ParseHandler handler)
     {
@@ -87,8 +87,8 @@ public sealed class SyntaxTree
                 {
                     root = new CompilationUnitSyntax(st, ImmutableArray<MemberSyntax>.Empty, token);
                 }
-                
-                if(token.Kind != SyntaxKind.EndOfFileToken || inCludeEndOfFile)
+
+                if (token.Kind != SyntaxKind.EndOfFileToken || inCludeEndOfFile)
                     tokens.Add(token);
 
                 if (token.Kind == SyntaxKind.EndOfFileToken)
@@ -96,9 +96,9 @@ public sealed class SyntaxTree
             }
             d = l.Diagnostics.ToImmutableArray();
         }
-        
+
         var syntaxTree = new SyntaxTree(text, ParseTokens);
-        
+
         diagnostics = syntaxTree.Diagnostics.ToImmutableArray();
         return tokens.ToImmutableArray();
     }

@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-
-namespace Forge.ViewModels;
+﻿namespace Forge.ViewModels;
 
 public class ExampleViewModel : BaseViewModel
 {

@@ -1,14 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Forge.Services;
-using Forge.Models;
-using SparkCore.IO.Text;
-using SparkCore.IO.Diagnostics;
-using Microsoft.UI.Xaml.Controls;
-using Forge.Contracts.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Collections.Immutable;
-using CommunityToolkit.Mvvm.Input;
+using Forge.Contracts.Messages;
+using Forge.Models;
+using Forge.Services;
+using SparkCore.IO.Diagnostics;
 
 namespace Forge.ViewModels;
 
@@ -19,7 +16,8 @@ public class MainViewModel : ObservableRecipient
     public ObservableCollection<Diagnostic> Diagnostics { get; private set; } = new();
     public ObservableCollection<Document> Files => fileService.OpenDocuments;
     private Document _selectedDocument;
-    public Document SelectedDocument {
+    public Document SelectedDocument
+    {
         get => _selectedDocument;
         set => SetProperty(ref _selectedDocument, value);
     }
@@ -36,7 +34,7 @@ public class MainViewModel : ObservableRecipient
         fileService.OpenFile(fileService.Files[0]);
 
         SelectedDocument = Files[0];
-        
+
         Messenger.Register<MainViewModel, UpdateDiagnosticsView>(this, (r, m) =>
         {
             r.RefreshDiagnostics(m.Value);

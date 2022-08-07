@@ -1,18 +1,14 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Data;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 using SparkCore.Analytics.Binding.Tree;
 using SparkCore.Analytics.Binding.Tree.Expressions;
 using SparkCore.Analytics.Binding.Tree.Statements;
-using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Symbols;
-using System.CodeDom.Compiler;
-using System.Collections.Immutable;
+using SparkCore.Analytics.Syntax;
 
 namespace SparkCore.Analytics.Binding;
 internal sealed class ControlFlowGraph
@@ -76,7 +72,7 @@ internal sealed class ControlFlowGraph
 
             using (var writter = new StringWriter())
             {
-                using(var indentedWriter = new IndentedTextWriter(writter))
+                using (var indentedWriter = new IndentedTextWriter(writter))
                 {
                     foreach (var statement in Statements)
                     {
@@ -162,7 +158,7 @@ internal sealed class ControlFlowGraph
         }
         private void EndBlock()
         {
-            if(_statements.Count > 0)
+            if (_statements.Count > 0)
             {
                 var block = new BasicBlock();
                 block.Statements.AddRange(_statements);
@@ -205,12 +201,12 @@ internal sealed class ControlFlowGraph
                 }
             }
 
-            for(var i = 0; i < blocks.Count; i++)
+            for (var i = 0; i < blocks.Count; i++)
             {
                 var current = blocks[i];
                 var next = i == blocks.Count - 1 ? _end : blocks[i + 1];
 
-                foreach(var statement in current.Statements)
+                foreach (var statement in current.Statements)
                 {
                     var isLastStatementInBlock = statement == current.Statements.Last();
 
@@ -250,7 +246,7 @@ internal sealed class ControlFlowGraph
             }
 
         ScanAgain:
-            foreach(var block in blocks)
+            foreach (var block in blocks)
             {
                 if (!block.Incoming.Any())
                 {
@@ -330,7 +326,7 @@ internal sealed class ControlFlowGraph
             blockIds.Add(Blocks[i], id);
         }
 
-        foreach(var block in Blocks)
+        foreach (var block in Blocks)
         {
             var id = blockIds[block];
             var label = Quote(block.ToString());
@@ -338,7 +334,7 @@ internal sealed class ControlFlowGraph
         }
 
 
-        foreach(var branch in Branches)
+        foreach (var branch in Branches)
         {
             var fromId = blockIds[branch.From];
             var toId = blockIds[branch.To];
@@ -359,15 +355,15 @@ internal sealed class ControlFlowGraph
 
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
 
-        foreach(var block in graph.Blocks)
+        foreach (var block in graph.Blocks)
         {
-            foreach(var statement in block.Statements)
+            foreach (var statement in block.Statements)
             {
                 statements.Add(statement);
             }
         }
         loweredbody = new BoundBlockStatement(statements.ToImmutable());
-        
+
         return graph;
     }
     // TODO: Eliminar codigo no alcanzable para solucionar problemas de compilacion 
@@ -375,7 +371,7 @@ internal sealed class ControlFlowGraph
     {
         var graph = Create(body, out loweredbody);
 
-        foreach(var branch in graph.End.Incoming)
+        foreach (var branch in graph.End.Incoming)
         {
             var lastStatement = branch.From.Statements.LastOrDefault();
 

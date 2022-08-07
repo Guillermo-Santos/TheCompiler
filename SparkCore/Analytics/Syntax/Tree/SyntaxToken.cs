@@ -8,7 +8,7 @@ namespace SparkCore.Analytics.Syntax.Tree;
 public sealed class SyntaxToken : SyntaxNode
 {
     public SyntaxToken(SyntaxTree syntaxTree, SyntaxKind type, int position, string text, object value, ImmutableArray<SyntaxTrivia> leadingTrivia, ImmutableArray<SyntaxTrivia> trailingTrivia)
-        :base(syntaxTree)
+        : base(syntaxTree)
     {
         Kind = type;
         Position = position;
@@ -39,17 +39,17 @@ public sealed class SyntaxToken : SyntaxNode
     {
         get
         {
-            var start = LeadingTrivia.Length == 0 
+            var start = LeadingTrivia.Length == 0
                             ? Span.Start
                             : LeadingTrivia.First().Span.Start;
-            var end = TrailingTrivia.Length == 0 
+            var end = TrailingTrivia.Length == 0
                             ? Span.End
                             : TrailingTrivia.Last().Span.End;
             return TextSpan.FromBounds(start, end);
         }
     }
     public ImmutableArray<SyntaxTrivia> LeadingTrivia
-    { 
+    {
         get;
     }
 

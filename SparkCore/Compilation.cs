@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -11,7 +10,6 @@ using SparkCore.Analytics.Emit;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO.Diagnostics;
-using ReflectionBindingFlags = System.Reflection.BindingFlags;
 
 namespace SparkCore;
 
@@ -42,7 +40,10 @@ public class Compilation
     {
         get;
     }
-    public ImmutableArray<SyntaxTree> SyntaxTrees { get; }
+    public ImmutableArray<SyntaxTree> SyntaxTrees
+    {
+        get;
+    }
     public FunctionSymbol MainFunction => GlobalScope.MainFunction;
     public ImmutableArray<FunctionSymbol> Functions => GlobalScope.Functions;
     public ImmutableArray<VariableSymbol> Variables => GlobalScope.Variables;
@@ -71,13 +72,13 @@ public class Compilation
         {
             foreach (var function in submission.Functions)
             {
-                if(seenSymbolNames.Add(function.Name))
+                if (seenSymbolNames.Add(function.Name))
                     yield return function;
             }
 
             foreach (var variable in submission.Variables)
             {
-                if(seenSymbolNames.Add(variable.Name))
+                if (seenSymbolNames.Add(variable.Name))
                     yield return variable;
             }
 

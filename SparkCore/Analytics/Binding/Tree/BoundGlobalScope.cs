@@ -21,13 +21,28 @@ internal sealed class BoundGlobalScope
     {
         get;
     }
-    public ImmutableArray<Diagnostic> Diagnostics { get; }
-    public FunctionSymbol MainFunction { get; }
+    public ImmutableArray<Diagnostic> Diagnostics
+    {
+        get;
+    }
+    public FunctionSymbol MainFunction
+    {
+        get;
+    }
     public FunctionSymbol ScriptFunction
     {
         get;
     }
-    public ImmutableArray<FunctionSymbol> Functions { get; }
-    public ImmutableArray<VariableSymbol> Variables { get; }
-    public ImmutableArray<BoundStatement> Statements { get; }
+    public ImmutableArray<FunctionSymbol> Functions
+    {
+        get;
+    }
+    public ImmutableArray<VariableSymbol> Variables
+    {
+        get;
+    }
+    public ImmutableArray<BoundStatement> Statements
+    {
+        get;
+    }
 }

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SparkCore.Analytics.Syntax;
-using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO.Diagnostics;
 using SparkCore.IO.Text;
 
@@ -22,13 +18,13 @@ public static class TextWriterExtensions
         if (writter == Console.Error)
             return !Console.IsErrorRedirected && !Console.IsOutputRedirected;
 
-        if(writter is IndentedTextWriter iw && iw.InnerWriter.IsConsole())
+        if (writter is IndentedTextWriter iw && iw.InnerWriter.IsConsole())
             return true;
         return false;
     }
     private static void SetForeground(this TextWriter writer, ConsoleColor color)
     {
-        if(writer.IsConsole())
+        if (writer.IsConsole())
             Console.ForegroundColor = color;
     }
     private static void ResetColor(this TextWriter writer)
@@ -81,7 +77,7 @@ public static class TextWriterExtensions
 
     public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics)
     {
-        foreach(var diagnostic in diagnostics.Where(d => d.Location.Text == null))
+        foreach (var diagnostic in diagnostics.Where(d => d.Location.Text == null))
         {
             writer.SetForeground(ConsoleColor.DarkRed);
             writer.Write(diagnostic.Message);
@@ -100,7 +96,7 @@ public static class TextWriterExtensions
             var startChar = diagnostic.Location.StartCharacter + 1;
             var endLine = diagnostic.Location.EndLine + 1;
             var endChar = diagnostic.Location.EndCharacter + 1;
-            
+
             var Span = diagnostic.Location.Span;
             var lineIndex = text.GetLineIndex(Span.Start);
             var line = text.Lines[lineIndex];

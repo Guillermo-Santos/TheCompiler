@@ -1,9 +1,7 @@
-﻿using SparkCore;
-using SparkCore.IO;
-using SparkCore.Analytics.Symbols;
+﻿using Mono.Options;
+using SparkCore;
 using SparkCore.Analytics.Syntax.Tree;
-using Mono.Options;
-using Mono.Cecil.Pdb;
+using SparkCore.IO;
 
 namespace spc;
 
@@ -34,13 +32,13 @@ internal static class Program
             return 0;
         }
 
-        if(sourcePaths.Count == 0)
+        if (sourcePaths.Count == 0)
         {
             Console.Error.WriteLine("error: need at least a path to compile.");
             return 1;
         }
 
-        if(outputPath == null)
+        if (outputPath == null)
         {
             outputPath = Path.ChangeExtension(sourcePaths[0], ".il");
         }
@@ -50,9 +48,9 @@ internal static class Program
         }
 
         var syntaxTrees = new List<SyntaxTree>();
-        
+
         var hasErrors = false;
-        foreach(var path in sourcePaths)
+        foreach (var path in sourcePaths)
         {
             if (!File.Exists(path))
             {
@@ -64,7 +62,7 @@ internal static class Program
             syntaxTrees.Add(syntaxTree);
         }
 
-        foreach(var path in referencePaths)
+        foreach (var path in referencePaths)
         {
             if (!File.Exists(path))
             {

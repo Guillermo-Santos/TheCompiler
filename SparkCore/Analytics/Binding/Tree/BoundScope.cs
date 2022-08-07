@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using SparkCore.Analytics.Symbols;
 using System.Linq;
+using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Binding.Tree;
 
@@ -18,7 +18,7 @@ internal sealed class BoundScope
         Parent = parent;
     }
     public bool TryDeclareVariable(VariableSymbol variable) => TryDeclareSymbol(variable);
-    public bool TryDeclareFunction(FunctionSymbol function) => TryDeclareSymbol(function);   
+    public bool TryDeclareFunction(FunctionSymbol function) => TryDeclareSymbol(function);
 
     private bool TryDeclareSymbol<TSymbol>(TSymbol symbol)
           where TSymbol : Symbol
