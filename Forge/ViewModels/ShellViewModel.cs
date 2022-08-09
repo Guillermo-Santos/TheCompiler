@@ -2,13 +2,13 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
+using Forge;
 using Forge.Contracts.Services;
-
+using Forge.ViewModels;
+using Forge.Views;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-
-namespace Forge.ViewModels;
 
 public class ShellViewModel : ObservableRecipient
 {
@@ -20,16 +20,6 @@ public class ShellViewModel : ObservableRecipient
     }
 
     public ICommand MenuSettingsCommand
-    {
-        get;
-    }
-
-    public ICommand MenuViewsExampleCommand
-    {
-        get;
-    }
-
-    public ICommand MenuViewsMainCommand
     {
         get;
     }
@@ -52,17 +42,21 @@ public class ShellViewModel : ObservableRecipient
 
         MenuFileExitCommand = new RelayCommand(OnMenuFileExit);
         MenuSettingsCommand = new RelayCommand(OnMenuSettings);
-        MenuViewsExampleCommand = new RelayCommand(OnMenuViewsExample);
-        MenuViewsMainCommand = new RelayCommand(OnMenuViewsMain);
     }
 
     private void OnNavigated(object sender, NavigationEventArgs e) => IsBackEnabled = NavigationService.CanGoBack;
 
     private void OnMenuFileExit() => Application.Current.Exit();
 
-    private void OnMenuSettings() => NavigationService.NavigateTo(typeof(SettingsViewModel).FullName!);
-
-    private void OnMenuViewsExample() => NavigationService.NavigateTo(typeof(FileViewModel).FullName!);
-
-    private void OnMenuViewsMain() => NavigationService.NavigateTo(typeof(MainViewModel).FullName!);
+    private void OnMenuSettings()
+    {
+        if(NavigationService.Frame.Content is SettingsPage)
+        {
+            NavigationService.GoBack();
+        }
+        else
+        {
+            NavigationService.NavigateTo(typeof(SettingsViewModel).FullName!);
+        }
+    }
 }
