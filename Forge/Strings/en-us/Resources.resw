@@ -180,4 +180,10 @@
     <value>Settings</value>
     <comment>Page title for SettingsPage</comment>
   </data>
+  <data name="ShellMenuItem_File_NewProj.Text" xml:space="preserve">
+    <value>New Project</value>
+  </data>
+  <data name="ShellMenuItem_File_OpenProj.Text" xml:space="preserve">
+    <value>Open Project</value>
+  </data>
 </root>

@@ -3,16 +3,17 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Forge.Contracts.Messages;
-using Forge.Models;
+using Forge.Contracts.ViewModels;
+using Forge.Core.Models;
 using Forge.Services;
 using SparkCore.IO.Diagnostics;
 
 namespace Forge.ViewModels;
 
-public class MainViewModel : ObservableRecipient
+public class MainViewModel : ObservableRecipient, INavigationAware
 {
     readonly SparkFileService fileService = SparkFileService.Instance;
-
+    public ProjectService ProjectService = ProjectService.Instance;
     public ObservableCollection<Diagnostic> Diagnostics { get; private set; } = new();
     public ObservableCollection<Document> Files => fileService.OpenDocuments;
     private Document _selectedDocument;
@@ -23,18 +24,6 @@ public class MainViewModel : ObservableRecipient
     }
     public MainViewModel()
     {
-        fileService.AddFile(new("archivo1", ""));
-        fileService.AddFile(new("archivo2", ""));
-        fileService.AddFile(new("archivo3", ""));
-        fileService.AddFile(new("archivo4", ""));
-        fileService.OpenFile(fileService.Files[0]);
-        fileService.OpenFile(fileService.Files[1]);
-        fileService.OpenFile(fileService.Files[2]);
-        fileService.OpenFile(fileService.Files[3]);
-        fileService.OpenFile(fileService.Files[0]);
-
-        SelectedDocument = Files[0];
-
         Messenger.Register<MainViewModel, UpdateDiagnosticsView>(this, (r, m) =>
         {
             r.RefreshDiagnostics(m.Value);
@@ -56,5 +45,14 @@ public class MainViewModel : ObservableRecipient
         var document = fileService.OpenFile(diagnostic);
         SelectedDocument = document;
         Messenger.Send(new BringDiagnosticIntoView(diagnostic));
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
+        SelectedDocument = null;
+    }
+    public void OnNavigatedFrom()
+    {
+        SelectedDocument = null;
     }
 }

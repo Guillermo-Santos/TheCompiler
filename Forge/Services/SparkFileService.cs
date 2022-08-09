@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Forge.Models;
+using Forge.Core.Models;
 using SparkCore.IO.Diagnostics;
+using Windows.Storage.Pickers;
 
 namespace Forge.Services;
 public sealed class SparkFileService : ObservableObject
@@ -29,7 +30,7 @@ public sealed class SparkFileService : ObservableObject
 
     public void SetText(string fileName, string text)
     {
-        Files.First(f => f.FileName == fileName).Text = text;
+        Files.First(f => f.Path == fileName).Text = text;
     }
     public void AddFile(Document document) => Files.Add(document);
     public void RemoveFile(Document document)
@@ -52,7 +53,7 @@ public sealed class SparkFileService : ObservableObject
     public Document OpenFile(Diagnostic diagnostic)
     {
         var sourceText = diagnostic.Location.Text;
-        var document = Files.First(doc => doc.FileName.Equals(sourceText.FileName) && doc.Text.Equals(sourceText.ToString()));
+        var document = Files.First(doc => doc.Path.Equals(sourceText.FileName) && doc.Text.Equals(sourceText.ToString()));
         OpenFile(document);
         return document;
     }

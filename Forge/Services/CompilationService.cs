@@ -28,4 +28,9 @@ internal class CompilationService
         var project = new Project(msbuildFile.FullName, properties, "4.0");
         return project.Build(targets, new ILogger[] { new ConsoleLogger(loggerVerbosity) });
     }
+
+    public IEnumerable<string> GetStrings()
+    {
+        return new List<string>();
+    }
 }
