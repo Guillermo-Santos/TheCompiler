@@ -1,4 +1,5 @@
-﻿using Forge.Core.Models;
+﻿using System.Reflection;
+using Forge.Core.Models;
 using Forge.Services;
 using Forge.ViewModels;
 using Microsoft.UI.Xaml.Controls;
@@ -21,17 +22,8 @@ public sealed partial class MainPage : Page
         InitializeComponent();
     }
 
-    private void TabView_AddTabButtonClick(TabView sender, object args)
-    {
-        ProjectService.Instance.LoadProject();
-        var document = new Document("New Document", "");
-        SparkFileService.Instance.AddFile(document);
-        SparkFileService.Instance.OpenFile(document);
-    }
-
     private void TabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        // LoadFileAsync();
         SparkFileService.Instance.CloseFile(args.Item as Document);
     }
     private async Task<StorageFolder> LoadFileAsync()

@@ -61,6 +61,8 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <Capability Name="codeGeneration"/>
+    <iot:Capability Name="systemManagement"/>
   </Capabilities>
 
   <genTemplate:Metadata>

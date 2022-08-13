@@ -1,0 +1,30 @@
+﻿<ContentDialog
+    x:Class="Forge.Views.NewProjectContentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Forge.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    PrimaryButtonText="Create"
+    SecondaryButtonText="Cancel"
+    DefaultButton="Primary"
+    Title="New Project">
+
+    <StackPanel Width="auto">
+        <TextBlock Text="Project name:"/>
+        <TextBox x:Name="ProjectName" PlaceholderText="Project Name" Text="{x:Bind ViewModel.ProjectName, Mode=TwoWay}" KeyUp="ProjectName_KeyUp" TextChanging="ProjectName_TextChanging"/>
+        <StackPanel Orientation="Horizontal" Padding="2">
+            <StackPanel>
+                <TextBlock Text="Project path:"/>
+                <TextBox x:Name="ProjectPath" 
+                     Text="{x:Bind ViewModel.ProjectPath, Mode=OneWay}"
+                     Width="370" 
+                     MaxWidth="370"
+                     IsReadOnly="True"/>
+            </StackPanel>
+            <Button Content="Browse" Width="68"/>
+        </StackPanel>
+    </StackPanel>
+</ContentDialog>

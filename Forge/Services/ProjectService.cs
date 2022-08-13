@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Forge.Core.Models;
+using Forge.Views;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Popups;
@@ -33,11 +34,15 @@ public sealed class ProjectService: ObservableRecipient
         var projFile = await LoadFileAsync(projectExtension);
         if (projFile == null)
             return;
-        var projDirectory = Path.GetDirectoryName(projFile.Path);
+        var projDirectoryPath = Path.GetDirectoryName(projFile.Path);
         ProjectRoot.Clear();
-        ProjectRoot.Add(GetFolder(projDirectory));
+        ProjectRoot.Add(GetFolder(projDirectoryPath));
     }
-
+    public void LoadProject(string path)
+    {
+        ProjectRoot.Clear();
+        ProjectRoot.Add(GetFolder(path));
+    }
     private static Folder GetFolder(string? path)
     {
         var directions = ImmutableArray.CreateBuilder<Direction>();
@@ -64,6 +69,10 @@ public sealed class ProjectService: ObservableRecipient
     }
     private async Task<StorageFile> LoadFileAsync(string fileExtension)
     {
+        if (!a)
+        {
+            await App.MainWindow.CreateMessageDialog("No se compilo").ShowAsync();
+        }
         var FilePicker = App.MainWindow.CreateOpenFilePicker();
         FilePicker.ViewMode = PickerViewMode.Thumbnail;
         FilePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;

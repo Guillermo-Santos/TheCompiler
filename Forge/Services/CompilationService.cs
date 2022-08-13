@@ -1,36 +1,59 @@
-﻿using Microsoft.Build.Evaluation;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Logging;
-using Microsoft.Build.Utilities;
+﻿using System.Diagnostics;
+using Forge.Views;
+using System;
+using SparkCore.Analytics.Syntax.Tree;
+using SparkCore;
+using System.Reflection;
 
 namespace Forge.Services;
 internal class CompilationService
 {
-    public bool Run(FileInfo msbuildFile, string[] targets = null, IDictionary<string, string> properties = null, LoggerVerbosity loggerVerbosity = LoggerVerbosity.Detailed)
+    public enum BuildType
     {
-        if (!msbuildFile.Exists) throw new ArgumentException("msbuildFile does not exist");
-
-        if (targets == null)
-        {
-            targets = new string[] { };
-        }
-        if (properties == null)
-        {
-            properties = new Dictionary<string, string>();
-        }
-        var toolsetVersion = ToolLocationHelper.CurrentToolsVersion;
-        var msbuildDir = ToolLocationHelper.GetPathToBuildTools(toolsetVersion);
-        Console.Out.WriteLine("Running {0} targets: {1} properties: {2}, cwd: {3}",
-                              msbuildFile.FullName,
-                              string.Join(",", targets),
-                              string.Join(",", properties),
-                              Environment.CurrentDirectory);
-        var project = new Project(msbuildFile.FullName, properties, "4.0");
-        return project.Build(targets, new ILogger[] { new ConsoleLogger(loggerVerbosity) });
+        BuildDeploy,
+        Build,
+        Deploy,
     }
-
-    public IEnumerable<string> GetStrings()
+    public static async Task<bool> Build(BuildType buildType, string projectFile)//FileInfo msbuildFile, string[] targets = null, IDictionary<string, string> properties = null, LoggerVerbosity loggerVerbosity = LoggerVerbosity.Detailed)
     {
-        return new List<string>();
+        var action = string.Empty;
+        switch (buildType)
+        {
+            case BuildType.Build:
+                action = "build";
+                break;
+            case BuildType.Deploy:
+                action = "run --no-build";
+                break;
+            case BuildType.BuildDeploy:
+                action = "run";
+                break;
+        }
+        projectFile = @"D:\Aplicaciones\Microsoft Visual Studio\Projects\Compiler\Samples\hello\hello.spksproj";
+        var startInfo = new ProcessStartInfo()
+        {
+            FileName = $"cmd",
+            Arguments = $"/C dotnet {action} --project \"{projectFile}\" &&pause",
+            RedirectStandardOutput = false,
+            RedirectStandardError = true,
+        };
+
+        try
+        {
+            using (var process = Process.Start(startInfo))
+            {
+                await process!.WaitForExitAsync();
+                if(process.ExitCode != 0)
+                {
+                    await App.MainWindow.CreateMessageDialog(process.StandardError.ReadToEnd()).ShowAsync();
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

@@ -51,7 +51,7 @@
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" BorderThickness="1" Padding="5">
                 <TabView x:Name="codeTabs"
-                         AddTabButtonClick="TabView_AddTabButtonClick" 
+                         IsAddTabButtonVisible="False"
                          CloseButtonOverlayMode="OnPointerOver"
                          TabCloseRequested="TabView_TabCloseRequested"
                          HorizontalAlignment="Stretch"

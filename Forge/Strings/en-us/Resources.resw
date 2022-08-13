@@ -186,4 +186,10 @@
   <data name="ShellMenuItem_File_OpenProj.Text" xml:space="preserve">
     <value>Open Project</value>
   </data>
+  <data name="ShellMenuItem_File_SaveAllFiles.Text" xml:space="preserve">
+    <value>Save All</value>
+  </data>
+  <data name="ShellMenuItem_File_SaveFile.Text" xml:space="preserve">
+    <value>Save current file</value>
+  </data>
 </root>
