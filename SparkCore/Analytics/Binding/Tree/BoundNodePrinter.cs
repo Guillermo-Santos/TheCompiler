@@ -94,12 +94,12 @@ internal static class BoundNodePrinter
     private static void WriteNestedStatement(this IndentedTextWriter writer, BoundStatement node)
     {
         var needsIndentation = !(node is BoundBlockStatement);
-        
+
         if (needsIndentation)
             writer.Indent++;
 
         node.WriteTo(writer);
-        
+
         if (needsIndentation)
             writer.Indent--;
     }
@@ -132,7 +132,7 @@ internal static class BoundNodePrinter
         writer.WritePunctuation(SyntaxKind.OpenBraceToken);
         writer.WriteLine();
         writer.Indent++;
-        foreach(var s in node.Statements)
+        foreach (var s in node.Statements)
         {
             s.WriteTo(writer);
         }
@@ -163,7 +163,7 @@ internal static class BoundNodePrinter
         node.Condition.WriteTo(writer);
         writer.WriteLine();
         writer.WriteNestedStatement(node.ThenStatement);
-        if(node.ElseStatement != null)
+        if (node.ElseStatement != null)
         {
             writer.WriteKeyword(SyntaxKind.ElseKeyword);
             writer.WriteLine();
@@ -239,7 +239,7 @@ internal static class BoundNodePrinter
     private static void WriteReturnStatement(BoundReturnStatement node, IndentedTextWriter writer)
     {
         writer.WriteKeyword(SyntaxKind.ReturnKeyword);
-        if(node.Expression != null)
+        if (node.Expression != null)
         {
             writer.WriteSpace();
             node.Expression.WriteTo(writer);
@@ -257,16 +257,16 @@ internal static class BoundNodePrinter
     }
     private static void WriteLiteralExpression(BoundLiteralExpression node, IndentedTextWriter writer)
     {
-        var value = node.Value.ToString();
+        var value = node.Value.ToString()!;
         if (node.Type == TypeSymbol.Bool)
         {
             writer.WriteKeyword((bool)node.Value ? SyntaxKind.TrueKeyword : SyntaxKind.FalseKeyword);
         }
-        else if(node.Type == TypeSymbol.Int)
+        else if (node.Type == TypeSymbol.Int)
         {
             writer.WriteNumber(value);
         }
-        else if(node.Type == TypeSymbol.String) 
+        else if (node.Type == TypeSymbol.String)
         {
             value = "\"" + value.Replace("\"", "\"\"") + "\"";
             writer.WriteString(value);
@@ -310,7 +310,7 @@ internal static class BoundNodePrinter
         writer.WriteIdentifier(node.Function.Name);
         writer.WritePunctuation(SyntaxKind.OpenParentesisToken);
         var isFirst = true;
-        foreach(var argument in node.Arguments)
+        foreach (var argument in node.Arguments)
         {
             if (isFirst)
             {

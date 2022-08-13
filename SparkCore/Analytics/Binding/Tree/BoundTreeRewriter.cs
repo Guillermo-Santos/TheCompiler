@@ -40,10 +40,10 @@ internal abstract class BoundTreeRewriter
         }
     }
 
-  
+
     protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)
     {
-        ImmutableArray<BoundStatement>.Builder builder = null;
+        ImmutableArray<BoundStatement>.Builder? builder = null;
 
         for (var i = 0; i < node.Statements.Length; i++)
         {
@@ -134,7 +134,7 @@ internal abstract class BoundTreeRewriter
         if (body == node.Body && condition == node.Condition)
             return node;
 
-        return new BoundDoWhileStatement(body,condition, node.BreakLabel, node.ContinueLabel);
+        return new BoundDoWhileStatement(body, condition, node.BreakLabel, node.ContinueLabel);
     }
     protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
     {
@@ -207,7 +207,7 @@ internal abstract class BoundTreeRewriter
     }
     protected virtual BoundExpression RewriteCallExpression(BoundCallExpression node)
     {
-        ImmutableArray<BoundExpression>.Builder builder = null;
+        ImmutableArray<BoundExpression>.Builder? builder = null;
 
         for (var i = 0; i < node.Arguments.Length; i++)
         {

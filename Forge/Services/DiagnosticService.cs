@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SparkCore;
-using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.IO.Diagnostics;
-using Microsoft.UI.Xaml;
-using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Controls;
+﻿using System.Collections.Immutable;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Forge.Contracts.Messages;
-using System.Collections.Immutable;
+using Microsoft.UI.Xaml;
+using SparkCore;
+using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.IO.Diagnostics;
 
 namespace Forge.Services;
 public sealed class DiagnosticService : ObservableRecipient
@@ -24,15 +18,15 @@ public sealed class DiagnosticService : ObservableRecipient
         CheckErrors.Interval = new(0, 0, 0, 0, 500);
         CheckErrors.Tick += UpdateDiagnostics;
         CheckErrors.Start();
-        Messenger.Register<DiagnosticService, UpdateDiagnosticsRequest>(this, (r,m) => r.ResetTimer());
+        Messenger.Register<DiagnosticService, UpdateDiagnosticsRequest>(this, (r, m) => r.ResetTimer());
     }
 
-    public static DiagnosticService Instance => _instance ??=(_instance = new DiagnosticService());
+    public static DiagnosticService Instance => _instance ??= (_instance = new DiagnosticService());
 
     private readonly Dictionary<string, ImmutableArray<Diagnostic>> Diagnostics = new();
     public ImmutableArray<Diagnostic> GetDiagnostics(string fileName)
     {
-        if(Diagnostics.ContainsKey(fileName))
+        if (Diagnostics.ContainsKey(fileName))
         {
             return Diagnostics[fileName];
         }

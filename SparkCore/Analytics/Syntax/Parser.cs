@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using SparkCore.Analytics.Syntax.Lexic;
 using SparkCore.Analytics.Syntax.Tree;
@@ -27,7 +26,7 @@ internal sealed class Parser
         do
         {
             token = lexer.Lex();
-            if(token.Kind == SyntaxKind.BadToken)
+            if (token.Kind == SyntaxKind.BadToken)
             {
                 badTokens.Add(token);
             }
@@ -38,9 +37,9 @@ internal sealed class Parser
                     var leadingTrivia = token.LeadingTrivia.ToBuilder();
                     var index = 0;
 
-                    foreach(var badToken in badTokens)
+                    foreach (var badToken in badTokens)
                     {
-                        foreach(var lt in badToken.LeadingTrivia)
+                        foreach (var lt in badToken.LeadingTrivia)
                             leadingTrivia.Insert(index++, lt);
 
                         var trivia = new SyntaxTrivia(syntaxTree, SyntaxKind.SkippedTextTrivia, badToken.Position, badToken.Text);
@@ -104,7 +103,7 @@ internal sealed class Parser
             var startToken = Current;
 
             var member = ParseMember();
-   
+
 
             members.Add(member);
             // If ParseMember() did not consume any tokens,
@@ -151,7 +150,7 @@ internal sealed class Parser
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
 
         var parseNextParameter = true;
-        while (parseNextParameter && 
+        while (parseNextParameter &&
                Current.Kind != SyntaxKind.CloseParentesisToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {
@@ -252,7 +251,7 @@ internal sealed class Parser
 
         return new VariableDeclarationStatementSyntax(_syntaxTree, keyword, identifier, typeClause, equals, initializer);
     }
-    private TypeClauseSyntax ParseOptionalTypeClause()
+    private TypeClauseSyntax? ParseOptionalTypeClause()
     {
         if (Current.Kind != SyntaxKind.ColonToken)
             return null;
@@ -272,11 +271,11 @@ internal sealed class Parser
         var keyword = MatchToken(SyntaxKind.IfKeyword);
         var condition = ParseExpression();
         var statement = ParseStatement();
-        var elseClause = ParseElseClause();
+        var elseClause = ParseOptionalElseClause();
 
         return new IfStatementSyntax(_syntaxTree, keyword, condition, statement, elseClause);
     }
-    private ElseClauseSyntax ParseElseClause()
+    private ElseClauseSyntax? ParseOptionalElseClause()
     {
         if (Current.Kind != SyntaxKind.ElseKeyword)
             return null;
@@ -445,7 +444,7 @@ internal sealed class Parser
         var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
 
         var parseNextArgument = true;
-        while (parseNextArgument && 
+        while (parseNextArgument &&
                Current.Kind != SyntaxKind.CloseParentesisToken &&
                Current.Kind != SyntaxKind.EndOfFileToken)
         {

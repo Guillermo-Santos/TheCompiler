@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using SparkCore.Analytics.Binding;
 using SparkCore.Analytics.Binding.Tree;
 using SparkCore.Analytics.Binding.Tree.Expressions;
@@ -27,7 +26,7 @@ internal class Evaluator
 
         var current = program;
 
-        while(current != null)
+        while (current != null)
         {
             foreach (var kv in current.Functions)
             {
@@ -41,10 +40,10 @@ internal class Evaluator
     public object Evaluate()
     {
         var function = _program.MainFunction ?? _program.ScriptFunction;
-        
+
         if (function == null)
             return null;
-        
+
         var body = _functions[function];
 
         return EvaluateStatement(body);
@@ -144,7 +143,7 @@ internal class Evaluator
     }
     private object EvaluateVariableExprression(BoundVariableExpression v)
     {
-        if(v.Variable.Kind == SymbolKind.GlobalVariable)
+        if (v.Variable.Kind == SymbolKind.GlobalVariable)
         {
             return _globals[v.Variable];
         }
@@ -251,7 +250,7 @@ internal class Evaluator
         else
         {
             var locals = new Dictionary<VariableSymbol, object>();
-            for (var i = 0; i< node.Arguments.Length; i++)
+            for (var i = 0; i < node.Arguments.Length; i++)
             {
                 var parameter = node.Function.Parameters[i];
                 var value = EvaluateExpression(node.Arguments[i]);

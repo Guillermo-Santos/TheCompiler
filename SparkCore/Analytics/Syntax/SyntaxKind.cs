@@ -40,7 +40,7 @@ public enum SyntaxKind
     LessOrEqualsToken,
     GreaterToken,
     GreaterOrEqualsToken,
-    
+
     //KEYWORDS
     BreakKeyword,
     ContinueKeyword,

@@ -3,6 +3,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Forge.Contracts.Services;
+using Forge.Contracts.ViewModels;
 using Forge.Helpers;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;

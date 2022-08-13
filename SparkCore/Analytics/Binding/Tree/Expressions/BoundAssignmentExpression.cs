@@ -1,5 +1,4 @@
-﻿using System;
-using SparkCore.Analytics.Symbols;
+﻿using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Binding.Tree.Expressions
 {

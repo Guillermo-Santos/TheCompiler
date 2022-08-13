@@ -1,28 +1,18 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
+using CommunityToolkit.Mvvm.Messaging;
+using Forge.Contracts.Messages;
+using Forge.Core.Helpers;
+using Forge.Core.Models;
+using Forge.Services;
 using Microsoft.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using SparkCore;
-using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Syntax.Tree;
-using SparkCore.IO;
 using SparkCore.IO.Diagnostics;
 using SparkCore.IO.Text;
 using Windows.UI;
-using Windows.UI.WebUI;
-using Forge.Core.Helpers;
-using Forge.Core.Models;
-using Forge.Services;
-using Forge.Contracts.Messages;
-using CommunityToolkit.Mvvm.Messaging;
 
 namespace Forge.ViewModels;
 public class FileViewModel : BaseViewModel
@@ -75,7 +65,7 @@ public class FileViewModel : BaseViewModel
         CodeEditBox.Document.Selection.SetRange(startPosition, endPosition);
     }
 
-    public FileViewModel(string fileName, string text):this()
+    public FileViewModel(string fileName, string text) : this()
     {
         FileName = fileName;
         Text = text;
@@ -122,7 +112,7 @@ public class FileViewModel : BaseViewModel
             return lines.ToImmutable();
         }
         var dlines = ImmutableArray.CreateBuilder<TextLine>();
-        foreach(var diagnostic in diagnostics)
+        foreach (var diagnostic in diagnostics)
         {
             var lines = GetTextLines(diagnostic.Location.StartLine, diagnostic.Location.EndLine);
             dlines.AddRange(lines);
@@ -182,7 +172,7 @@ public class FileViewModel : BaseViewModel
     {
         sender.Document.Selection.GetPoint(HorizontalCharacterAlignment.Left, VerticalCharacterAlignment.Baseline, PointOptions.ClientCoordinates, out var point);
         var position = sender.Document.GetRangeFromPoint(point, PointOptions.ClientCoordinates);
-        foreach(var diagnostic in diagnostics)
+        foreach (var diagnostic in diagnostics)
         {
             sender.Document.Selection.StartPosition = diagnostic.Location.Span.Start;
             sender.Document.Selection.EndPosition = diagnostic.Location.Span.End;

@@ -5,8 +5,6 @@ using Forge.Helpers;
 using Forge.Models;
 
 using Microsoft.Extensions.Options;
-
-using Windows.ApplicationModel;
 using Windows.Storage;
 
 namespace Forge.Services;

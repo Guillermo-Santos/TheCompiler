@@ -7,17 +7,42 @@
     xmlns:text="using:SparkCore.IO.Text"
     xmlns:diag="using:SparkCore.IO.Diagnostics"
     xmlns:local="using:Forge.Views" 
-    xmlns:models="using:Forge.Models"
+    xmlns:models="using:Forge.Core.Models"
+    xmlns:helpers="using:Forge.Helpers"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="FolderTemplate" x:DataType="models:Folder">
+            <TreeViewItem AutomationProperties.Name="{x:Bind FolderName}"
+                          ItemsSource="{x:Bind Directions}" IsExpanded="True">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/folder.png" Height="20" Width="20"/>
+                    <TextBlock Margin="0,0,10,0"/>
+                    <TextBlock Text="{x:Bind FolderName}" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="DocumentTemplate" x:DataType="models:Document">
+            <TreeViewItem AutomationProperties.Name="{x:Bind FileName}">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Assets/file.png" Height="20" Width="20"/>
+                    <TextBlock Margin="0,0,10,0"/>
+                    <TextBlock Text="{x:Bind FileName}"/>
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+        <helpers:ProjectFileTemplateSelector x:Key="ItemTemplateSelector"
+                                    FolderTemplate="{StaticResource FolderTemplate}"
+                                    DocumentTemplate="{StaticResource DocumentTemplate}"
+        />
+    </Page.Resources>
     <Grid x:Name="ContentArea" ColumnSpacing="3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150*" MaxWidth="250" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" BorderThickness="1" BorderBrush="DimGray">
-            <TextBlock Text="Proyecto"/>
-            <TreeView/>
+            <TreeView x:Name="ProjView" ItemsSource="{x:Bind ViewModel.ProjectService.ProjectRoot}" ItemTemplateSelector="{StaticResource ItemTemplateSelector}" Height="auto" CanDragItems="False" AllowDrop="False"/>
         </Grid>
         <Grid Grid.Column="1" RowSpacing="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
@@ -26,7 +51,7 @@
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" BorderThickness="1" Padding="5">
                 <TabView x:Name="codeTabs"
-                         AddTabButtonClick="TabView_AddTabButtonClick" 
+                         IsAddTabButtonVisible="False"
                          CloseButtonOverlayMode="OnPointerOver"
                          TabCloseRequested="TabView_TabCloseRequested"
                          HorizontalAlignment="Stretch"
@@ -37,7 +62,7 @@
                         <DataTemplate x:DataType="models:Document">
                             <TabViewItem Header="{x:Bind FileName}">
                                 <TabViewItem.Content>
-                                    <local:FilePage FileName="{x:Bind FileName}" Text="{x:Bind Text}"/>
+                                    <local:FilePage FileName="{x:Bind Path}" Text="{x:Bind Text}"/>
                                 </TabViewItem.Content>
                             </TabViewItem>
                         </DataTemplate>

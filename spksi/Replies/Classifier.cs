@@ -23,7 +23,7 @@ public sealed class Classifier
         {
             ClassifyToken(token, span, result);
         }
-        foreach(var child in node.GetChildren())
+        foreach (var child in node.GetChildren())
         {
             ClassifyNode(child, span, result);
         }
@@ -66,17 +66,17 @@ public sealed class Classifier
     {
         return elementKind switch
         {
-            SyntaxKind.IdentifierToken 
+            SyntaxKind.IdentifierToken
                 => Classification.Identifier,
-            SyntaxKind.NumberToken 
+            SyntaxKind.NumberToken
                 => Classification.Number,
-            SyntaxKind.StringToken 
+            SyntaxKind.StringToken
                 => Classification.String,
-            SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia 
+            SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia
                 => Classification.Comment,
-            _ => elementKind.IsKeyWord() 
-                    ? Classification.Keyword 
-                : elementKind.IsOperator() 
+            _ => elementKind.IsKeyWord()
+                    ? Classification.Keyword
+                : elementKind.IsOperator()
                     ? Classification.Operator
                     : Classification.Text
         };

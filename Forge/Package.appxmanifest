@@ -7,7 +7,8 @@
   xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/templatestudio"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-  IgnorableNamespaces="uap rescap genTemplate">
+  xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
+  IgnorableNamespaces="uap rescap genTemplate iot">
 
   <Identity
     Name="5EC08308-45A0-4C1C-8C9C-D866AE4FE91A"
@@ -60,6 +61,8 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <Capability Name="codeGeneration"/>
+    <iot:Capability Name="systemManagement"/>
   </Capabilities>
 
   <genTemplate:Metadata>

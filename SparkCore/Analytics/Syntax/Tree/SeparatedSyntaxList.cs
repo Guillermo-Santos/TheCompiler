@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -22,8 +23,8 @@ public sealed class SeparatedSyntaxList<T> : SeparatedSyntaxList, IEnumerable<T>
     public T this[int index] => (T)_nodesAndSeparators[index * 2];
     public SyntaxToken GetSeparator(int index)
     {
-        if (index == Count - 1)
-            return null;
+        if (index < 0 || index >= Count - 1)
+            throw new ArgumentOutOfRangeException(nameof(index));
 
         return (SyntaxToken)_nodesAndSeparators[index * 2 + 1];
     }

@@ -10,8 +10,8 @@ namespace SparkCore.Analytics.Syntax.Tree;
 
 public sealed class SyntaxTree
 {
-    private delegate void ParseHandler(SyntaxTree syntaxTree, 
-                                       out CompilationUnitSyntax root, 
+    private delegate void ParseHandler(SyntaxTree syntaxTree,
+                                       out CompilationUnitSyntax root,
                                        out ImmutableArray<Diagnostic> diagnostics);
     private SyntaxTree(SourceText text, ParseHandler handler)
     {
@@ -62,43 +62,39 @@ public sealed class SyntaxTree
         var sourceText = SourceText.From(text);
         return ParseTokens(sourceText, includeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics, bool inCludeEndOfFile = false)
+    public static ImmutableArray<SyntaxToken> ParseTokens(string text, out ImmutableArray<Diagnostic> diagnostics, bool includeEndOfFile = false)
     {
         var sourceText = SourceText.From(text);
-        return ParseTokens(sourceText, out diagnostics, inCludeEndOfFile);
+        return ParseTokens(sourceText, out diagnostics, includeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, bool inCludeEndOfFile = false)
+    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, bool includeEndOfFile = false)
     {
-        return ParseTokens(text, out _, inCludeEndOfFile);
+        return ParseTokens(text, out _, includeEndOfFile);
     }
-    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics, bool inCludeEndOfFile = false)
+    public static ImmutableArray<SyntaxToken> ParseTokens(SourceText text, out ImmutableArray<Diagnostic> diagnostics, bool includeEndOfFile = false)
     {
         var tokens = new List<SyntaxToken>();
 
         void ParseTokens(SyntaxTree st, out CompilationUnitSyntax root, out ImmutableArray<Diagnostic> d)
         {
-            root = null;
 
             var l = new LexicAnalyzer(st);
             while (true)
             {
                 var token = l.Lex();
+                if (token.Kind != SyntaxKind.EndOfFileToken || includeEndOfFile)
+                    tokens.Add(token);
                 if (token.Kind == SyntaxKind.EndOfFileToken)
                 {
                     root = new CompilationUnitSyntax(st, ImmutableArray<MemberSyntax>.Empty, token);
-                }
-                
-                if(token.Kind != SyntaxKind.EndOfFileToken || inCludeEndOfFile)
-                    tokens.Add(token);
-
-                if (token.Kind == SyntaxKind.EndOfFileToken)
                     break;
+                }
             }
             d = l.Diagnostics.ToImmutableArray();
         }
-        
+
         var syntaxTree = new SyntaxTree(text, ParseTokens);
-        
+
         diagnostics = syntaxTree.Diagnostics.ToImmutableArray();
         return tokens.ToImmutableArray();
     }

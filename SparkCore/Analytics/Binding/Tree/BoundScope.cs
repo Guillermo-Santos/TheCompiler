@@ -1,24 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using SparkCore.Analytics.Symbols;
 using System.Linq;
+using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Binding.Tree;
 
 internal sealed class BoundScope
 {
-    private Dictionary<string, Symbol> _symbols;
-    public BoundScope Parent
+    private Dictionary<string, Symbol>? _symbols;
+    public BoundScope? Parent
     {
         get;
     }
 
-    public BoundScope(BoundScope parent)
+    public BoundScope(BoundScope? parent)
     {
         Parent = parent;
     }
     public bool TryDeclareVariable(VariableSymbol variable) => TryDeclareSymbol(variable);
-    public bool TryDeclareFunction(FunctionSymbol function) => TryDeclareSymbol(function);   
+    public bool TryDeclareFunction(FunctionSymbol function) => TryDeclareSymbol(function);
 
     private bool TryDeclareSymbol<TSymbol>(TSymbol symbol)
           where TSymbol : Symbol
@@ -30,7 +30,7 @@ internal sealed class BoundScope
         _symbols.Add(symbol.Name, symbol);
         return true;
     }
-    public Symbol TryLookupSymbol(string name)
+    public Symbol? TryLookupSymbol(string name)
     {
         if (_symbols != null && _symbols.TryGetValue(name, out var symbol))
             return symbol;

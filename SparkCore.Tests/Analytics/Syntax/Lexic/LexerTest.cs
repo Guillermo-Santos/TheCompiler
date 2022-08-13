@@ -74,7 +74,7 @@ public class LexerTest
     [MemberData(nameof(GetSeparatorsData))]
     public void Lexer_Lexes_Separator(SyntaxKind type, string text)
     {
-        var tokens = SyntaxTree.ParseTokens(text, includeEndOfFile: true);
+        var tokens = SyntaxTree.ParseTokens(text, true);
 
         var token = Assert.Single(tokens);
         var trivia = Assert.Single(token.LeadingTrivia);

@@ -6,8 +6,8 @@ using SparkCore.Analytics.Binding;
 using SparkCore.Analytics.Binding.Tree;
 using SparkCore.Analytics.Binding.Tree.Expressions;
 using SparkCore.Analytics.Binding.Tree.Statements;
-using SparkCore.Analytics.Syntax;
 using SparkCore.Analytics.Symbols;
+using SparkCore.Analytics.Syntax;
 
 namespace SparkCore.Analytics.Lowering;
 
@@ -67,9 +67,9 @@ internal sealed class Lowerer : BoundTreeRewriter
                 builder.Add(current);
             }
         }
-        if(function.Type == TypeSymbol.Void)
+        if (function.Type == TypeSymbol.Void)
         {
-            if(builder.Count == 0 || CanFallThrough(builder.Last())) 
+            if (builder.Count == 0 || CanFallThrough(builder.Last()))
             {
                 builder.Add(new BoundReturnStatement(null));
             }
@@ -86,7 +86,7 @@ internal sealed class Lowerer : BoundTreeRewriter
                 controlFlow.Blocks.SelectMany(b => b.Statements)
             );
         var builder = node.Statements.ToBuilder();
-        for(var i = builder.Count - 1; i >= 0; i--)
+        for (var i = builder.Count - 1; i >= 0; i--)
         {
             if (!reachableStatements.Contains(builder[i]))
                 builder.RemoveAt(i);
@@ -237,7 +237,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         var upperBoundDeclaration = new BoundVariableDeclaration(upperBoundSymbol, node.UpperBound);
         var condition = new BoundBinaryExpression(
             variableExpression,
-            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, TypeSymbol.Int, TypeSymbol.Int),
+            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, TypeSymbol.Int, TypeSymbol.Int)!,
             new BoundVariableExpression(upperBoundSymbol)
         );
         var continueLabelStatemnt = new BoundLabelStatement(node.ContinueLabel);
@@ -246,7 +246,7 @@ internal sealed class Lowerer : BoundTreeRewriter
                 node.Variable,
                 new BoundBinaryExpression(
                     variableExpression,
-                    BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int),
+                    BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int)!,
                     new BoundLiteralExpression(1)
                 )
             )
@@ -254,7 +254,7 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         var whileBody = new BoundBlockStatement(ImmutableArray.Create(
             node.Body,
-            continueLabelStatemnt, 
+            continueLabelStatemnt,
             increment
         ));
         var whileStatement = new BoundWhileStatement(condition, whileBody, node.BreakLabel, GenerateLabel());
@@ -269,7 +269,7 @@ internal sealed class Lowerer : BoundTreeRewriter
 
     protected override BoundStatement RewriteConditionalGotoStatement(BoundConditionalGotoStatement node)
     {
-        if(node.Condition.ConstantValue != null)
+        if (node.Condition.ConstantValue != null)
         {
             var condition = (bool)node.Condition.ConstantValue.Value;
             condition = node.JumpIfTrue ? condition : !condition;

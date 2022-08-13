@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using Forge.Models;
+using Forge.Core.Models;
 using SparkCore.IO.Diagnostics;
 
 namespace Forge.Contracts.Messages;

@@ -1,5 +1,4 @@
-﻿using System;
-using SparkCore.Analytics.Symbols;
+﻿using SparkCore.Analytics.Symbols;
 
 namespace SparkCore.Analytics.Binding.Tree.Expressions;
 
@@ -21,7 +20,7 @@ internal sealed class BoundUnaryExpression : BoundExpression
     {
         get;
     }
-    public override BoundConstant ConstantValue
+    public override BoundConstant? ConstantValue
     {
         get;
     }

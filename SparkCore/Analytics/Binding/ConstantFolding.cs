@@ -6,9 +6,9 @@ namespace SparkCore.Analytics.Binding;
 
 internal static class ConstantFolding
 {
-    public static BoundConstant ComputeConstant(BoundUnaryOperator op, BoundExpression operand)
+    public static BoundConstant? ComputeConstant(BoundUnaryOperator op, BoundExpression operand)
     {
-        if(operand.ConstantValue != null)
+        if (operand.ConstantValue != null)
         {
             switch (op.Kind)
             {
@@ -26,12 +26,12 @@ internal static class ConstantFolding
         }
         return null;
     }
-    public static BoundConstant ComputeConstant(BoundExpression left, BoundBinaryOperator op, BoundExpression right)
+    public static BoundConstant? ComputeConstant(BoundExpression left, BoundBinaryOperator op, BoundExpression right)
     {
         var leftConstant = left.ConstantValue;
         var rightConstant = right.ConstantValue;
 
-        if(op.Kind == BoundBinaryOperatorKind.LogicalAnd)
+        if (op.Kind == BoundBinaryOperatorKind.LogicalAnd)
         {
             if (leftConstant != null && !(bool)leftConstant.Value ||
                 rightConstant != null && !(bool)rightConstant.Value)

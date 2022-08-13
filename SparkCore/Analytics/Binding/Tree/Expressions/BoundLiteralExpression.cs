@@ -20,7 +20,10 @@ internal sealed class BoundLiteralExpression : BoundExpression
     }
 
     public override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
-    public override TypeSymbol Type { get; }
+    public override TypeSymbol Type
+    {
+        get;
+    }
     public object Value => ConstantValue.Value;
     public override BoundConstant ConstantValue
     {

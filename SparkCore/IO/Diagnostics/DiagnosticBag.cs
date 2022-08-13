@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
@@ -82,7 +81,7 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(location, message);
     }
 
-    
+
     public void ReportUndefinedFunction(TextLocation location, string name)
     {
         var message = $"Function '{name}' doesn't exist.";
@@ -192,20 +191,20 @@ internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
         Report(default, message);
     }
 
-    public void ReportRequiredTypeNotFound(string sparkName, string metadataName)
+    public void ReportRequiredTypeNotFound(string? sparkName, string metadataName)
     {
-        var message =  sparkName == null 
+        var message = sparkName == null
                     ? $"The required type '{metadataName}' cannot be resolved among the given references"
                     : $"The required type '{sparkName}' ('{metadataName}') cannot be resolved among the given references";
         Report(default, message);
     }
-    public void ReportRequiredTypeAmbiguous(string sparkName, string metadataName, TypeDefinition[] foundTypes)
+    public void ReportRequiredTypeAmbiguous(string? sparkName, string metadataName, TypeDefinition[] foundTypes)
     {
         var assemblyNames = foundTypes.Select(t => t.Module.Assembly.Name.Name);
         var assemblyNameList = string.Join(", ", assemblyNames);
 
 
-        var message = sparkName == null 
+        var message = sparkName == null
                     ? $"The required type '{metadataName}' was found in multiple reference: {assemblyNameList}."
                     : $"The required type '{sparkName}' ('{metadataName}') was found in multiple reference: {assemblyNameList}.";
         Report(default, message);

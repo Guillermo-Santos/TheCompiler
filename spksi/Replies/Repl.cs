@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Reflection;
 using System.Text;
@@ -21,9 +20,9 @@ internal abstract class Repl
     private void InitializeMetaCommands()
     {
         var methods = GetType().GetMethods(BindingFlags.Public |
-                                           BindingFlags.NonPublic | 
-                                           BindingFlags.Static | 
-                                           BindingFlags.Instance | 
+                                           BindingFlags.NonPublic |
+                                           BindingFlags.Static |
+                                           BindingFlags.Instance |
                                            BindingFlags.FlattenHierarchy);
         foreach (var method in methods)
         {
@@ -399,7 +398,7 @@ internal abstract class Repl
         Console.Write(lines[lineIndex]);
         return state;
     }
-    private  void EvaluateMetaCommand(string input)
+    private void EvaluateMetaCommand(string input)
     {
 
         // Parse args
@@ -415,12 +414,12 @@ internal abstract class Repl
 
             if (char.IsWhiteSpace(c))
             {
-                if(!inQuotes)
+                if (!inQuotes)
                     CommitPendingArgument();
                 else
                     sb.Append(c);
             }
-            else if(c == '\"')
+            else if (c == '\"')
             {
                 if (!inQuotes)
                     inQuotes = true;
@@ -439,7 +438,7 @@ internal abstract class Repl
 
             position++;
         }
-        
+
         CommitPendingArgument();
 
         void CommitPendingArgument()
@@ -465,9 +464,9 @@ internal abstract class Repl
         }
 
         var parameters = command.Method.GetParameters();
-        if(args.Count != parameters.Length)
+        if (args.Count != parameters.Length)
         {
-            var parametersNames = string.Join(" ",parameters.Select(p => $"<{p.Name}>"));
+            var parametersNames = string.Join(" ", parameters.Select(p => $"<{p.Name}>"));
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"error: Invalid number of argumetns (given {args.Count}, expected {parameters.Length})");
             Console.WriteLine($"usage: #{command.Name} {parametersNames}");
@@ -527,10 +526,10 @@ internal abstract class Repl
     public void EvaluateHelp()
     {
         var maxNameLength = _metaCommands.Max(mc => mc.Name.Length);
-        foreach(var metaCommand in _metaCommands.OrderBy(mc => mc.Name))
+        foreach (var metaCommand in _metaCommands.OrderBy(mc => mc.Name))
         {
             var metaParams = metaCommand.Method.GetParameters();
-            if(metaParams.Length == 0)
+            if (metaParams.Length == 0)
             {
                 var paddedName = metaCommand.Name.PadRight(maxNameLength);
                 Console.Out.WritePunctuation("#");
@@ -540,7 +539,7 @@ internal abstract class Repl
             {
                 Console.Out.WritePunctuation("#");
                 Console.Out.WriteIdentifier(metaCommand.Name);
-                foreach(var param in metaParams)
+                foreach (var param in metaParams)
                 {
                     Console.Out.WriteSpace();
                     Console.Out.WritePunctuation("<");

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using SparkCore.Analytics.Syntax.Tree.Expressions;
 using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Tree;
@@ -83,7 +81,7 @@ public abstract class SyntaxNode
 
         if (isToConsole)
             Console.ForegroundColor = ConsoleColor.DarkGray;
-        
+
         writter.Write(indent);
         writter.Write(tokenMarker);
 
@@ -99,7 +97,7 @@ public abstract class SyntaxNode
         }
 
         writter.WriteLine();
-        
+
         if (token != null)
         {
             foreach (var trivia in token.TrailingTrivia)

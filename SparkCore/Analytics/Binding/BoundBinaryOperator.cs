@@ -1,5 +1,4 @@
-﻿using System;
-using SparkCore.Analytics.Symbols;
+﻿using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax;
 
 namespace SparkCore.Analytics.Binding;
@@ -76,7 +75,7 @@ internal sealed class BoundBinaryOperator
         new BoundBinaryOperator(SyntaxKind.BangEqualsToken, BoundBinaryOperatorKind.NotEquals, TypeSymbol.Any),
     };
 
-    public static BoundBinaryOperator Bind(SyntaxKind SyntaxType, TypeSymbol lefttype, TypeSymbol righttype)
+    public static BoundBinaryOperator? Bind(SyntaxKind SyntaxType, TypeSymbol lefttype, TypeSymbol righttype)
     {
         foreach (var op in _operators)
         {
