@@ -4,7 +4,7 @@ namespace SparkCore.Analytics.Binding.Tree.Statements;
 
 internal sealed class BoundIfStatement : BoundStatement
 {
-    public BoundIfStatement(BoundExpression condition, BoundStatement thenStatement, BoundStatement elseStatement)
+    public BoundIfStatement(BoundExpression condition, BoundStatement thenStatement, BoundStatement? elseStatement)
     {
         Condition = condition;
         ThenStatement = thenStatement;
@@ -20,9 +20,8 @@ internal sealed class BoundIfStatement : BoundStatement
     {
         get;
     }
-    public BoundStatement ElseStatement
+    public BoundStatement? ElseStatement
     {
         get;
     }
-
 }

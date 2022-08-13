@@ -2,7 +2,7 @@
 
 public class LocalVariableSymbol : VariableSymbol
 {
-    internal LocalVariableSymbol(string name, bool isReadOnly, TypeSymbol type, Binding.BoundConstant constant)
+    internal LocalVariableSymbol(string name, bool isReadOnly, TypeSymbol type, Binding.BoundConstant? constant)
         : base(name, isReadOnly, type, constant)
     {
     }

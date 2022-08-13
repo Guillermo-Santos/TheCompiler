@@ -13,12 +13,12 @@ internal sealed class LexicAnalyzer
     private readonly DiagnosticBag _diagnostics = new();
     private readonly SyntaxTree _syntaxTree;
     private readonly SourceText _text;
-
     private int _position;
+
     private int _start;
     private SyntaxKind _kind;
-    private object _value;
-    private ImmutableArray<SyntaxTrivia>.Builder _triviaBuilder = ImmutableArray.CreateBuilder<SyntaxTrivia>();
+    private object? _value;
+    private readonly ImmutableArray<SyntaxTrivia>.Builder _triviaBuilder = ImmutableArray.CreateBuilder<SyntaxTrivia>();
 
     public LexicAnalyzer(SyntaxTree syntaxTree)
     {

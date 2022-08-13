@@ -25,9 +25,8 @@ internal sealed class BoundBinaryExpression : BoundExpression
     {
         get;
     }
-    public override BoundConstant ConstantValue
+    public override BoundConstant? ConstantValue
     {
         get;
     }
 }
-

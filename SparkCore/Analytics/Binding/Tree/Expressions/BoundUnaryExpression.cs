@@ -20,7 +20,7 @@ internal sealed class BoundUnaryExpression : BoundExpression
     {
         get;
     }
-    public override BoundConstant ConstantValue
+    public override BoundConstant? ConstantValue
     {
         get;
     }

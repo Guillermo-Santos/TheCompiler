@@ -43,7 +43,7 @@ internal sealed class BoundUnaryOperator
         new BoundUnaryOperator(SyntaxKind.TildeToken, BoundUnaryOperatorKind.OnesComplement, TypeSymbol.Int),
     };
 
-    public static BoundUnaryOperator Bind(SyntaxKind SyntaxType, TypeSymbol operandtype)
+    public static BoundUnaryOperator? Bind(SyntaxKind SyntaxType, TypeSymbol operandtype)
     {
         foreach (var op in _operators)
         {

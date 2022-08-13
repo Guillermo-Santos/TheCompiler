@@ -4,7 +4,7 @@ namespace SparkCore.Analytics.Symbols;
 
 public abstract class VariableSymbol : Symbol
 {
-    internal VariableSymbol(string name, bool isReadOnly, TypeSymbol type, BoundConstant constant)
+    internal VariableSymbol(string name, bool isReadOnly, TypeSymbol type, BoundConstant? constant)
         : base(name)
     {
         IsReadOnly = isReadOnly;
@@ -19,7 +19,7 @@ public abstract class VariableSymbol : Symbol
     {
         get;
     }
-    internal BoundConstant Constant
+    internal BoundConstant? Constant
     {
         get;
     }

@@ -12,7 +12,7 @@ public sealed partial class FunctionDeclarationSyntax : MemberSyntax
                                      SyntaxToken openParentesisToken,
                                      SeparatedSyntaxList<ParameterSyntax> parameters,
                                      SyntaxToken closeParentesisToken,
-                                     TypeClauseSyntax type,
+                                     TypeClauseSyntax? type,
                                      BlockStatementSyntax body
                                     ) : base(syntaxTree)
     {
@@ -47,7 +47,7 @@ public sealed partial class FunctionDeclarationSyntax : MemberSyntax
     {
         get;
     }
-    public TypeClauseSyntax Type
+    public TypeClauseSyntax? Type
     {
         get;
     }

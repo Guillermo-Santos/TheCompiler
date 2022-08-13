@@ -2,7 +2,7 @@
 
 public sealed class GlobalVariableSymbol : VariableSymbol
 {
-    internal GlobalVariableSymbol(string name, bool isReadOnly, TypeSymbol type, Binding.BoundConstant constant)
+    internal GlobalVariableSymbol(string name, bool isReadOnly, TypeSymbol type, Binding.BoundConstant? constant)
         : base(name, isReadOnly, type, constant)
     {
     }

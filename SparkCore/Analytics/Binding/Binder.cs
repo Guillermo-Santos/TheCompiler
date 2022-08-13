@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using SparkCore.Analytics.Binding.Tree;
 using SparkCore.Analytics.Binding.Tree.Expressions;
@@ -25,13 +26,13 @@ internal sealed class Binder
 {
     private readonly DiagnosticBag _diagnostics = new();
     private readonly bool _isScript;
-    private readonly FunctionSymbol _function;
+    private readonly FunctionSymbol? _function;
     private readonly Stack<(BoundLabel BreakLabel, BoundLabel ContinueLabel)> _loopStack = new();
     private int _labelCounter;
     private BoundScope _scope;
     public DiagnosticBag Diagnostics => _diagnostics;
 
-    private Binder(bool isScript, BoundScope parent, FunctionSymbol function)
+    private Binder(bool isScript, BoundScope? parent, FunctionSymbol? function)
     {
         _scope = new BoundScope(parent);
         _isScript = isScript;
@@ -44,7 +45,7 @@ internal sealed class Binder
         }
     }
 
-    public static BoundGlobalScope BindGlobalScope(bool isScript, BoundGlobalScope previous, ImmutableArray<SyntaxTree> syntaxTrees)
+    public static BoundGlobalScope BindGlobalScope(bool isScript, BoundGlobalScope? previous, ImmutableArray<SyntaxTree> syntaxTrees)
     {
         var parentScope = CreateParenScopes(previous);
         var binder = new Binder(isScript, parentScope, function: null);
@@ -86,8 +87,8 @@ internal sealed class Binder
         // Check for main function
 
         var functions = binder._scope.GetDeclaredFunctions();
-        FunctionSymbol mainFunction;
-        FunctionSymbol scriptFunction;
+        FunctionSymbol? mainFunction;
+        FunctionSymbol? scriptFunction;
 
         if (isScript)
         {
@@ -110,7 +111,7 @@ internal sealed class Binder
             {
                 if (mainFunction.Type != TypeSymbol.Void || mainFunction.Parameters.Any())
                 {
-                    binder.Diagnostics.ReportMainMustHaveCorrectSignature(mainFunction.Declaration.Identifier.Location);
+                    binder.Diagnostics.ReportMainMustHaveCorrectSignature(mainFunction.Declaration!.Identifier.Location);
                 }
             }
 
@@ -118,11 +119,11 @@ internal sealed class Binder
             {
                 if (mainFunction != null)
                 {
-                    binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(mainFunction.Declaration.Identifier.Location);
+                    binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(mainFunction.Declaration!.Identifier.Location);
 
                     foreach (var globalStatement in firstGlobalStatementPerSyntaxTree)
                     {
-                        binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(globalStatement.Location);
+                        binder.Diagnostics.ReportCannotMixMainAndGlobalStatements(globalStatement!.Location);
                     }
                 }
                 else
@@ -146,7 +147,7 @@ internal sealed class Binder
         return new BoundGlobalScope(previous, diagnostics, mainFunction, scriptFunction, functions, variables, statements.ToImmutable());
     }
 
-    public static BoundProgram BindProgram(bool isScript, BoundProgram previous, BoundGlobalScope globalScope)
+    public static BoundProgram BindProgram(bool isScript, BoundProgram? previous, BoundGlobalScope globalScope)
     {
         var parentScope = CreateParenScopes(globalScope);
 
@@ -159,7 +160,7 @@ internal sealed class Binder
         foreach (var function in globalScope.Functions)
         {
             var binder = new Binder(isScript, parentScope, function);
-            var body = binder.BindStatement(function.Declaration.Body);
+            var body = binder.BindStatement(function.Declaration!.Body);
             var loweredBody = Lowerer.Lower(function, body);
 
             if (function.Type != TypeSymbol.Void && !ControlFlowGraph.AllPathsReturn(loweredBody, out loweredBody))
@@ -221,13 +222,14 @@ internal sealed class Binder
 
         var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
 
-        if (!function.Declaration.Identifier.IsMissing && !_scope.TryDeclareFunction(function))
+        if (!syntax.Identifier.IsMissing && 
+            !_scope.TryDeclareFunction(function))
         {
             _diagnostics.ReportSymbolAlreadyDeclared(syntax.Identifier.Location, function.Name);
         }
     }
 
-    private static BoundScope CreateParenScopes(BoundGlobalScope previous)
+    private static BoundScope CreateParenScopes(BoundGlobalScope? previous)
     {
         var stack = new Stack<BoundGlobalScope>();
         while (previous != null)
@@ -326,7 +328,7 @@ internal sealed class Binder
             statements.Add(statement);
         }
 
-        _scope = _scope.Parent;
+        _scope = _scope.Parent!;
 
         return new BoundBlockStatement(statements.ToImmutable());
     }
@@ -341,14 +343,15 @@ internal sealed class Binder
 
         return new BoundVariableDeclaration(variable, convertedInitializer);
     }
-    private TypeSymbol BindTypeClause(TypeClauseSyntax syntax)
+    [return: NotNullIfNotNull("syntax")]
+    private TypeSymbol? BindTypeClause(TypeClauseSyntax? syntax)
     {
         if (syntax == null)
             return null;
         var type = LookUpType(syntax.Identifier.Text);
         if (type == null)
             _diagnostics.ReportUndefinedType(syntax.Identifier.Location, syntax.Identifier.Text);
-        return type;
+        return type!;
     }
     private BoundStatement BindIfStatement(IfStatementSyntax syntax)
     {
@@ -380,7 +383,7 @@ internal sealed class Binder
 
         var body = BindLoopBody(syntax.Body, out var breakLabel, out var continueLabel);
 
-        _scope = _scope.Parent;
+        _scope = _scope.Parent!;
 
         return new BoundForStatement(variable, lowerBound, upperBound, body, breakLabel, continueLabel);
     }
@@ -428,10 +431,10 @@ internal sealed class Binder
                 if (expression == null)
                     expression = new BoundLiteralExpression("");
             }
-            else
+            else if(expression == null)
             {
                 // Main does not support return values.
-                _diagnostics.ReportInvalidWithValueInGlobalStatement(syntax.ReturnKeyword.Location);
+                _diagnostics.ReportInvalidWithValueInGlobalStatement(syntax.Expression!.Location);
             }
         }
         else
@@ -439,14 +442,14 @@ internal sealed class Binder
             if (_function.Type == TypeSymbol.Void)
             {
                 if (expression != null)
-                    _diagnostics.ReportInvalidReturnExpression(syntax.Expression.Location, _function.Name);
+                    _diagnostics.ReportInvalidReturnExpression(syntax.Expression!.Location, _function.Name);
             }
             else
             {
                 if (expression == null)
                     _diagnostics.ReportMissingReturnExpression(syntax.ReturnKeyword.Location, _function.Type);
                 else
-                    expression = BindConversion(syntax.Expression.Location, expression, _function.Type);
+                    expression = BindConversion(syntax.Expression!.Location, expression, _function.Type);
             }
         }
 
@@ -507,7 +510,7 @@ internal sealed class Binder
     }
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
-        var name = syntax.IdentifierToken.Text;
+        // var name = syntax.IdentifierToken.Text;
         if (syntax.IdentifierToken.IsMissing)
         {
             //This means the token was inserted by the parser. we already
@@ -651,7 +654,7 @@ internal sealed class Binder
         return variable;
     }
 
-    private VariableSymbol BindVariableReference(SyntaxToken identifierToken)
+    private VariableSymbol? BindVariableReference(SyntaxToken identifierToken)
     {
         var name = identifierToken.Text;
         switch (_scope.TryLookupSymbol(name))
@@ -696,7 +699,7 @@ internal sealed class Binder
         return new BoundConversionExpression(type, expression);
     }
 
-    private TypeSymbol LookUpType(string name)
+    private TypeSymbol? LookUpType(string name)
     {
         switch (name)
         {

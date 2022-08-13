@@ -8,5 +8,5 @@ internal abstract class BoundExpression : BoundNode
     {
         get;
     }
-    public virtual BoundConstant ConstantValue => null;
+    public virtual BoundConstant? ConstantValue => null;
 }

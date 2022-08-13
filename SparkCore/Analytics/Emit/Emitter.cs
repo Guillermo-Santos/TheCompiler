@@ -15,6 +15,7 @@ using SparkCore.Analytics.Syntax;
 using SparkCore.IO.Diagnostics;
 
 namespace SparkCore.Analytics.Emit;
+
 internal sealed class Emitter
 {
     private readonly DiagnosticBag _diagnostics = new();
@@ -39,9 +40,11 @@ internal sealed class Emitter
     private readonly Dictionary<BoundLabel, int> _labels = new();
     private readonly List<(int InstructionIndex, BoundLabel Target)> _fixuds = new();
 
-    private readonly TypeDefinition _typeDefinition;
-    private FieldDefinition _randomFieldDefinition;
-
+    private readonly TypeDefinition? _typeDefinition;
+    private FieldDefinition? _randomFieldDefinition;
+    private sealed class MissingDependencyException : Exception
+    {
+    }
     private Emitter(string moduleName, string[] references)
     {
         var assemblies = new List<AssemblyDefinition>();
@@ -98,7 +101,7 @@ internal sealed class Emitter
             {
                 _diagnostics.ReportRequiredTypeAmbiguous(sparkName, metadataName, foundTypes);
             }
-            return null;
+            throw new MissingDependencyException();
         }
         MethodReference ResolveMethod(string typeName, string methodName, string[] parameterTypeNames)
         {
@@ -134,7 +137,7 @@ internal sealed class Emitter
                 }
 
                 _diagnostics.ReportRequiredMethodNotFound(typeName, methodName, parameterTypeNames);
-                return null;
+                throw new MissingDependencyException();
             }
             else if (foundTypes.Length == 0)
             {
@@ -144,10 +147,10 @@ internal sealed class Emitter
             {
                 _diagnostics.ReportRequiredTypeAmbiguous(null, typeName, foundTypes);
             }
-            return null;
+            throw new MissingDependencyException();
         }
 
-        var a = _assemmblyDefinition.ToString();
+        //var a = _assemmblyDefinition.ToString();
         _objectEqualsReference = ResolveMethod("System.Object", "Equals", new[] { "System.Object", "System.Object" });
         _consoleReadLineReference = ResolveMethod("System.Console", "ReadLine", Array.Empty<string>());
         _consoleWriteLineReference = ResolveMethod("System.Console", "WriteLine", new[] { "System.Object" });
@@ -161,7 +164,6 @@ internal sealed class Emitter
         _randomReference = ResolveType(null, "System.Random");
         _randomCtorReference = ResolveMethod("System.Random", ".ctor", Array.Empty<string>());
         _randomNextReference = ResolveMethod("System.Random", "Next", new[] { "System.Int32" });
-
         var objectType = _knownTypes[TypeSymbol.Any];
         if (objectType != null)
         {
@@ -178,9 +180,15 @@ internal sealed class Emitter
     {
         if (program.Diagnostics.Any())
             return program.Diagnostics;
-
-        var emitter = new Emitter(moduleName, references);
-        return emitter.Emit(program, outputPath);
+        try
+        {
+            var emitter = new Emitter(moduleName, references);
+            return emitter.Emit(program, outputPath);
+        }
+        catch (MissingDependencyException)
+        {
+            return ImmutableArray<Diagnostic>.Empty;
+        }
     }
     public ImmutableArray<Diagnostic> Emit(BoundProgram program, string outputPath)
     {

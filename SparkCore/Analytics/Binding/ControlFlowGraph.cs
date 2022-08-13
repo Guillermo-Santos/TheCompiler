@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using SparkCore.Analytics.Binding.Tree;
@@ -119,8 +120,8 @@ internal sealed class ControlFlowGraph
 
     public sealed class BasicBlockBuilder
     {
-        private List<BoundStatement> _statements = new();
-        private List<BasicBlock> _blocks = new();
+        private readonly List<BoundStatement> _statements = new();
+        private readonly List<BasicBlock> _blocks = new();
         public List<BasicBlock> Build(BoundBlockStatement block)
         {
             foreach (var statement in block.Statements)
@@ -261,7 +262,7 @@ internal sealed class ControlFlowGraph
             return new ControlFlowGraph(_start, _end, blocks, _branches);
         }
 
-        private void Connect(BasicBlock from, BasicBlock to, BoundExpression condition = null)
+        private void Connect(BasicBlock from, BasicBlock to, BoundExpression? condition = null)
         {
 
             if (condition is BoundLiteralExpression l)
@@ -305,6 +306,7 @@ internal sealed class ControlFlowGraph
             }
             // We negate the expression --> !expression
             var op = BoundUnaryOperator.Bind(SyntaxKind.BangToken, TypeSymbol.Bool);
+            Debug.Assert(op != null);
             return new BoundUnaryExpression(op, condition);
         }
     }

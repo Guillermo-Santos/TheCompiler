@@ -16,6 +16,6 @@ internal sealed class BoundVariableExpression : BoundExpression
         get;
     }
     public override TypeSymbol Type => Variable.Type;
-    public override BoundConstant ConstantValue => Variable.Constant;
+    public override BoundConstant? ConstantValue => Variable.Constant;
 }
 

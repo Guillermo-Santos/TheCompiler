@@ -126,7 +126,7 @@ public static class SyntaxFacts
                 yield return type;
         }
     }
-    public static string GetText(SyntaxKind type)
+    public static string? GetText(SyntaxKind type)
     {
         switch (type)
         {

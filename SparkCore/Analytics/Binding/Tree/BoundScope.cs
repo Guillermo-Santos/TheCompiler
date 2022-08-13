@@ -7,13 +7,13 @@ namespace SparkCore.Analytics.Binding.Tree;
 
 internal sealed class BoundScope
 {
-    private Dictionary<string, Symbol> _symbols;
-    public BoundScope Parent
+    private Dictionary<string, Symbol>? _symbols;
+    public BoundScope? Parent
     {
         get;
     }
 
-    public BoundScope(BoundScope parent)
+    public BoundScope(BoundScope? parent)
     {
         Parent = parent;
     }
@@ -30,7 +30,7 @@ internal sealed class BoundScope
         _symbols.Add(symbol.Name, symbol);
         return true;
     }
-    public Symbol TryLookupSymbol(string name)
+    public Symbol? TryLookupSymbol(string name)
     {
         if (_symbols != null && _symbols.TryGetValue(name, out var symbol))
             return symbol;

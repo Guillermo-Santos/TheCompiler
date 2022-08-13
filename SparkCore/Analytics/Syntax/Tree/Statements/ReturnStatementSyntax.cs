@@ -4,7 +4,7 @@ namespace SparkCore.Analytics.Syntax.Tree.Statements;
 
 public sealed partial class ReturnStatementSyntax : StatementSyntax
 {
-    public ReturnStatementSyntax(SyntaxTree syntaxTree, SyntaxToken returnKeyword, ExpressionSyntax expression)
+    public ReturnStatementSyntax(SyntaxTree syntaxTree, SyntaxToken returnKeyword, ExpressionSyntax? expression)
         : base(syntaxTree)
     {
         ReturnKeyword = returnKeyword;
@@ -17,7 +17,7 @@ public sealed partial class ReturnStatementSyntax : StatementSyntax
     {
         get;
     }
-    public ExpressionSyntax Expression
+    public ExpressionSyntax? Expression
     {
         get;
     }

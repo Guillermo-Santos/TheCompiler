@@ -6,7 +6,7 @@ using SparkCore.IO.Diagnostics;
 namespace SparkCore.Analytics.Binding.Tree;
 internal sealed class BoundGlobalScope
 {
-    public BoundGlobalScope(BoundGlobalScope previous, ImmutableArray<Diagnostic> diagnostics, FunctionSymbol mainFunction, FunctionSymbol scriptFunction, ImmutableArray<FunctionSymbol> functions, ImmutableArray<VariableSymbol> variables, ImmutableArray<BoundStatement> statements)
+    public BoundGlobalScope(BoundGlobalScope? previous, ImmutableArray<Diagnostic> diagnostics, FunctionSymbol? mainFunction, FunctionSymbol? scriptFunction, ImmutableArray<FunctionSymbol> functions, ImmutableArray<VariableSymbol> variables, ImmutableArray<BoundStatement> statements)
     {
         Previous = previous;
         Diagnostics = diagnostics;
@@ -17,7 +17,7 @@ internal sealed class BoundGlobalScope
         Statements = statements;
     }
 
-    public BoundGlobalScope Previous
+    public BoundGlobalScope? Previous
     {
         get;
     }
@@ -25,11 +25,11 @@ internal sealed class BoundGlobalScope
     {
         get;
     }
-    public FunctionSymbol MainFunction
+    public FunctionSymbol? MainFunction
     {
         get;
     }
-    public FunctionSymbol ScriptFunction
+    public FunctionSymbol? ScriptFunction
     {
         get;
     }
