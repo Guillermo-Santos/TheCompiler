@@ -264,7 +264,6 @@ internal class Evaluator
             var result = EvaluateStatement(functionBody);
 
             _locals.Pop();
-
             return result;
         }
     }

@@ -14,7 +14,7 @@ using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax;
 using SparkCore.IO.Diagnostics;
 
-namespace SparkCore.Analytics.Emit;
+namespace SparkCore.Emit;
 
 internal sealed class Emitter
 {
@@ -365,18 +365,18 @@ internal sealed class Emitter
     {
         if (node.Type == TypeSymbol.Bool)
         {
-            var value = (bool)node.ConstantValue.Value;
+            var value = (bool)node.ConstantValue!.Value;
             var instruction = value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0;
             ilProcessor.Emit(instruction);
         }
         else if (node.Type == TypeSymbol.Int)
         {
-            var value = (int)node.ConstantValue.Value;
+            var value = (int)node.ConstantValue!.Value;
             ilProcessor.Emit(OpCodes.Ldc_I4, value);
         }
         else if (node.Type == TypeSymbol.String)
         {
-            var value = (string)node.ConstantValue.Value;
+            var value = (string)node.ConstantValue!.Value;
             ilProcessor.Emit(OpCodes.Ldstr, value);
         }
         else
