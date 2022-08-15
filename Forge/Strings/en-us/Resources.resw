@@ -126,25 +126,14 @@
   <data name="ShellMenuBarItem_File.Title" xml:space="preserve">
     <value>File</value>
   </data>
-  <data name="ShellMenuBarItem_Views.Title" xml:space="preserve">
-    <value>Views</value>
-  </data>
   <data name="ShellMenuItem_File_Exit.Text" xml:space="preserve">
     <value>Exit</value>
   </data>
   <data name="ShellMenuItem_Views_Main.Text" xml:space="preserve">
     <value>Main</value>
   </data>
-  <data name="Main_Title.Text" xml:space="preserve">
-    <value>Main</value>
-    <comment>Page title for MainPage</comment>
-  </data>
   <data name="ShellMenuItem_Views_Example.Text" xml:space="preserve">
     <value>Example</value>
-  </data>
-  <data name="Example_Title.Text" xml:space="preserve">
-    <value>Example</value>
-    <comment>Page title for ExamplePage</comment>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalization</value>
@@ -165,7 +154,7 @@
     <value>About this application</value>
   </data>
   <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>A compiler for the 'Spark' programming language.</value>
+    <value>A compiler for the compilers subject.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
     <value>Privacy Statement</value>
@@ -191,5 +180,17 @@
   </data>
   <data name="ShellMenuItem_File_SaveFile.Text" xml:space="preserve">
     <value>Save current file</value>
+  </data>
+  <data name="ShellMenuBarItem_Run.Title" xml:space="preserve">
+    <value>Build Options</value>
+  </data>
+  <data name="ShellMenuBarItem_Run_Build.Text" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="ShellMenuBarItem_Run_BuildDeploy.Text" xml:space="preserve">
+    <value>Build and Deploy</value>
+  </data>
+  <data name="ShellMenuBarItem_Run_Deploy.Text" xml:space="preserve">
+    <value>Deploy</value>
   </data>
 </root>

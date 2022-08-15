@@ -5,9 +5,11 @@ using SparkCore.IO.Diagnostics;
 using Windows.Storage.Pickers;
 
 namespace Forge.Services;
-public sealed class SparkFileService : ObservableObject
+public sealed partial class SparkFileService : ObservableObject
 {
-    private ObservableCollection<Document> _files = new();
+    [ObservableProperty]
+    private ObservableCollection<Document> _documents = new();
+    [ObservableProperty]
     private ObservableCollection<Document> _openDocuments = new();
     private static SparkFileService? _instance;
     private SparkFileService()
@@ -16,36 +18,29 @@ public sealed class SparkFileService : ObservableObject
 
     public static SparkFileService Instance => _instance ??= (_instance = new SparkFileService());
 
-    public ObservableCollection<Document> Files
-    {
-        get => _files;
-        set => SetProperty(ref _files, value);
-    }
-    public ObservableCollection<Document> OpenDocuments
-    {
-        get => _openDocuments;
-        set => SetProperty(ref _openDocuments, value);
-    }
-
-
     public void SetText(string fileName, string text)
     {
-        Files.First(f => f.Path == fileName).Text = text;
+        Documents.First(f => f.Path == fileName).Text = text;
     }
-    public void AddFile(Document document) => Files.Add(document);
+    public void AddFile(Document document) => Documents.Add(document);
     public void RemoveFile(Document document)
     {
         CloseFile(document);
-        Files.Remove(document);
+        Documents.Remove(document);
     }
     public int GetFileIndex(Document document)
     {
-        return Files.IndexOf(document);
+        return Documents.IndexOf(document);
     }
-    public void OpenFile(int index) => OpenFile(Files[index]);
+    public int GetOpenFileIndex(Document document)
+    {
+        return OpenDocuments.IndexOf(document);
+    }
+    public void OpenFile(int index) => OpenFile(Documents[index]);
     public void OpenFile(Document document)
     {
-        if (!OpenDocuments.Contains(document))
+        var openDocument = OpenDocuments.Where(d => d.Path == document.Path).FirstOrDefault();
+        if (openDocument == null)
         {
             OpenDocuments.Add(document);
         }
@@ -53,14 +48,26 @@ public sealed class SparkFileService : ObservableObject
     public Document OpenFile(Diagnostic diagnostic)
     {
         var sourceText = diagnostic.Location.Text;
-        var document = Files.First(doc => doc.Path.Equals(sourceText.FileName) && doc.Text.Equals(sourceText.ToString()));
+        var document = Documents.First(doc => doc.Path.Equals(sourceText.FileName) && doc.Text.Equals(sourceText.ToString()));
         OpenFile(document);
         return document;
     }
-    public void CloseFile(int index) => CloseFile(Files[index]);
+    public void CloseFile(int index) => CloseFile(Documents[index]);
     public void CloseFile(Document document)
     {
-        OpenDocuments.Remove(document);
+        var openDocument = OpenDocuments.Where(d => d.Path == document.Path).FirstOrDefault();
+        if (openDocument != null)
+        {
+            OpenDocuments.Remove(openDocument);
+        }
     }
-
+    public void CloseAll()
+    {
+        OpenDocuments.Clear();
+    }
+    public void Clean()
+    {
+        OpenDocuments.Clear();
+        Documents.Clear();
+    }
 }

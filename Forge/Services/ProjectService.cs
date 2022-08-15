@@ -19,6 +19,7 @@ public sealed class ProjectService: ObservableRecipient
     private const string fileExtension = ".spks";
     private static ProjectService? _instance;
     private ObservableCollection<Folder> _folderRoot = new();
+    private string? projectFile;
     public ObservableCollection<Folder> ProjectRoot
     {
         get => _folderRoot;
@@ -28,22 +29,45 @@ public sealed class ProjectService: ObservableRecipient
     {
     }
     public static ProjectService Instance => _instance ??= new ProjectService();
-
+    public string? GetProjectFile() => projectFile;
+    public void SaveFile(Document document)
+    {
+        File.WriteAllText(document.Path, document.Text);
+    }
+    public void SaveAll()
+    {
+        var documents = SparkFileService.Instance.Documents;
+        foreach (var document in documents)
+        {
+            SaveFile(document);
+        }
+    }
+    public void RefreshProject()
+    {
+        LoadProject(Path.GetDirectoryName(projectFile));
+    }
     public async Task LoadProject()
     {
         var projFile = await LoadFileAsync(projectExtension);
         if (projFile == null)
             return;
         var projDirectoryPath = Path.GetDirectoryName(projFile.Path);
-        ProjectRoot.Clear();
-        ProjectRoot.Add(GetFolder(projDirectoryPath));
+        LoadProject(projDirectoryPath);
+        projectFile = projFile.Path;
     }
-    public void LoadProject(string path)
+    public void LoadProject(string? path)
     {
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
         ProjectRoot.Clear();
+        SparkFileService.Instance.Clean();
         ProjectRoot.Add(GetFolder(path));
+        DiagnosticService.Instance.ResetTimer();
     }
-    private static Folder GetFolder(string? path)
+    private Folder GetFolder(string path)
     {
         var directions = ImmutableArray.CreateBuilder<Direction>();
         foreach(var directory in Directory.EnumerateDirectories(path, "*", SearchOption.TopDirectoryOnly)
@@ -58,21 +82,14 @@ public sealed class ProjectService: ObservableRecipient
         {
             var text = File.ReadAllText(filePath);
             var document = new Document(filePath, text);
+            SparkFileService.Instance.AddFile(document);
             directions.Add(document);
         }
         return new Folder(path, directions.ToImmutable());
     }
 
-    public void LoadFile()
-    {
-        var file = LoadFileAsync(fileExtension).Result;
-    }
     private async Task<StorageFile> LoadFileAsync(string fileExtension)
     {
-        if (!a)
-        {
-            await App.MainWindow.CreateMessageDialog("No se compilo").ShowAsync();
-        }
         var FilePicker = App.MainWindow.CreateOpenFilePicker();
         FilePicker.ViewMode = PickerViewMode.Thumbnail;
         FilePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;

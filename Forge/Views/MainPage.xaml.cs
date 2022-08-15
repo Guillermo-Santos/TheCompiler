@@ -24,7 +24,11 @@ public sealed partial class MainPage : Page
 
     private void TabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        SparkFileService.Instance.CloseFile(args.Item as Document);
+        var document = args.Item as Document;
+        var selectedDocument = ViewModel.SelectedDocument;
+        ViewModel.SelectedDocument = document;
+        SparkFileService.Instance.CloseFile(document);
+        ViewModel.SelectedDocument = selectedDocument;
     }
     private async Task<StorageFolder> LoadFileAsync()
     {

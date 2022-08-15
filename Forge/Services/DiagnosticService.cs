@@ -43,7 +43,7 @@ public sealed class DiagnosticService : ObservableRecipient
             Diagnostics.Add(filename, diagnostics);
         }
     }
-    private void ResetTimer()
+    public void ResetTimer()
     {
         CheckErrors.Stop();
         CheckErrors.Start();
@@ -52,7 +52,7 @@ public sealed class DiagnosticService : ObservableRecipient
     {
         CheckErrors.Stop();
         var syntaxTrees = new List<SyntaxTree>();
-        foreach (var document in SparkFileService.Instance.Files)
+        foreach (var document in SparkFileService.Instance.Documents)
         {
             var syntaxTree = SyntaxTree.Parse(document.SourceText);
             syntaxTrees.Add(syntaxTree);
