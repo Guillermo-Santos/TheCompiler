@@ -55,7 +55,7 @@ public sealed partial class SparkFileService : ObservableObject
     public void CloseFile(int index) => CloseFile(Documents[index]);
     public void CloseFile(Document document)
     {
-        var openDocument = OpenDocuments.Where(d => d.Path == document.Path).FirstOrDefault();
+        var openDocument = OpenDocuments.FirstOrDefault(d => d.Path == document.Path);
         if (openDocument != null)
         {
             OpenDocuments.Remove(openDocument);

@@ -30,26 +30,7 @@ public sealed partial class MainPage : Page
         SparkFileService.Instance.CloseFile(document);
         ViewModel.SelectedDocument = selectedDocument;
     }
-    private async Task<StorageFolder> LoadFileAsync()
-    {
-        var window = App.MainWindow;
-        var FolderPicker = new FolderPicker
-        {
-            ViewMode = PickerViewMode.Thumbnail,
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-        };
-        var hwnd = App.MainWindow.GetWindowHandle();
-        WinRT.Interop.InitializeWithWindow.Initialize(FolderPicker, hwnd);
-        var folder = await FolderPicker.PickSingleFolderAsync();
 
-
-        if (folder == null)
-        {
-            var messageDialg = window.CreateMessageDialog("Folder no seleccionado.", title: "Error");
-            await messageDialg.ShowAsync();
-        }
-        return folder;
-    }
     private void errors_DoubleTapped(object? sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
     {
         var listbox = (ListBox)sender;

@@ -101,13 +101,13 @@ public class ShellViewModel : ObservableRecipient
         };
         var option = await newProjectDialog.ShowAsync();
         // TODO: Add code to handling new project
-        if(option == ContentDialogResult.Primary)
-        {
+        //if(option == ContentDialogResult.Primary)
+        //{
 
-        }
-        else
-        {
-        }
+        //}
+        //else
+        //{
+        //}
         await Task.CompletedTask;
     }
     private void OnMenuFileSave()
