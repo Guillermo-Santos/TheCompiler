@@ -72,7 +72,6 @@ internal sealed class Parser
         return _tokens[index];
     }
     private SyntaxToken Current => Peek(0);
-
     private SyntaxToken NextToken()
     {
         var current = Current;
@@ -130,7 +129,6 @@ internal sealed class Parser
 
         return ParseGlobalStatement();
     }
-
     private MemberSyntax ParseFunctionDeclaration()
     {
         var functionKeyword = MatchToken(SyntaxKind.FunctionKeyword);
@@ -143,7 +141,6 @@ internal sealed class Parser
 
         return new FunctionDeclarationSyntax(_syntaxTree, functionKeyword, identifier, openParentesisToken, parameters, closeParentesisToken, type, body);
     }
-
     private SeparatedSyntaxList<ParameterSyntax> ParseParameterList()
     {
 
@@ -170,7 +167,6 @@ internal sealed class Parser
         }
         return new SeparatedSyntaxList<ParameterSyntax>(nodesAndSeparators.ToImmutable());
     }
-
     private ParameterSyntax ParseParameter()
     {
         var identifier = MatchToken(SyntaxKind.IdentifierToken);
@@ -178,7 +174,6 @@ internal sealed class Parser
 
         return new ParameterSyntax(_syntaxTree, identifier, type);
     }
-
     private MemberSyntax ParseGlobalStatement()
     {
         var statement = ParseStatement();
@@ -212,7 +207,6 @@ internal sealed class Parser
                 return ParseExpressionStatement();
         }
     }
-
     private BlockStatementSyntax ParseBlockStatement()
     {
         var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
@@ -257,7 +251,6 @@ internal sealed class Parser
             return null;
         return ParseTypeClause();
     }
-
     private TypeClauseSyntax ParseTypeClause()
     {
         var colonToken = MatchToken(SyntaxKind.ColonToken);
@@ -265,7 +258,6 @@ internal sealed class Parser
 
         return new TypeClauseSyntax(_syntaxTree, colonToken, identifier);
     }
-
     private StatementSyntax ParseIfStatement()
     {
         var keyword = MatchToken(SyntaxKind.IfKeyword);
@@ -312,7 +304,6 @@ internal sealed class Parser
         var body = ParseStatement();
         return new ForStatementSyntax(_syntaxTree, keyword, identifier, equalstoken, lowerBound, toKeyword, upperBound, body);
     }
-
     private StatementSyntax ParseBreakStatement()
     {
         var keyword = MatchToken(SyntaxKind.BreakKeyword);
@@ -333,7 +324,6 @@ internal sealed class Parser
         var expression = sameLine ? ParseExpression() : null;
         return new ReturnStatementSyntax(_syntaxTree, keyword, expression);
     }
-
     private StatementSyntax ParseExpressionStatement()
     {
         var expression = ParseExpression();
@@ -355,9 +345,9 @@ internal sealed class Parser
             return new AssignmentExpressionSyntax(_syntaxTree, identifierToken, operatorToken, right);
         }
 
-        return ParseBinaryExpression();
+        return ParseUnaryOrBinaryExpression();
     }
-    private ExpressionSyntax ParseBinaryExpression(int parentPrecedence = 0)
+    private ExpressionSyntax ParseUnaryOrBinaryExpression(int parentPrecedence = 0)
     {
         ExpressionSyntax left;
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
@@ -365,7 +355,7 @@ internal sealed class Parser
         if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
         {
             var operatorToken = NextToken();
-            var operand = ParseBinaryExpression(unaryOperatorPrecedence);
+            var operand = ParseUnaryOrBinaryExpression(unaryOperatorPrecedence);
             left = new UnaryExpressionSyntax(_syntaxTree, operatorToken, operand);
         }
         else
@@ -378,7 +368,7 @@ internal sealed class Parser
             if (precedence == 0 || precedence <= parentPrecedence)
                 break;
             var operatorToken = NextToken();
-            var right = ParseBinaryExpression(precedence);
+            var right = ParseUnaryOrBinaryExpression(precedence);
             left = new BinaryExpressionSyntax(_syntaxTree, left, operatorToken, right);
         }
         return left;

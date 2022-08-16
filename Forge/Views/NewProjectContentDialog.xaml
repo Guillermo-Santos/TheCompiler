@@ -8,23 +8,23 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     PrimaryButtonText="Create"
+    PrimaryButtonCommand="{x:Bind ViewModel.CreateCommand}"
     SecondaryButtonText="Cancel"
     DefaultButton="Primary"
     Title="New Project">
 
     <StackPanel Width="auto">
         <TextBlock Text="Project name:"/>
-        <TextBox x:Name="ProjectName" PlaceholderText="Project Name" Text="{x:Bind ViewModel.ProjectName, Mode=TwoWay}" KeyUp="ProjectName_KeyUp" TextChanging="ProjectName_TextChanging"/>
+        <TextBox x:Name="ProjectName" PlaceholderText="Project Name" Text="{x:Bind ViewModel.ProjectName, Mode=TwoWay}"/>
         <StackPanel Orientation="Horizontal" Padding="2">
             <StackPanel>
                 <TextBlock Text="Project path:"/>
                 <TextBox x:Name="ProjectPath" 
-                     Text="{x:Bind ViewModel.ProjectPath, Mode=OneWay}"
+                     Text="{x:Bind ViewModel.Path,Mode=OneWay}"
                      Width="370" 
-                     MaxWidth="370"
-                     IsReadOnly="True"/>
+                     MaxWidth="370"/>
             </StackPanel>
-            <Button Content="Browse" Width="68"/>
+            <Button Content="Browse" Width="68" Command="{x:Bind ViewModel.BrowseCommand}"/>
         </StackPanel>
     </StackPanel>
 </ContentDialog>

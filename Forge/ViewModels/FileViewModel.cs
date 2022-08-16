@@ -156,7 +156,7 @@ public class FileViewModel : BaseViewModel
                     document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 214, 157, 133);
                     break;
                 case Classification.Comment:
-                    document.Selection.CharacterFormat.ForegroundColor = Colors.DarkGreen;
+                    document.Selection.CharacterFormat.ForegroundColor = Color.FromArgb(1, 78, 200, 157);
                     break;
                 case Classification.Operator:
                     document.Selection.CharacterFormat.ForegroundColor = Colors.DarkGray;

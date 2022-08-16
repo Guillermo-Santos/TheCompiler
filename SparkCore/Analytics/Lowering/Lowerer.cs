@@ -286,7 +286,7 @@ internal sealed class Lowerer : BoundTreeRewriter
     }
 
     //Comprobar si esto es realmente necesario.
-    //TODO: #1 Agregar el out VariableSymbol temporalVariables to all functions and implement logic for declaration.
+    //  Respuesta: no lo es, pero igual lo dejamos aqui comentado.
     //protected override BoundStatement RewriteVariableDeclaration(BoundVariableDeclaration node)
     //{
 

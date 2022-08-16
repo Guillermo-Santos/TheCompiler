@@ -9,7 +9,7 @@ public sealed class Document : Direction
         get;
         set;
     }
-    public Document(string filePath, string text): base(System.IO.Path.GetDirectoryName(filePath))
+    public Document(string filePath, string text): base(filePath)
     {
         FileName = System.IO.Path.GetFileName(filePath);
         Text = text;

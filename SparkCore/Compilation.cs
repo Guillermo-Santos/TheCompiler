@@ -6,9 +6,9 @@ using System.Threading;
 using SparkCore.Analytics;
 using SparkCore.Analytics.Binding;
 using SparkCore.Analytics.Binding.Tree;
-using SparkCore.Analytics.Emit;
 using SparkCore.Analytics.Symbols;
 using SparkCore.Analytics.Syntax.Tree;
+using SparkCore.Emit;
 using SparkCore.IO.Diagnostics;
 
 namespace SparkCore;

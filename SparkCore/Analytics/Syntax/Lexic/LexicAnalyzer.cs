@@ -7,7 +7,6 @@ using SparkCore.IO.Text;
 
 namespace SparkCore.Analytics.Syntax.Lexic;
 
-//TODO: Agregar ; como token y colocarlo como terminador para las expresiones.
 internal sealed class LexicAnalyzer
 {
     private readonly DiagnosticBag _diagnostics = new();
@@ -211,7 +210,6 @@ internal sealed class LexicAnalyzer
         _start = _position;
         _kind = SyntaxKind.BadToken;
         _value = null;
-
 
         switch (Current)
         {

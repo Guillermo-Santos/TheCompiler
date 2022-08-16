@@ -6,16 +6,22 @@ using SparkCore;
 using System.Reflection;
 
 namespace Forge.Services;
-internal class CompilationService
+public enum BuildType
 {
-    public enum BuildType
+    BuildDeploy,
+    Build,
+    Deploy,
+}
+internal static class CompilationService
+{
+
+    public static async Task<bool> Build(BuildType buildType, string? projectFile)//FileInfo msbuildFile, string[] targets = null, IDictionary<string, string> properties = null, LoggerVerbosity loggerVerbosity = LoggerVerbosity.Detailed)
     {
-        BuildDeploy,
-        Build,
-        Deploy,
-    }
-    public static async Task<bool> Build(BuildType buildType, string projectFile)//FileInfo msbuildFile, string[] targets = null, IDictionary<string, string> properties = null, LoggerVerbosity loggerVerbosity = LoggerVerbosity.Detailed)
-    {
+        if (string.IsNullOrEmpty(projectFile) || string.IsNullOrWhiteSpace(projectFile) || !File.Exists(projectFile))
+        {
+            await App.MainWindow.CreateMessageDialog($"The project file does not exist:\n '{projectFile}' not found.", "Error").ShowAsync();
+            return false;
+        }
         var action = string.Empty;
         switch (buildType)
         {
@@ -29,7 +35,7 @@ internal class CompilationService
                 action = "run";
                 break;
         }
-        projectFile = @"D:\Aplicaciones\Microsoft Visual Studio\Projects\Compiler\Samples\hello\hello.spksproj";
+
         var startInfo = new ProcessStartInfo()
         {
             FileName = $"cmd",
