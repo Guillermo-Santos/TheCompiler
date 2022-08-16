@@ -27,9 +27,9 @@ public partial class NewProjectViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private void OnCreate()
+    private async Task OnCreate()
     {
-        ProjectService.Instance.CreateProject(Path, ProjectName);
+        await ProjectService.Instance.CreateProject(Path, ProjectName);
     }
     [RelayCommand]
     private async Task OnBrowse()
