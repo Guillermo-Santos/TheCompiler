@@ -14,7 +14,6 @@ public enum BuildType
 }
 internal static class CompilationService
 {
-
     public static async Task<bool> Build(BuildType buildType, string? projectFile)//FileInfo msbuildFile, string[] targets = null, IDictionary<string, string> properties = null, LoggerVerbosity loggerVerbosity = LoggerVerbosity.Detailed)
     {
         if (string.IsNullOrEmpty(projectFile) || string.IsNullOrWhiteSpace(projectFile) || !File.Exists(projectFile))
@@ -29,17 +28,17 @@ internal static class CompilationService
                 action = "build";
                 break;
             case BuildType.Deploy:
-                action = "run --no-build";
+                action = "run --no-build --project";
                 break;
             case BuildType.BuildDeploy:
-                action = "run";
+                action = "run --project";
                 break;
         }
 
         var startInfo = new ProcessStartInfo()
         {
             FileName = $"cmd",
-            Arguments = $"/C dotnet {action} --project \"{projectFile}\" &&pause",
+            Arguments = $"/C dotnet {action} \"{projectFile}\" &&pause",
             RedirectStandardOutput = false,
             RedirectStandardError = true,
         };

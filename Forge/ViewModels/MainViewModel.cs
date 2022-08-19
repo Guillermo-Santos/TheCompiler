@@ -8,6 +8,9 @@ using Forge.Contracts.Messages;
 using Forge.Contracts.ViewModels;
 using Forge.Core.Models;
 using Forge.Services;
+using SparkCore;
+using SparkCore.Analytics.Symbols;
+using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO.Diagnostics;
 
 namespace Forge.ViewModels;
@@ -17,14 +20,31 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
     readonly SparkFileService fileService = SparkFileService.Instance;
     public ProjectService ProjectService = ProjectService.Instance;
     public ObservableCollection<Diagnostic> Diagnostics { get; private set; } = new();
+    public ObservableCollection<SyntaxToken> Tokens = new();
+    public ObservableCollection<Symbol> Symbols { get; private set; } = new();
     public ObservableCollection<Document> Files => fileService.OpenDocuments;
-
+    [ObservableProperty]
     private Document _selectedDocument;
-    public Document SelectedDocument
+    [ObservableProperty]
+    private string _syntraxTreeText;
+    [ObservableProperty]
+    private string _intermediateRepresentation;
+
+    partial void OnSelectedDocumentChanged(Document? value)
     {
-        get => _selectedDocument;
-        set => SetProperty(ref _selectedDocument, value);
+        Tokens.Clear();
+        if (value == null)
+            return;
+        foreach (var token in SyntaxTree.ParseTokens(value.SourceText))
+        {
+            Tokens.Add(token);
+        }
+        var syntaxTree = SyntaxTree.Parse(value.SourceText);
+        using var writter = new StringWriter();
+        syntaxTree.Root.WriteTo(writter);
+        SyntraxTreeText = writter.ToString();
     }
+
     [ObservableProperty]
     private Direction _selectedDirection;
     public MainViewModel()
@@ -33,11 +53,20 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
         {
             r.RefreshDiagnostics(m.Value);
         });
+        Messenger.Register<MainViewModel, UpdateSymbolsView>(this, (r, m) =>
+        {
+            r.RefreshSymbols(m.Value);
+        });
+        Messenger.Register<MainViewModel, UpdateIntermediateView>(this, (r, m) =>
+        {
+            r.IntermediateRepresentation = m.Value;
+        });
         Messenger.Register<MainViewModel, OpenDocumentRequest>(this, (r, m) =>
         {
             m.Reply(r.SelectedDocument);
         });
     }
+
     [RelayCommand]
     public void OnRefresh()
     {
@@ -54,13 +83,18 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
     }
     public void RefreshDiagnostics(ImmutableArray<Diagnostic> diagnostics)
     {
-        if (!Diagnostics.Equals(diagnostics))
+        Diagnostics.Clear();
+        foreach (var diagnostic in diagnostics)
         {
-            Diagnostics.Clear();
-            foreach (var diagnostic in diagnostics)
-            {
-                Diagnostics.Add(diagnostic);
-            }
+            Diagnostics.Add(diagnostic);
+        }
+    }
+    private void RefreshSymbols(ImmutableArray<Symbol> symbols)
+    {
+        Symbols.Clear();
+        foreach (var symbol in symbols)
+        {
+            Symbols.Add(symbol);
         }
     }
     public void LoadDiagnosticFile(Diagnostic diagnostic)

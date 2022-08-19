@@ -192,7 +192,7 @@ function main ()
         ProjectRoot.Clear();
         SparkFileService.Instance.Clean();
         ProjectRoot.Add(GetFolder(path));
-        DiagnosticService.Instance.ResetTimer();
+        EvaluationService.Instance.ResetTimer();
     }
     private Folder GetFolder(string path)
     {

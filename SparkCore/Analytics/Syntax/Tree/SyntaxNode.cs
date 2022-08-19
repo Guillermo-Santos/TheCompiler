@@ -48,11 +48,11 @@ public abstract class SyntaxNode
         return GetChildren().Last().GetLastToken();
     }
     public abstract IEnumerable<SyntaxNode> GetChildren();
-    public void WriteTo(TextWriter writter)
+    public void WriteTo(TextWriter writter, bool withTrivia = true)
     {
-        PrettyPrint(writter, this);
+        PrettyPrint(writter, this, withTrivia);
     }
-    private static void PrettyPrint(TextWriter writter, SyntaxNode node, string indent = "", bool isLast = true)
+    private static void PrettyPrint(TextWriter writter, SyntaxNode node, bool withTrivia = true, string indent = "", bool isLast = true)
     {
         if (node == null)
             return;
@@ -60,7 +60,7 @@ public abstract class SyntaxNode
         var isToConsole = writter == Console.Out;
         var token = node as SyntaxToken;
 
-        if (token != null)
+        if (withTrivia && token != null)
         {
             foreach (var trivia in token.LeadingTrivia)
             {
@@ -90,15 +90,23 @@ public abstract class SyntaxNode
 
         writter.Write(node.Kind);
 
+        if (token != null && token.Text != null)
+        {
+            writter.Write(" text -> \'");
+            writter.Write(token.Text);
+            writter.Write("\'");
+        }
+
         if (token != null && token.Value != null)
         {
-            writter.Write(" ");
+            writter.Write(" value -> \'");
             writter.Write(token.Value);
+            writter.Write("\'");
         }
 
         writter.WriteLine();
 
-        if (token != null)
+        if (withTrivia && token != null)
         {
             foreach (var trivia in token.TrailingTrivia)
             {
@@ -122,14 +130,18 @@ public abstract class SyntaxNode
         indent += isLast ? "   " : "│  ";
         var lastChild = node.GetChildren().LastOrDefault();
         foreach (var child in node.GetChildren())
-            PrettyPrint(writter, child, indent, child == lastChild);
+            PrettyPrint(writter, child, withTrivia, indent, child == lastChild);
     }
 
     public override string ToString()
     {
+        return ToString(withTrivia: false);
+    }
+    public string ToString(bool withTrivia = true)
+    {
         using (var writter = new StringWriter())
         {
-            WriteTo(writter);
+            WriteTo(writter, withTrivia);
             return writter.ToString();
         }
     }

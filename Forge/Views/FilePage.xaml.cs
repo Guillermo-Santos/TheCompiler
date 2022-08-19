@@ -37,11 +37,13 @@ public sealed partial class FilePage : Page
                                                 );
     private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        FilePage? filePageControl = d as FilePage; //null checks omitted
+        var filePageControl = d as FilePage; //null checks omitted
+        if(filePageControl == null)
+            return;
         filePageControl.code.Document.GetText(TextGetOptions.None, out var text);
         if (text != filePageControl.Text)
         {
-            filePageControl?.code.Document.SetText(TextSetOptions.None, filePageControl.Text);
+            filePageControl.code.Document.SetText(TextSetOptions.None, filePageControl.Text);
         }
         SparkFileService.Instance.SetText(filePageControl.FileName, filePageControl.Text);
     }

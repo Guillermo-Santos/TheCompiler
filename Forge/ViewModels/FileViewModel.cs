@@ -60,9 +60,8 @@ public class FileViewModel : BaseViewModel
     private void ShowDiagnostic(Diagnostic diagnostic)
     {
         CodeEditBox.Focus(FocusState.Keyboard);
-        var startPosition = diagnostic.Location.Span.Start;
-        var endPosition = diagnostic.Location.Span.End;
-        CodeEditBox.Document.Selection.SetRange(startPosition, endPosition);
+        var position = diagnostic.Location.Span.Start;
+        CodeEditBox.Document.Selection.SetRange(position, position);
     }
 
     public FileViewModel(string fileName, string text) : this()
@@ -92,7 +91,7 @@ public class FileViewModel : BaseViewModel
     }
     public void CheckErrors(RichEditBox sender, ITextRange position)
     {
-        var diagnostics = DiagnosticService.Instance.GetDiagnostics(FileName);
+        var diagnostics = EvaluationService.Instance.GetDiagnostics(FileName);
         if (Diagnostics.Equals(diagnostics))
         {
             return;

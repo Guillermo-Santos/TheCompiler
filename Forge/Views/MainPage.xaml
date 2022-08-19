@@ -43,7 +43,10 @@
         <StackPanel Grid.Column="0" BorderThickness="1" BorderBrush="DimGray">
             <Border  BorderThickness="1" BorderBrush="DimGray">
                 <CommandBar IsOpen="False" OverflowButtonVisibility="Collapsed">
-                    <AppBarButton Icon="Refresh" Command="{x:Bind ViewModel.RefreshCommand}"/>
+                    <AppBarButton Icon="Refresh"
+                                  ToolTipService.ToolTip="Refresh"
+                                  ToolTipService.Placement="Bottom"
+                                  Command="{x:Bind ViewModel.RefreshCommand}"/>
                 </CommandBar>
             </Border>
             <TreeView x:Name="ProjView" 
@@ -70,6 +73,9 @@
                     <TabView.TabItemTemplate>
                         <DataTemplate x:DataType="models:Document">
                             <TabViewItem Header="{x:Bind FileName}">
+                                <TabViewItem.IconSource>
+                                    <SymbolIconSource Symbol="Document"/>
+                                </TabViewItem.IconSource>
                                 <TabViewItem.Content>
                                     <local:FilePage FileName="{x:Bind Path}" Text="{x:Bind Text}"/>
                                 </TabViewItem.Content>
@@ -90,10 +96,16 @@
                          AllowFocusWhenDisabled="False">
                     <TabViewItem Header="Errores"
                                  IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <SymbolIconSource Symbol="Repair"/>
+                        </TabViewItem.IconSource>
                         <TabViewItem.Content>
                             <ListBox x:Name="errors" 
                                      ItemsSource="{x:Bind ViewModel.Diagnostics, Mode=OneWay}"
+                                     ScrollViewer.VerticalScrollMode="Enabled"
                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                     ScrollViewer.HorizontalScrollMode="Enabled"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                      DoubleTapped="errors_DoubleTapped"
                                      >
                                 <ListBox.ItemTemplate>
@@ -101,6 +113,62 @@
                                         <TextBlock Text="{x:Bind FullMessage}"/>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabViewItem.Content>
+                    </TabViewItem>
+                    <TabViewItem Header="Tokens"
+                                 IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <SymbolIconSource Symbol="Character"/>
+                        </TabViewItem.IconSource>
+                        <TabViewItem.Content>
+                            <ListBox x:Name="tokenList" 
+                                     ItemsSource="{x:Bind ViewModel.Tokens, Mode=OneWay}"
+                                     ScrollViewer.VerticalScrollMode="Enabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                     ScrollViewer.HorizontalScrollMode="Enabled"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Visible">
+                            </ListBox>
+                        </TabViewItem.Content>
+                    </TabViewItem>
+                    <TabViewItem Header="Syntax Tree"
+                                 IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <SymbolIconSource Symbol="Bookmarks"/>
+                        </TabViewItem.IconSource>
+                        <TabViewItem.Content>
+                            <ScrollViewer>
+                                <TextBlock x:Name="syntaxTree" 
+                                       Text="{x:Bind ViewModel.SyntraxTreeText, Mode=OneWay}">
+                                </TextBlock>
+                            </ScrollViewer>
+                        </TabViewItem.Content>
+                    </TabViewItem>
+                    <TabViewItem Header="Intermediate Representation"
+                                 IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <SymbolIconSource Symbol="ShowResults"/>
+                        </TabViewItem.IconSource>
+                        <TabViewItem.Content>
+                            <ScrollViewer>
+                                <TextBlock x:Name="intermediate" 
+                                       Text="{x:Bind ViewModel.IntermediateRepresentation, Mode=OneWay}">
+                                </TextBlock>
+                            </ScrollViewer>
+                        </TabViewItem.Content>
+                    </TabViewItem>
+                    <TabViewItem Header="Symbol List"
+                                 IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <SymbolIconSource Symbol="View"/>
+                        </TabViewItem.IconSource>
+                        <TabViewItem.Content>
+                            <ListBox x:Name="symbols" 
+                                     ItemsSource="{x:Bind ViewModel.Symbols, Mode=OneWay}"
+                                     ScrollViewer.VerticalScrollMode="Enabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                     ScrollViewer.HorizontalScrollMode="Enabled"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Visible">
                             </ListBox>
                         </TabViewItem.Content>
                     </TabViewItem>

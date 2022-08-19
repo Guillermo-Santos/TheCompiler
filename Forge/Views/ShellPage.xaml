@@ -23,50 +23,56 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <MenuBar Grid.Column="0">
-                <MenuBarItem x:Uid="ShellMenuBarItem_File">
-                    <MenuFlyoutItem x:Uid="ShellMenuItem_File_NewProj" Icon="NewFolder" Command="{x:Bind ViewModel.MenuFileNewProjectCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control,Shift" Key="N"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem x:Uid="ShellMenuItem_File_OpenProj" Icon="OpenLocal" Command="{x:Bind ViewModel.MenuFileOpenProjectCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control,Shift" Key="O"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem x:Uid="ShellMenuItem_File_SaveFile" Icon="Save" Command="{x:Bind ViewModel.MenuFileSaveCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="S"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem x:Uid="ShellMenuItem_File_SaveAllFiles" Icon="SaveLocal"  Command="{x:Bind ViewModel.MenuFileSaveAllCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control,Shift" Key="S"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem x:Uid="ShellMenuItem_File_Exit" Icon="Cancel" Command="{x:Bind ViewModel.MenuFileExitCommand}"/>
-                </MenuBarItem>
-                <MenuBarItem x:Uid="ShellMenuBarItem_Run">
-                    <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_Build" Icon="Previous" Command="{x:Bind ViewModel.MenuRunBuildCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="B"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_Deploy" Icon="Next" Command="{x:Bind ViewModel.MenuRunDeployCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control" Key="F5"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_BuildDeploy" Icon="Play" Command="{x:Bind ViewModel.MenuRunBuildDeployCommand}">
-                        <MenuFlyoutItem.KeyboardAccelerators>
-                            <KeyboardAccelerator Modifiers="Control,Shift" Key="F5"/>
-                        </MenuFlyoutItem.KeyboardAccelerators>
-                    </MenuFlyoutItem>
-                </MenuBarItem>
-            </MenuBar>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <MenuBar>
+                    <MenuBarItem x:Uid="ShellMenuBarItem_File">
+                        <MenuFlyoutItem x:Uid="ShellMenuItem_File_NewProj" Icon="NewFolder" Command="{x:Bind ViewModel.MenuFileNewProjectCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control,Shift" Key="N"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Uid="ShellMenuItem_File_OpenProj" Icon="OpenLocal" Command="{x:Bind ViewModel.MenuFileOpenProjectCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control,Shift" Key="O"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem x:Uid="ShellMenuItem_File_SaveFile" Icon="Save" Command="{x:Bind ViewModel.MenuFileSaveCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Uid="ShellMenuItem_File_SaveAllFiles" Icon="SaveLocal"  Command="{x:Bind ViewModel.MenuFileSaveAllCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control,Shift" Key="S"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem x:Uid="ShellMenuItem_File_Exit" Icon="Cancel" Command="{x:Bind ViewModel.MenuFileExitCommand}"/>
+                    </MenuBarItem>
+                    <MenuBarItem x:Uid="ShellMenuBarItem_Run">
+                        <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_Build" Icon="Previous" Command="{x:Bind ViewModel.MenuRunBuildCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="B"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_Deploy" Icon="Next" Command="{x:Bind ViewModel.MenuRunDeployCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="F5"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Uid="ShellMenuBarItem_Run_BuildDeploy" Icon="Play" Command="{x:Bind ViewModel.MenuRunBuildDeployCommand}">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control,Shift" Key="F5"/>
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                    </MenuBarItem>
+                </MenuBar>
+                <AppBarButton Icon="AllApps" 
+                              ToolTipService.ToolTip="View Object Code"
+                              ToolTipService.Placement="Bottom"
+                              Command="{x:Bind ViewModel.MenuILCommand}"/>
+            </StackPanel>
             <AppBarButton Grid.Column="1" x:Name="ShellMenuBarSettingsButton" x:Uid="ShellMenuBarSettingsButton"
                           AnimatedIcon.State="Normal"
                           PointerEntered="ShellMenuBarSettingsButton_PointerEntered"

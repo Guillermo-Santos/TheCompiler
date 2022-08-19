@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -206,7 +207,7 @@ internal sealed class Emitter
         }
 
         if (program.MainFunction != null)
-            _assemmblyDefinition.EntryPoint = _methods[program.MainFunction];
+            _assemmblyDefinition.EntryPoint = _methods[program.MainFunction]; 
 
         _assemmblyDefinition.Write(outputPath);
 
@@ -234,6 +235,7 @@ internal sealed class Emitter
         _locals.Clear();
         _labels.Clear();
         _fixuds.Clear();
+
 
         var ilProcessor = method.Body.GetILProcessor();
 

@@ -1,1 +1,1 @@
-// This is your main functionfunction main (){    var name = readLine("Diga su nombre")    print("Hola " + name + "!")}
+// This is your main functionvar name = readLine("Diga su nombre")print("Hola " + name + "!")print(Max(2, 5))
