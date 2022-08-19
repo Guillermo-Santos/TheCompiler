@@ -62,7 +62,8 @@ internal static class SymbolPrinter
         writer.WriteKeyword(symbol.IsReadOnly ? SyntaxKind.LetKeyword : SyntaxKind.VarKeyword);
         writer.WriteSpace();
         writer.WriteIdentifier(symbol.Name);
-        writer.WritePunctuation(": ");
+        writer.WritePunctuation(SyntaxKind.ColonToken);
+        writer.WriteSpace();
         symbol.Type.WriteTo(writer);
     }
     private static void WriteLocalVariableTo(LocalVariableSymbol symbol, TextWriter writer)

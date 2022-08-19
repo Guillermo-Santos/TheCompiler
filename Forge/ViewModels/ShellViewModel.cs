@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System;
+using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -53,6 +55,10 @@ public class ShellViewModel : ObservableRecipient
     {
         get;
     }
+    public ICommand MenuILCommand
+    {
+        get;
+    }
     public ICommand MenuSettingsCommand
     {
         get;
@@ -81,6 +87,7 @@ public class ShellViewModel : ObservableRecipient
         MenuRunBuildCommand = new RelayCommand(OnMenuRunBuild);
         MenuRunDeployCommand = new RelayCommand(OnMenuRunDeploy);
         MenuRunBuildDeployCommand = new RelayCommand(OnMenuRunBuildDeploy);
+        MenuILCommand = new RelayCommand(OnMenuIL);
         MenuSettingsCommand = new RelayCommand(OnMenuSettings);
     }
 
@@ -112,7 +119,7 @@ public class ShellViewModel : ObservableRecipient
     }
     private void OnMenuFileSave()
     {
-        Document document = Messenger.Send<OpenDocumentRequest>();
+        Document? document = Messenger.Send<OpenDocumentRequest>();
         if (document == null)
         {
             return;
@@ -140,6 +147,49 @@ public class ShellViewModel : ObservableRecipient
         ProjectService.SaveAll();
         _ = CompilationService.Build(BuildType.BuildDeploy, ProjectService.GetProjectFile());
     }
+    public void OnMenuIL()
+    {
+        var projectfile = ProjectService.GetProjectFile();
+        if (string.IsNullOrEmpty(projectfile))
+            return;
+        var projectPaht = Path.GetDirectoryName(projectfile);
+        var projectname = Path.GetFileName(projectfile);
+        var projectDll = Path.ChangeExtension(projectname, ".dll");
+        var dllpath = Path.Combine(projectPaht, "bin", "Debug", projectDll);
+        
+        ShowIL(dllpath);
+    }
+
+    private static async Task ShowIL(string dllpath)
+    {
+        if (!File.Exists(dllpath))
+        {
+            await App.MainWindow.CreateMessageDialog("El projecto no ha sido compilado, favor compilar de realizar esta accion.", "Error").ShowAsync();
+        }
+        else
+        {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = $"ilspy",
+                Arguments = $"\"{dllpath}\"",
+                RedirectStandardOutput = false
+            };
+
+            try
+            {
+                using (var process = Process.Start(startInfo))
+                {
+                    process!.WaitForInputIdle();
+                }
+            }
+            catch (Exception ex)
+            {
+                await App.MainWindow.CreateMessageDialog(ex.Message, "Error").ShowAsync();
+            }
+        }
+        await Task.CompletedTask;
+    }
+
     private void OnMenuSettings()
     {
         if(NavigationService.Frame!.Content is SettingsPage)

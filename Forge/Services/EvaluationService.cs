@@ -8,20 +8,20 @@ using SparkCore.Analytics.Syntax.Tree;
 using SparkCore.IO.Diagnostics;
 
 namespace Forge.Services;
-public sealed class DiagnosticService : ObservableRecipient
+public sealed class EvaluationService : ObservableRecipient
 {
-    private static DiagnosticService? _instance;
+    private static EvaluationService? _instance;
     private readonly DispatcherTimer CheckErrors;
-    private DiagnosticService()
+    private EvaluationService()
     {
         CheckErrors = new();
         CheckErrors.Interval = new(0, 0, 0, 0, 500);
         CheckErrors.Tick += UpdateDiagnostics;
         CheckErrors.Start();
-        Messenger.Register<DiagnosticService, UpdateDiagnosticsRequest>(this, (r, m) => r.ResetTimer());
+        Messenger.Register<EvaluationService, UpdateDiagnosticsRequest>(this, (r, m) => r.ResetTimer());
     }
 
-    public static DiagnosticService Instance => _instance ??= (_instance = new DiagnosticService());
+    public static EvaluationService Instance => _instance ??= (_instance = new EvaluationService());
 
     private readonly Dictionary<string, ImmutableArray<Diagnostic>> Diagnostics = new();
     public ImmutableArray<Diagnostic> GetDiagnostics(string fileName)
@@ -59,7 +59,10 @@ public sealed class DiagnosticService : ObservableRecipient
         }
         var compilation = Compilation.Create(syntaxTrees.ToArray());
         var result = compilation.Evaluate();
-
+        var symbols = compilation.GetSymbols()
+                                 .OrderBy(s => s.Kind)
+                                 .ThenBy(s => s.Name)
+                                 .ToImmutableArray();
         var diagnostics = result.Diagnostics.OrderBy(d => d.Location.FileName)
                                             .ThenBy(d => d.Location.StartLine)
                                             .ThenBy(d => d.Location.StartCharacter)
@@ -67,7 +70,14 @@ public sealed class DiagnosticService : ObservableRecipient
                                             .ThenBy(d => d.Location.EndCharacter)
                                             .ToImmutableArray();
         Update(diagnostics);
+
+        using var writter = new StringWriter();
+        compilation.EmitTree(writter);
+        var intermediate = writter.ToString();
+
         Messenger.Send(new UpdateDiagnosticsView(diagnostics));
+        Messenger.Send(new UpdateSymbolsView(symbols));
+        Messenger.Send(new UpdateIntermediateView(intermediate));
     }
     private void Update(ImmutableArray<Diagnostic> diagnostics)
     {
