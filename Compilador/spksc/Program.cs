@@ -61,7 +61,7 @@ foreach (var path in referencePaths)
     if (!File.Exists(path))
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"error: file '{path}' doesn't exists.");
+        Console.Error.WriteLine($"error: file '{path}' doesn't exists.");
         Console.ResetColor();
         hasErrors = true;
         continue;
@@ -79,7 +79,7 @@ if (diagnostics.Any())
     Console.ForegroundColor = ConsoleColor.Red;
     foreach (var diagnostic in diagnostics)
     {
-        Console.Write(diagnostic.ToString());
+        Console.Error.Write(diagnostic.ToString());
     }
     Console.ResetColor();
     return 1;

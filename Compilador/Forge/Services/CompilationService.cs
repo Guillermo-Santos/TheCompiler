@@ -48,9 +48,10 @@ internal static class CompilationService
             using (var process = Process.Start(startInfo))
             {
                 await process!.WaitForExitAsync();
-                if(process.ExitCode != 0)
+                var errors = process.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errors))
                 {
-                    await App.MainWindow.CreateMessageDialog(process.StandardError.ReadToEnd()).ShowAsync();
+                    await App.MainWindow.CreateMessageDialog(errors).ShowAsync();
                     return false;
                 }
             }

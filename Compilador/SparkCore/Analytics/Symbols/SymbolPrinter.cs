@@ -80,7 +80,8 @@ internal static class SymbolPrinter
         writer.WriteIdentifier(symbol.Name);
         writer.WritePunctuation(SyntaxKind.ColonToken);
         writer.WriteSpace();
-        symbol.Type.WriteTo(writer);
+        if(symbol.Type != null)
+            symbol.Type.WriteTo(writer);
     }
     private static void WriteTypeTo(TypeSymbol symbol, TextWriter writer)
     {

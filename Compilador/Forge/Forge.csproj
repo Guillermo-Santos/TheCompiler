@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Forge.Core\Forge.Core.csproj" />
+    <ProjectReference Include="..\SparkCore\SparkCore.csproj" />
     <ProjectReference Include="..\spksc\spksc.csproj">
       <CopyLocal>True</CopyLocal>
       <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>

@@ -1,1 +1,1 @@
-// This is your main functionvar name = readLine("Diga su nombre")print("Hola " + name + "!")print(Max(2, 5))
+// This is your main functionvar name = readLine("Diga su nombre")print("Hola " + name + "!")print(Max(2, 5))function a(b:string):string{	return name + b}
